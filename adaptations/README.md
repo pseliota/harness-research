@@ -28,9 +28,14 @@ Adapters included:
 - `codex_cli` — OpenAI's Codex CLI only, Apache 2.0.
   Codex's IDE extension and cloud service are not
   open source, so they are out of scope here. Its
-  sandbox policy and approval modes are verified in
-  outline against openai/codex; the rest of the
-  adapter is still a summary, listed in its gaps.
+  sandbox policy, approval modes, and escalation
+  are verified in outline against openai/codex;
+  escalation is a guardian-or-user decision with a
+  turn or session scope, not arbitration in the
+  theory's sense, and is kept apart from the
+  durable exec-policy amendment a user approval
+  may also make. The rest of the adapter is still
+  a summary, listed in its gaps.
 - `gemini_cli` — Gemini CLI, Apache 2.0
 - `opencode` — OpenCode, MIT
 - `swe_agent` — SWE-agent, MIT, moved here from

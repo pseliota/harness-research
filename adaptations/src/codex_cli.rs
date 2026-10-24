@@ -15,10 +15,20 @@
 //! `codex-rs/protocol/src/models.rs`
 //! (`SandboxPermissions`), and
 //! `codex-rs/execpolicy/src/decision.rs`
-//! (`Decision`). The loop description and views
-//! are still summaries, not checked line by line,
-//! and are listed as gaps. This adapter does not
-//! run Codex.
+//! (`Decision`). Escalation, below, is likewise
+//! verified in outline, not merely stubbed:
+//! checked against the same commit, in
+//! `codex-rs/core/src/tools/handlers/request_permissions.rs`,
+//! `codex-rs/core/src/session/mod.rs`
+//! (`request_permissions_for_environment`,
+//! `persist_execpolicy_amendment`),
+//! `codex-rs/core/src/tools/approvals.rs`
+//! (`request_guardian_approval`), and
+//! `codex-rs/protocol/src/protocol.rs`
+//! (`ReviewDecision`). The loop description and
+//! views are still summaries, not checked line by
+//! line, and are listed as gaps. This adapter
+//! does not run Codex.
 
 use harness_core::adoption::AdoptedHarness;
 use harness_core::membership::Candidate;
@@ -33,7 +43,7 @@ impl CodexCli {
             "Per-OS sandbox enforcement: the policy shape below was checked, but how each platform enforces it (macOS seatbelt, Linux landlock, Windows sandbox) was not verified here.",
             "Approval and exec-policy amendment records: whether approvals persist across sessions, and where they are recorded, was not verified.",
             "Loop, views, and overseer records: the loop description and views below are summaries, not checked line by line against the code.",
-            "Per-command escalation and arbitration: a move may request wider permissions, gated by user approval. Whether that is arbitration in the theory's sense, or only a veto, is not settled here.",
+            "Guardian reviewer's deciding scope: an escalation request is decided by the automated guardian reviewer when it decides, and otherwise goes to the user as an event; what the guardian is configured to decide on its own, rather than pass on, was not verified here.",
             "Scope: the IDE extension and cloud service are excluded here, as they are not open source; do not read this adapter as covering them.",
         ]
     }
@@ -57,7 +67,7 @@ impl AdoptedHarness for CodexCli {
             "read and search files".to_string(),
             "edit and write files, within the sandbox policy's writable roots".to_string(),
             "run shell commands, whose permitted scope varies with the sandbox policy and the exec-policy rules".to_string(),
-            "per-command permission requests: a shell move may ask to run outside the sandbox, or to stay sandboxed with widened permissions for that command only, subject to approval".to_string(),
+            "per-command permission requests: the agent may call a request_permissions tool asking for wider permissions for the turn, or for the session, decided as described under controls".to_string(),
         ]
     }
 
@@ -82,6 +92,9 @@ impl AdoptedHarness for CodexCli {
             "Exec-policy rules: allow, prompt, or forbidden decisions per command. A forbidden command is blocked without further consideration.".to_string(),
             "Approval modes: untrusted (approval required unless an exec-policy rule allows the command), on-request (the default; the model decides when to ask), granular (per-category allow, or automatic rejection instead of a prompt, for sandbox approvals, policy-rule prompts, skill approvals, and permission requests), or never (never ask; a command needing approval is rejected outright and the failure returns to the model).".to_string(),
             "Approval-seeking is not itself the control under the default on-request mode: the model decides when to ask, so the controls that hold regardless are sandbox enforcement and forbidden exec-policy rules, not the asking.".to_string(),
+            "Escalation, agent-initiated: the agent calls a request_permissions tool asking for wider permissions; the request is decided by the automated guardian reviewer when it decides, and otherwise goes to the user as an event to answer. A grant is scoped to the turn, or to the session when the user approves for the session; it is not written to disk. Under approval mode never, or a granular configuration that disallows permission requests, the request returns an empty grant: escalation is refused without asking.".to_string(),
+            "Escalation is not arbitration in the theory's sense: no designer-fixed rule over action pairs decides it. It is a judging party, guardian or user, allowing or refusing the agent's request, with a scope choice. The sandbox policy and forbidden rules still bound what any grant can permit.".to_string(),
+            "Exec-policy amendment, a separate and durable act: when approving a command, the user may also approve an amendment adding a prefix rule that permits future matching commands. That amendment is persisted both in memory and on disk, so it changes the control rule itself, not just one outcome. A turn- or session-scoped grant and a persisted amendment are different acts, and the adapter keeps them apart.".to_string(),
             "User interrupt of a running task: a session interrupt aborts the current task, if any.".to_string(),
         ]
     }

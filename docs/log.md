@@ -150,6 +150,10 @@ Basic questions reframed: they require explicit consideration, not a resolved an
 
 Basic question 10 considered, not resolved: pause, steer/queue, edit, and policy replacement are four acts with different landing sites and timings, checked against OpenCode's session interrupt, inbox, and revert code. Open: precedence, settlement window, partial-step resumption.
 
+## 2026-10-24 — Codex CLI escalation verified
+
+Codex CLI escalation verified in outline against openai/codex at 970111f6: the agent's request_permissions call is decided by the guardian reviewer or, failing that, by a user event, and a grant is scoped to the turn or the session, never written to disk; under never mode it is refused without asking. Verdict: not arbitration in the theory's sense, but a judging party's veto with a scope choice. Kept apart: a user approval may also persist an exec-policy amendment on disk, changing the rule itself. Open: what the guardian decides on its own.
+
 ## 2026-10-24 — Codex CLI sandbox and approval verified
 
 Codex CLI adapter verified in outline against openai/codex at 970111f6: sandbox modes and policy, exec-policy allow/prompt/forbidden, and approval modes untrusted/on-request/granular/never. Finding: under default on-request, approval-seeking is model-chosen, so sandbox enforcement and forbidden rules, not the asking, are the controls that hold regardless. Open: per-OS enforcement, approval records, escalation vs arbitration.
