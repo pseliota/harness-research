@@ -99,3 +99,59 @@ that commit. A gap is not resolved by argument alone.
   whether Gemini CLI has an arbitration rule, and
   OpenCode's intervention precedence — remain open
   as adapter gaps, not as specification conflicts.
+
+## 3. "Ending" and "ends the run" still used for run termination after the vocabulary rule
+
+- Area: theory versus adaptations (terminology;
+  follow-up to gap 1, whose method and heading fix
+  still holds).
+- Side A — the vocabulary rule, `docs/theory.md`,
+  "Ending: when a harness may properly end, and how
+  it ends well": "The two senses are kept apart by
+  vocabulary: a run terminates, a harness ends."
+  The same rule in `harness-core/src/adoption.rs`,
+  `termination()` doc: "'Ending' is reserved for
+  retiring the harness itself; a run terminates, a
+  harness ends."
+- Side B — `adaptations/src/swe_agent.rs`,
+  `gaps()`: "Ending and verdict come apart: a run
+  can end as submitted without ever having
+  succeeded, and success is judged outside the loop
+  by the SWE-bench evaluation hook." This is the
+  old worked-example heading, unchanged: the
+  theory's worked example now reads "Termination
+  and verdict come apart here"
+  (`docs/theory.md`, "A worked example:
+  SWE-agent"), but its mirror in the adapter's
+  gaps list was not renamed by 08f76b1, which
+  changed the trait method and the theory
+  passages only.
+- Supporting instances of the run sense of the
+  verb: the same adapter's `controls()` —
+  "Per-instance and total cost limits: exceeding
+  either ends the run" and "Context window:
+  exceeding it ends the run" — and
+  `docs/theory.md` itself: the worked example
+  ("exceeding either ends the run", "Exceeding
+  the context window ends the run"), the error
+  model ("exceeding a cost or context limit ends
+  the run"), the cost section ("exceeding either
+  ends the run"), and the kinds section ("a run
+  ends when the interlocutor ends the
+  conversation"; "judge, interrupt, and end the
+  run").
+- Why they cannot both hold as written: under
+  Side A, a run's submission, cost or context
+  stop, or conversation close is a termination,
+  not an ending, so a gaps entry titled
+  "Ending" for a run's submission uses the
+  reserved term for what the rule says it is
+  not, and the verb uses show the rule as
+  stated is stricter than the repo's usage.
+  Either the rule needs narrowing to the
+  noun, method, and heading cases it actually
+  fixed, or these usages need renaming. (This
+  is a terminology gap, as in gap 1: no
+  membership result turns on it.)
+- Date first noted: 2026-10-24.
+- Status: open.
