@@ -177,3 +177,7 @@ Resolved reviewer gap 2: the adapter specifications now agree that every adapter
 ## 2026-10-24 — Cost, budgets, latency, permissions
 
 Basic question 9 considered, not resolved: cost, budget, latency, and permission sorted into four places — cost recorded in trace/h, budget as a core threshold, latency as per-move and per-run clocks plus a liveness timer, permission as admission, veto, or approval shaping A(h) — using only SWE-agent and Codex CLI facts already checked in the repo. No new core claim. Open: whether the agent's view should carry running cost, subagent cost attribution, and temporary vs durable permission change.
+
+## 2026-10-24 — One theory across harness kinds
+
+Basic question 11 considered, not resolved: coding, browsing, chatting, and operating harnesses pass the same kind-blind membership test, but the w/h line, the principal count, termination versus verdict, and the adequacy of post-hoc review all change shape by kind. Chatting makes the interlocutor a principal, not world; browsing makes moves world-offered and page content untrusted world; operating and chatting make many moves irreversible, so control must be pre-emptive. No new core claim, and the section is prospective: all repo adapters are coding, so no particular non-coding product is claimed. Open: A(w, h) notation, principal-judged verdict vocabulary, and the non-coding second adoption that would test the section.

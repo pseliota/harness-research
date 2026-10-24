@@ -3500,6 +3500,231 @@ in name: something will be charged,
 stopped, or refused, and no principal
 will be able to say which rule did it.
 
+## Do coding, browsing, chatting, and operating harnesses belong to one theory?
+
+Basic question 11 asks whether coding, browsing,
+chatting, and operating harnesses belong to one
+theory, or whether the word "harness" covers
+different things in each case. This section
+considers the question; it does not resolve it. It
+also adds no eighth core claim. Every adapter in
+this repo so far is a coding harness, so the other
+three kinds are treated here as kinds, not as
+verified systems. No claim below is a claim about
+a particular browsing, chatting, or operating
+product. What is checked is whether the theory's
+own distinctions survive the change of kind, and
+where they strain.
+
+First, the membership test is kind-blind, and that
+is a finding in favour of one theory. The test
+asks for a loop, designer-controlled machinery
+outside the policy's write set, an action that
+lands somewhere, and a designer-fixed control that
+can alter or suspend execution without the
+policy's cooperation. None of those four mentions
+files, pages, messages, or clicks. A loop that
+navigates pages, a loop that replies in a
+conversation, and a loop that drives a desktop can
+each pass the same test SWE-agent passes, and a
+loop that fails any of the four fails it in any
+kind. At the level of membership, the grouping is
+not a naming accident. Packaging is not a claim,
+and neither is the domain of the task.
+
+Passing the same test is not being the same thing.
+The core stays put, but three of its applications
+change shape by kind, and mistaking the shape for
+the core is how a second kind gets forced into the
+first kind's mould.
+
+The first change is where the world and harness
+line falls, and who counts as a principal. In
+coding, the worked example already draws the line:
+the repository is world as the object of the task,
+even though the container that holds it is a
+designer-owned sandbox, and harness state is the
+trajectory, the templates, and the registry. In
+browsing, the web is world, but the browser
+session — tabs, cookies, and a cached page — is
+harness state. An observation built from a cached
+page can therefore diverge from the live world,
+and that divergence is the harness's failure, not
+the world's, because the cache is in h. In
+operating, the desktop and its files are world,
+while window focus, the clipboard, and the
+screenshot pipeline are harness state. A click
+lands in the world through the harness's input
+injection, and the landing site must not be merged
+with the mechanism that delivered it.
+
+Chatting is the sharpest case. A reply's landing
+site, in the tower section's terms, is the
+transcript in h, and its audience is another
+principal's view of that state. The interlocutor
+is not world, not a passive environment to be
+acted on. The interlocutor is a principal, who can
+judge, interrupt, and end the run. Treat the
+interlocutor as world and the principal structure
+disappears: views, arbitration, and
+principal-judged progress have nothing to attach
+to. Treat the interlocutor as a principal and a
+chatting harness is multi-principal from the
+start, whereas a coding harness can be
+single-policy with no arbitration at all, as
+SWE-agent is. The kind therefore changes the
+principal count, not the core: the
+multiple-principals section already has the
+machinery, but a chatting harness cannot be
+described single-principal without loss.
+
+The second change is how termination and verdict
+come apart. In coding, the split is already kept:
+the loop terminates on submit, and success is
+judged outside the loop by a test suite. In
+browsing, there is no natural submit. A loop may
+terminate when a page state is reached, and the
+verdict is a checker reading the world — a world
+that can change under the harness, as a site
+changes or a login expires, so the checker must
+say whether it reads the world or a harness
+snapshot of it. In operating, the same collapse
+threatens: system state is both the work and the
+verdict, and stopping looks like succeeding unless
+the designer defines a check separate from the
+loop, as coding does with its tests. In chatting,
+termination is turn-taking, not task completion. A
+reply ends a turn, not a run; a run ends when the
+interlocutor ends the conversation, or when a stop
+rule fires. Progress there is not approach to a
+point in world state, but satisfaction of a
+principal, judged by that principal rather than
+measured in w. That is a difference in who judges
+progress, not a difference in judgement over time:
+liveness over histories still applies, but the
+aspiration is held by a principal other than the
+designer.
+
+The third change is irreversibility, and the shape
+of the action set. A coding move in an open shell
+is veto-based, and many of its effects are
+reversible through a diff and a revert, so a
+review after the act, as in review-on-submit,
+can still repair those.
+A browsing move is world-shaped in a way a
+registry is not: the links and buttons present on
+the current page offer the candidate moves, so a
+reader who thinks the registry lists all moves
+will misread a browsing harness. The theory
+already says A(h) lists attempts, not guarantees,
+and that reading carries over: the world offers,
+the harness attempts, the world determines
+success. What must not be lost is which side did
+which — admission by the harness is not the same
+as an offer by the world. An operating or chatting
+move is often irreversible: a message sent, a file
+deleted, a purchase placed, a reply delivered
+cannot be recalled by a review after the act.
+Control there must be pre-emptive — admission,
+veto, or approval before the move — not post-hoc
+review. Coding's review-on-submit shape is
+therefore inadequate for those kinds, but
+membership requires only some designer-fixed
+control, not that shape. The kind changes which
+control shape is adequate, which is a question of
+goodness, not of membership.
+
+Browsing strains the boundary in one further way,
+and the strain is worth naming because it is where
+a second theory would most plausibly be proposed.
+Page content is world, and it is untrusted: it can
+contain instruction-like text. Treating page text
+as a designer instruction is a misattribution, not
+a new kind of act. The boundary is drawn by
+control, and a page is not designer-controlled, so
+following its instructions is a policy error or a
+harness failure, not a design act. No new claim is
+needed to say that, but a browsing harness must
+keep world content and designer instruction in
+different channels or views, or the boundary
+collapses in practice even while it holds in
+theory.
+
+What would split the theory, then, is not a
+difference in task domain. It would be a kind that
+required a new core claim, or that systematically
+failed membership. The candidates, checked against
+the core, do neither. Chatting as multi-principal
+is already covered by views and arbitration. An
+operating harness sharing a desktop with a human
+user, contending over the same transition, is
+arbitration, not a new claim. A browsing harness
+facing an adversarial world is the boundary, not a
+new claim. A chatting loop whose only action lands
+in the transcript still passes the membership
+test's third condition, because harness-directed
+action counts — but many chat products, with no
+designer-fixed control, fail the fourth condition
+and are not harnesses at all. That borderline is a
+finding, not a split: a kind label does not confer
+membership.
+
+What the theory takes for granted here is
+fourfold, and each is a place to watch. That
+designer, policy, and world can be separated by
+control in every kind. That principals are
+countable, and that a principal is not also the
+world. That termination can be separated from
+verdict in every kind, even where no submit
+exists. And that action attempts can be listed
+even when the world offers the candidates. Where
+any of these fails, the section above fails with
+it. An operating harness where agent and user
+share one account and one view collapses principal
+separation, and the views section cannot serve
+both. A chatting harness where the interlocutor is
+also the designer, reconfiguring the harness
+mid-run, merges two roles, and the meta-rule must
+say, for each act, whether it was a design act or
+a principal's act, recorded as such. Those are the
+cases that would force a revision, and they should
+be looked for in the second adoption, not assumed
+away here.
+
+What is left open is, first, notation: whether
+browsing's world-offered moves should be written
+as A(w, h), or kept as A(h) with the world's offer
+treated as observation. The distinction matters
+for checking, and this section does not settle it.
+Second, vocabulary: whether chatting's
+principal-judged progress needs a verdict
+vocabulary of its own, or whether principal
+judgement, already in the theory, covers it.
+Third, and most importantly, the test itself: a
+second adoption, from a non-coding category,
+compared against SWE-agent in the core's terms, is
+the check on everything above. Until that adoption
+exists, this section is prospective. It says where
+a split would have to appear, and what would count
+as one, so that the adoption can be judged against
+it rather than fitted to it.
+
+The test a later reader can apply is therefore one
+per kind, in the core's terms, not in the kind's
+own vocabulary: name the policy, the loop, w, h,
+and the principals; name the termination event and
+the verdict event separately; name the
+irreversible moves and the pre-emptive control on
+each. If those can be named, the candidate belongs
+to the one theory, whatever its task domain. If
+naming them forces a new kind of claim — a verdict
+that is neither world state nor a principal's
+judgement, a control that is neither
+designer-fixed nor a principal's act, a principal
+that is also the world — then that is where the
+theory splits, and this section should be revised,
+not defended.
+
 ## Basic questions
 
 These questions come before the more elaborate parts of
