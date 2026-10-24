@@ -714,6 +714,8 @@ A principal other than the designer holds G in chatting.
 
 In coding, open-shell moves are veto-based and often reversible by diff and revert. Review after the act repairs those moves in coding. In browsing, links and buttons on the current page offer candidate moves. A(h) lists moves available to attempt, not guarantees, in browsing. The world offers, the harness attempts, and the world determines success.
 
+The attempted-move set takes h only, not w. An attempt is a decision of the harness. The harness decides from h. h holds the registry, the access control, the skills, the budget cap, and the recorded observations. A world offer reaches the harness as an observation. That observation then enters h as recorded history. The offer changes A(h) through h, not directly. A cached page shows the test. A cached page in h offers a move. The world no longer offers that move. The harness still attempts the move, and the move fails. The attempt follows h. Success follows w. A set that takes w as an argument mixes the two. It makes the attempt set depend on w. The harness does not observe w directly. The harness observes o. A set that the harness cannot compute from h is not an attempt set.
+
 In operating and chatting, moves are often irreversible. A message sent, a file deleted, and a purchase placed show that shape. Control in those kinds is pre-emptive, by admission, veto, or approval before the move. Post-hoc review does not suffice for those kinds. Review-on-submit is therefore inadequate for operating and chatting. Membership requires only some designer-fixed control, not that control shape.
 
 Which control shape is adequate is goodness, not membership.
@@ -726,7 +728,6 @@ A browsing harness keeps world content and designer instruction in different cha
 
 A kind splits the theory only if it requires a new core claim. A kind splits the theory only if it systematically fails membership. The candidates do neither.
 
-- Whether the attempted-move set takes w as an argument stays open.
 - Whether chatting progress needs its own verdict vocabulary stays open.
 - A second, non-coding adoption stays open, and this section stays prospective until that adoption.
 
