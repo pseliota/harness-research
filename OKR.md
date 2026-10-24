@@ -1,57 +1,82 @@
 # Objectives and key results
 
-High-level objectives for this research. The key results are
-checkable outcomes, not quotas: a key result is met when a
-reader can check it from the theory, the examples, or the
-code, not when a count of notes, commits, or refactors
-reaches a number.
+## Long-term direction
 
-## Objective 1: One simple, unified, mathematical theory of what a harness is
+One simple, unified, mathematical theory of what a harness
+is, easily implemented in code, with a core so tight and
+generalizable that any harness can build on top of it.
 
-- The core is stated in a small set of definitions, each
-  necessary: removing one loses something the others
-  cannot recover.
-- The basic questions are answered, or explicitly left
-  open with what would settle them: the action space,
-  whether a POMDP is the right framework, steps and
-  ending, state versus context and memory, tools versus
-  subagents and skills, harness versus framework,
-  errors, costs and permissions, human intervention,
-  and variation across kinds of harnesses.
-- The theory can say, for a candidate, whether it is a
-  harness or a neighbour, and why.
+That direction is not a monthly target. The monthly
+objectives below break it down into reachable pieces.
+A month does not have to end with a finalized theory,
+with harnesses "solved", or with a specific decision
+forced. A month succeeds if the work named below is
+done honestly, even if the honest result is "the core
+does not fit this harness", "the stubs and the theory
+have drifted", or "no decision yet".
 
-## Objective 2: A theory grounded in the harnesses used today
+Key results are checkable outcomes, not quotas: a key
+result is met when a reader can check it from the
+theory, the examples, or the code, not when a count of
+notes, commits, or refactors reaches a number.
 
-- The major kinds of harnesses are surveyed as worked
-  examples, not just named: coding agents, frameworks
-  for building agents, and research prototypes.
-- Each worked example can be expressed in the core's
-  terms — its loop, action space, state, views,
-  arbitration, and ending — without special pleading.
-- Counterexamples and failures are recorded where the
-  core does not fit, and the core is revised, or its
-  scope narrowed, in response.
+## Month 1: adopt one harness, align stubs and theory, clean the theory
 
-## Objective 3: A core that is easily implemented, and that any harness can build on
+### Objective 1: Unify one popular harness under the theory, in stubs
 
-- Each core definition maps to code: a data structure,
-  a function, or an interface, so a reader can see
-  the implementation shape of the theory.
-- A harness is built on the core, or an existing
-  harness is adapted to it, without changing the core.
-- New developments fit as extensions outside the core,
-  not as revisions to it, unless a test shows that a
-  core claim itself fails.
+Pick one popular harness, call it X, and show, in
+stubs, how X can be adopted on top of the core in
+`harness-core`.
 
-## Objective 4: A theory that stays tight and readable as it grows
+- A stub adapter for X exists, naming, in the core's
+  terms, X's loop, action space `A(h)`, state split,
+  views, arbitration and controls, and ending.
+- The membership test is applied to X in stubs, with
+  the result stated plainly: which of the four
+  conditions hold, and which do not.
+- Gaps are recorded where X does not fit the core,
+  without forcing the fit. A gap is a finding, not a
+  failure of the month.
 
-- Elaborate topics — succession, debts, trust, and the
-  like — stay as applications or extensions, unless
-  shown to be forced by the basic questions or by
-  implementing the core.
-- Ideas that no longer hold up are removed, not left
-  to accumulate, so the theory still reads as a single
-  pass.
-- Beauty is a check, not decoration: a reader should
-  be able to look at the core and think, this is clear.
+### Objective 2: Ensure the stubs and the theory are properly aligned
+
+- Every claim in the theory's minimal core has a
+  counterpart in `harness-core`, and every stub in
+  `harness-core` has a counterpart in the theory.
+- Any mismatch found is listed, with one of three
+  outcomes for each: change the stub, change the
+  theory, or mark it as an open question.
+- The package stays stubs only: no behaviour beyond
+  `todo!()` or trait signatures, and no tests, until
+  a later month explicitly decides otherwise.
+
+### Objective 3: Make the theory, as it currently exists, clean and minimal
+
+- The theory reads as a single pass. Governance topics
+  — succession, ending, debts, identity, trust, roots —
+  are clearly marked as applications or extensions,
+  not as core, in both the theory and the package.
+- One pruning pass is done: ideas that no longer hold
+  are removed, or explicitly marked as open or
+  deferred, rather than left to accumulate.
+- The basic questions stay visible as questions. A
+  basic question is not marked answered by assertion;
+  it is answered with evidence, or left open with
+  what would settle it.
+
+## Later months: examples, not commitments
+
+Later months may, for example:
+
+- Adopt a second harness, from a different category
+  than the first, and compare where the two adoptions
+  agree and where they diverge.
+- Answer one basic question with evidence from a
+  worked example, rather than by argument alone.
+- Implement one core module, once stubs and theory
+  are aligned and a month explicitly decides that
+  implementation, with tests, is the next step.
+
+None of these is a target for Month 1, and none
+should be pulled forward just to make a month look
+more ambitious.

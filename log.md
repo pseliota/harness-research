@@ -113,3 +113,7 @@ High-level OKR added: one simple unified theory, grounded in harnesses used toda
 ## 2026-10-24 — SWE-agent worked example
 
 SWE-agent worked through the membership test in theory.md: loop, designer config, bash-plus-bundles action set, cost/timeout/blocklist controls, history rewriting, and submit kept apart from SWE-bench grading. Open: human intervention and live overseer views.
+
+## 2026-10-24 — Rust stubs and monthly OKRs
+
+Rust stubs and monthly OKRs: rough harness-core package in Rust with stubs matching the theory, no implementation or tests; OKR rescoped to Month 1: adopt one popular harness in stubs, align stubs and theory, clean the minimal theory.
