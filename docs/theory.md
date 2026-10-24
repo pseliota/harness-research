@@ -2717,6 +2717,40 @@ claim about which side of the boundary it
 sits on, not a claim that a prompt alone is
 a harness.
 
+A scaffold is a name, not a neighbour.
+Where "scaffold" means the code that runs
+the loop, with designer-fixed controls, it
+is a harness under another name, and
+passing the test settles it. Where it means
+starter code, templates, or wiring a
+developer completes, it is material, like
+an SDK: it offers the parts of a loop and
+runs none. The word alone decides nothing;
+the test decides which side a given
+scaffold falls on.
+
+An application, and an agent as a product,
+are bundles, not candidates. An application
+wraps a harness in interface, identity,
+billing, and storage; a product called an
+agent wraps a policy in a harness, tools,
+and memory. The test applies to the harness
+part of the bundle, not to the bundle as a
+whole, as the opening of this section says.
+A policy on its own is not a harness: it is
+what the loop runs. A bundle with no loop,
+no designer control, or no control is not a
+harness either, however complete it looks
+as a product.
+
+A workflow is an orchestrator under another
+name, and the same distinction decides it.
+A chain whose course no observation alters
+is not a loop. A workflow that retries,
+replans, or branches on an observation has
+a loop for that stretch, and passes or
+fails the test as a loop does.
+
 Two corrections to a four-condition test in
 the literature are forced by the core.
 First, tools that alter only the external
