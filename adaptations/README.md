@@ -5,8 +5,12 @@ demonstrating how the core can be adapted to various
 popular harnesses. Each module is one stub adapter: a
 struct implementing `harness_core::adoption::AdoptedHarness`,
 naming, in the core's terms, that harness's loop, action
-space, state split, views, controls, termination, and
-membership.
+space, state split, views, arbitration and controls,
+termination, and membership. Every adapter states its
+arbitration position in `controls()`: the rule itself,
+or that there is none, or that it is not yet stated.
+Silence about arbitration is not a statement — a reader
+must be able to tell absence from an unnamed rule.
 
 Nothing here runs a harness, and there are no tests.
 The strings returned by an adapter are names and
@@ -60,7 +64,9 @@ of a kept one, without first checking its licence
 and terms again.
 
 To add a new adapter: copy one module, implement
-`AdoptedHarness` for the new harness, list its gaps,
-add the module to `src/lib.rs`, and add it to the list
-above. Do not add behaviour, and do not add tests,
+`AdoptedHarness` for the new harness, state its
+arbitration position explicitly in `controls()` (the
+rule, that there is none, or that it is not yet
+stated), list its gaps, add the module to `src/lib.rs`,
+and add it to the list above. Do not add behaviour, and do not add tests,
 until a later decision explicitly says otherwise.

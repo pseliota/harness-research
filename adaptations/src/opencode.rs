@@ -74,6 +74,7 @@ impl AdoptedHarness for OpenCode {
 
     fn controls(&self) -> Vec<String> {
         vec![
+            "Arbitration: not yet stated — intervention precedence is open (see gaps): when user, overseer, and agent can all act on a running session, no rule yet decides whose intervention wins.".to_string(),
             "Approvals for actions outside the allowed set.".to_string(),
             "Tool registry: only listed tools are available moves.".to_string(),
             "User interrupt of a running session (Session.interrupt, reason 'user'; acknowledged on acceptance, cleanup settles asynchronously; idle interrupt is a no-op; a second interrupt while stopping, or in the settlement window, returns false and claims recorded wakes; wakes during cleanup start a successor at settle; awaitIdle waits for settlement).".to_string(),

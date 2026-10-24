@@ -37,7 +37,11 @@ pub trait AdoptedHarness {
     /// Its views: one observation function per principal.
     fn views(&self) -> Vec<String>;
 
-    /// Its arbitration rule, if any, and its designer-fixed controls.
+    /// Its arbitration rule, stated explicitly — the rule itself,
+    /// or that there is none, or that it is not yet stated —
+    /// and its designer-fixed controls. Silence about
+    /// arbitration is not a statement: a reader must be able
+    /// to tell absence from an unnamed rule.
     fn controls(&self) -> Vec<String>;
 
     /// Its termination: when a run terminates, and who decides.

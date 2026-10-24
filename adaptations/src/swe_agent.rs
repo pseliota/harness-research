@@ -77,6 +77,7 @@ impl AdoptedHarness for SweAgent {
 
     fn controls(&self) -> Vec<String> {
         vec![
+            "Arbitration: none — there is a single policy, so the only conflicts are vetoes, a blocklist refusing a command, not principals contending over a transition.".to_string(),
             "Per-instance and total cost limits: exceeding either ends the run.".to_string(),
             "Command timeout of 30 seconds, total execution timeout of 1800 seconds, and exit after repeated consecutive timeouts.".to_string(),
             "Blocklist: interactive and escape commands are refused and not executed; the model is requieried, up to three times, for a different action.".to_string(),

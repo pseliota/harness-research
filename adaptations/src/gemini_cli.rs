@@ -16,6 +16,7 @@ impl GeminiCli {
     /// Where the fit is uncertain, or still needs verifying.
     pub fn gaps(&self) -> Vec<&'static str> {
         vec![
+            "Arbitration: whether any designer-fixed rule decides between contending principals' proposals, or whether conflicts reduce to approvals and user stop, has not been verified against its code.",
             "Sandbox and approval model: what bounds execution, and which actions require approval.",
             "Tool and extension model: how extensions change the action space, in the core's A(h) terms.",
             "Multi-model and multi-tool behaviour: whether different models or tools change the loop, or only its parameters.",
@@ -62,6 +63,7 @@ impl AdoptedHarness for GeminiCli {
 
     fn controls(&self) -> Vec<String> {
         vec![
+            "Arbitration: not yet stated — whether Gemini CLI has a designer-fixed rule deciding between contending principals' proposals has not been verified against its code, and no such rule is claimed here.".to_string(),
             "Approvals for actions outside the allowed set.".to_string(),
             "Tool registry: only listed tools and extensions are available moves.".to_string(),
             "User stop and interruption of a running loop.".to_string(),
