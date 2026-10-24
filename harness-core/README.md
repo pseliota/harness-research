@@ -26,3 +26,8 @@ filled by a future implementation or by an adapter for an
 existing harness.
 
 Nothing here runs a harness. That is intentional.
+
+The interactive diagram in `../visualization/` is
+generated from these stubs: run
+`python3 visualization/generate.py` from the repo root
+after changing a stub, and the diagram updates.

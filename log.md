@@ -117,3 +117,7 @@ SWE-agent worked through the membership test in theory.md: loop, designer config
 ## 2026-10-24 — Rust stubs and monthly OKRs
 
 Rust stubs and monthly OKRs: rough harness-core package in Rust with stubs matching the theory, no implementation or tests; OKR rescoped to Month 1: adopt one popular harness in stubs, align stubs and theory, clean the minimal theory.
+
+## 2026-10-24 — Visualization and organization
+
+Repo organized with a structure map in README; interactive visualization added in visualization/, generated from harness-core stubs by generate.py, so it updates when stubs change. No theory files moved.
