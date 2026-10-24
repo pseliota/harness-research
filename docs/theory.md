@@ -2999,17 +2999,36 @@ run intact.
 Legibility holds these acts together, in the
 multi-principal section's sense. An interrupted
 execution is published as an event with its
-reason, and the agent's next observation, after
-an interrupted response, says the previous
-response was interrupted and to continue from
-where it left off without repeating completed
-content. The preempted party is not left with
+reason. The preempted party is not left with
 silence, and the agent is not left to infer a
 stop from a missing reply. A human act that
 changed the run without appearing in the
 agent's view would be, by the sufficiency
 condition, a legibility defect, not a quiet
 success.
+
+Two kinds of interruption must not be
+confused here, because their continuations
+differ. An interrupted provider stream is
+recovered inside the step: the runner
+publishes a synthetic observation saying
+"The previous response was interrupted.
+Continue from where you left off without
+repeating completed content", and a new
+assistant message continues the response
+within the same step. A user interruption
+is different: it aborts the step and the
+drain, the step is failed as "Step
+interrupted", unsettled tools are failed as
+aborted, and no continue instruction is
+injected. The next drain starts a new step,
+and whatever the model does next it does
+from the history, where completed tool
+results survive and aborted calls stand
+failed. The earlier draft of this section
+stated the stream case as if it were the
+user-interruption case; the code shows it
+is not.
 
 What the theory takes for granted here is the
 write set: that the user may interrupt, steer,
@@ -3022,28 +3041,67 @@ its own interrupt over its own judge would fail
 the boundary test, not pass the intervention
 test.
 
+Two of the opens an earlier draft of this
+section left standing are settled by the run
+coordinator, in the same code at the same
+commit, and are settled here so the next
+reader does not reopen them.
+
+Settlement first. The settlement window is
+not a gap in the design; it is a state the
+coordinator names. A session counts as
+active through interruption cleanup and
+terminal settlement, until the settled hook
+has run. A second interrupt in that window
+is a no-op that returns false: if the run is
+already stopping, there is nothing further
+to stop, and if the owner has exited but
+the settled hook has not finished, the
+terminal outcome is already decided, so no
+new reason attaches — but the interrupt
+still claims the recorded wakes, so
+settlement does not start a successor for
+a dead intent. Wakes that arrive during
+cleanup are the opposite case: they are new
+admissions, and they start a successor
+execution when the run settles. A caller
+that needs settlement, rather than
+acceptance, composes the interrupt with
+`awaitIdle`, which waits through any
+successor execution too. An interrupt with
+resume wakes the steering input, and that
+wake usually lands on the stopping
+execution's doorbell, so the successor
+starts at settle; a steer-scoped successor
+still never promotes queued prompts.
+
+Partial steps second. Resumption after a
+user interruption restarts the step, it
+does not continue it. The interrupted step
+is failed, its unsettled tools are failed as
+aborted, and its completed tool results
+stand in the history. The next drain runs a
+new step — a new turn, with its step count
+reset, once a promoted input gives it
+something to do. There is no resumption
+that picks up the interrupted response
+mid-sentence, and the "continue from where
+you left off" observation is not part of
+this path at all: it belongs to the
+interrupted-stream recovery above.
+
 What is left open is considerable, and it is
 worth stating plainly rather than smoothing
 over. First, precedence: when user, overseer,
 and agent can all act on a running session, no
 rule stated here decides whose intervention
 wins, and arbitration for intervention is not
-yet stated. Second, settlement: an interrupt
-accepted before cleanup settles leaves a window
-in which the run is neither running nor fully
-stopped, and what a second intervention in that
-window means is not settled here. Third,
-partial steps: an interrupted step leaves
-completed tool results and aborted ones side by
-side, and whether resumption continues the step
-or restarts it is a design choice the resumed
-observation ("continue from where you left
-off") states but does not guarantee. Fourth,
-the batch case: for a harness with no live view
-and no interrupt endpoint, intervention may
-genuinely collapse to starting a new run, and
-whether that counts as intervention at all, or
-only as replacement, is still open.
+yet stated. Second, the batch case: for a
+harness with no live view and no interrupt
+endpoint, intervention may genuinely
+collapse to starting a new run, and whether
+that counts as intervention at all, or only
+as replacement, is still open.
 
 The test a later reader can apply is therefore
 not "can a human interrupt this harness?" but
