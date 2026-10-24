@@ -1,24 +1,3 @@
-#!/usr/bin/env python3
-"""Generate visualization/index.html from the Rust stubs.
-
-The visualization is not hand-drawn data. It is derived,
-every time this script runs, from harness-core/src/*.rs:
-
-- each module becomes a node,
-- its //! module documentation becomes the node's description,
-- its pub structs, enums, traits, and functions become the
-  node's stub list,
-- the mapping from module to theory summary comes from
-  harness-core/README.md.
-
-So when a stub changes, re-run this script from the repo
-root and the diagram updates:
-
-    python3 visualization/generate.py
-
-Do not edit visualization/index.html by hand. Edit the
-stubs (or harness-core/README.md) and regenerate.
-"""
 
 import json
 import re
@@ -30,9 +9,6 @@ SRC = ROOT / "harness-core" / "src"
 PKG_README = ROOT / "harness-core" / "README.md"
 OUT = Path(__file__).resolve().parent / "index.html"
 
-# Diagram layout: (x, y, layer)
-# The middle row is the loop. The top and bottom rows are
-# the things that govern, shape, or judge that loop.
 LAYOUT = {
     "boundary": (40, 50, "governs"),
     "precedence": (410, 50, "governs"),
@@ -57,7 +33,6 @@ TITLES = {
     "adoption": "Adoption",
 }
 
-# Solid loop edges, and dashed governing edges.
 EDGES = [
     ("run_loop", "action", "solid", "policy chooses"),
     ("action", "state", "solid", "transition"),

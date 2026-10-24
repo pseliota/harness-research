@@ -1,30 +1,9 @@
-//! Stub adapter for Gemini CLI.
-//!
-//! Gemini CLI is Google's terminal coding agent. This
-//! adapter names, in the core's terms, what adapting
-//! it would involve. It does not run Gemini CLI, and
-//! its descriptions are stubs to be verified against
-//! its actual code and documentation.
-//!
-//! One part is verified, not merely stubbed:
-//! precedence, checked in outline against
-//! google-gemini/gemini-cli, commit
-//! cd1b45c2db0a5ea7b7fc3b67c1ba5879601d6005
-//! (2026-10-24), in `packages/core/src/policy/`
-//! (`config.ts`, `policy-engine.ts`, `types.ts`),
-//! `packages/core/src/scheduler/` (`policy.ts`,
-//! `scheduler.ts`, `confirmation.ts`), and
-//! `packages/core/src/hooks/hookAggregator.ts`.
-//! See `controls` below.
-
 use harness_core::adoption::AdoptedHarness;
 use harness_core::membership::Candidate;
 
-/// Gemini CLI, adopted on top of the core.
 pub struct GeminiCli;
 
 impl GeminiCli {
-    /// Where the fit is uncertain, or still needs verifying.
     pub fn gaps(&self) -> Vec<&'static str> {
         vec![
             "Sandbox and approval model: what bounds execution, and which actions require approval.",

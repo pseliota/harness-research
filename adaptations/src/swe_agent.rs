@@ -1,34 +1,9 @@
-//! Stub adapter for SWE-agent, moved here from `harness-core`.
-//!
-/// SWE-agent, adopted on top of the core.
-///
-/// Theory: "A worked example: SWE-agent". The account
-/// below follows the system as it stands in its code
-/// and default configuration, not only the 2024 paper:
-/// `sweagent/agent/agents.py`, `sweagent/tools/tools.py`,
-/// `sweagent/agent/history_processors.py`, and
-/// `config/default.yaml`. Every string here is a name
-/// in the core's terms, not behaviour: this adapter
-/// describes SWE-agent, it does not run it.
-///
-/// The one place the trait's shape strains is the
-/// action space. SWE-agent's moves are `bash` plus
-/// the configured bundles, and because `bash` is a
-/// move, `A(h)` is open: any shell string is a
-/// candidate move, minus the blocklist, minus the
-/// remaining budget and time. `action_space` below
-/// therefore names the kinds of moves, not the set
-/// of moves; a list cannot enumerate an open shell.
-
 use harness_core::adoption::AdoptedHarness;
 use harness_core::membership::Candidate;
 
 pub struct SweAgent;
 
 impl SweAgent {
-    /// Where SWE-agent does not fit the core, stated
-    /// plainly rather than forced. A gap is a finding,
-    /// not a failure of the adoption.
     pub fn gaps(&self) -> Vec<&'static str> {
         vec![
             "No live view for a second principal: an overseer gets the trajectory file and the trajectory inspector after the run, not an observation function of its own during it.",

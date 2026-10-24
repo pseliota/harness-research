@@ -1,43 +1,9 @@
-//! Stub adapter for OpenAI's Codex CLI only.
-//!
-//! The CLI is the open-source part, under Apache 2.0.
-//! Codex's IDE extension and cloud service are not
-//! open source, so they are out of scope for this
-//! adapter.
-//!
-//! Sandbox and approval, below, are verified in
-//! outline, not merely stubbed: checked against
-//! openai/codex, commit
-//! 970111f6cb62cc02fe36a82ea7d71b37a2889c97,
-//! in `codex-rs/protocol/src/config_types.rs`
-//! (`SandboxMode`), `codex-rs/protocol/src/protocol.rs`
-//! (`SandboxPolicy`, `AskForApproval`),
-//! `codex-rs/protocol/src/models.rs`
-//! (`SandboxPermissions`), and
-//! `codex-rs/execpolicy/src/decision.rs`
-//! (`Decision`). Escalation, below, is likewise
-//! verified in outline, not merely stubbed:
-//! checked against the same commit, in
-//! `codex-rs/core/src/tools/handlers/request_permissions.rs`,
-//! `codex-rs/core/src/session/mod.rs`
-//! (`request_permissions_for_environment`,
-//! `persist_execpolicy_amendment`),
-//! `codex-rs/core/src/tools/approvals.rs`
-//! (`request_guardian_approval`), and
-//! `codex-rs/protocol/src/protocol.rs`
-//! (`ReviewDecision`). The loop description and
-//! views are still summaries, not checked line by
-//! line, and are listed as gaps. This adapter
-//! does not run Codex.
-
 use harness_core::adoption::AdoptedHarness;
 use harness_core::membership::Candidate;
 
-/// Codex CLI, adopted on top of the core.
 pub struct CodexCli;
 
 impl CodexCli {
-    /// Where the fit is uncertain, or still needs verifying.
     pub fn gaps(&self) -> Vec<&'static str> {
         vec![
             "Per-OS sandbox enforcement: the policy shape below was checked, but how each platform enforces it (macOS seatbelt, Linux landlock, Windows sandbox) was not verified here.",

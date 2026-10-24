@@ -7,8 +7,7 @@ that govern, shape, or judge that loop around it.
 It is generated, not hand-drawn. `generate.py` reads
 `harness-core/src/*.rs` and `harness-core/README.md`
 every time it runs, and builds the diagram from them:
-each module becomes a node, its module documentation
-becomes the node's description, and its public structs,
+each module becomes a node, and its public structs,
 enums, traits, and functions become the node's stub list.
 
 To update it after changing a stub, run from the repo

@@ -1,35 +1,9 @@
-//! Stub adapter for OpenCode.
-//!
-//! OpenCode is an open-source, provider-agnostic
-//! terminal coding agent. This adapter names, in the
-//! core's terms, what adapting it would involve. It
-//! does not run OpenCode, and its descriptions are
-//! stubs to be verified against its actual code and
-//! documentation.
-//!
-//! One part is verified, not merely stubbed: human
-//! intervention, checked against anomalyco/opencode,
-//! dev branch, commit 17b79f4e0c16dcff200b0417567ed22aeb2d7166
-//! (2026-10-24). See `controls` and `gaps` below, and
-//! `controls` below. Three
-//! of its former gaps are now verified, not open:
-//! interruption settlement (run-coordinator),
-//! partial-step resumption (step abort, new step on
-//! the next drain), and intervention precedence
-//! (per-mechanism, not a ranking of principals:
-//! interrupt over in-flight work, execution over
-//! edit, steer over queue, deny over move, reply
-//! over pending move; user versus shutdown is
-//! decided by arrival order, not rank).
-
 use harness_core::adoption::AdoptedHarness;
 use harness_core::membership::Candidate;
 
-/// OpenCode, adopted on top of the core.
 pub struct OpenCode;
 
 impl OpenCode {
-    /// Where the fit is uncertain, or still needs verifying.
     pub fn gaps(&self) -> Vec<&'static str> {
         vec![
             "Provider-agnostic policy: whether swapping the model changes only the policy, or also the loop, views, or controls, in the core's terms.",
