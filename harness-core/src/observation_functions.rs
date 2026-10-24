@@ -23,7 +23,13 @@ pub struct Observation {
 /// An observation function: the harness's function for one principal.
 /// A stub interface: rendering is not implemented.
 pub trait ObservationFunction {
-    fn observe(&self, principal: Principal) -> Observation;
+    /// The observation for one principal of one state:
+    /// `p_i(o_i | s)`, where `s` is the whole state.
+    /// The argument is `s`, not a pre-rendered view of it:
+    /// what a principal is shown is a function of the state.
+    /// The type of `s` is left generic on purpose: the theory
+    /// does not fix what `s` contains.
+    fn observe<S>(&self, principal: Principal, state: &S) -> Observation;
 
     /// Sufficiency: does the observation function give this principal enough
     /// to do its job? Stub only.

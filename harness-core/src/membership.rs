@@ -3,8 +3,8 @@
 //! Theory: "Membership". A candidate is an agent harness
 //! exactly when four things hold: it runs a loop; its
 //! machinery is designer-controlled and outside the
-//! policy's write set except for a permitted write scope
-//! scope; the policy can act through it; and at least
+//! policy's write set except for a permitted write scope;
+//! the policy can act through it; and at least
 //! one designer-fixed control can alter or suspend
 //! execution without the policy's cooperation.
 //! Weakness is not absence: a bad harness is still a

@@ -33,15 +33,19 @@ pub trait Parser {
     fn parse(&self, tokens: &[Token]) -> Option<ParsedMove>;
 }
 
-/// The action space at the current harness state.
+/// The action space at a harness state: `A(h)`, not `A`.
 /// Stub only: listing available moves is not implemented.
 pub struct ActionSpace;
 
 impl ActionSpace {
-    /// The moves the harness will attempt at this state.
-    /// Attempts, not guarantees: whether a move succeeds
-    /// can still depend on the world.
-    pub fn available_moves(&self) -> Vec<ParsedMove> {
+    /// The moves the harness will attempt at this harness state.
+    /// The argument is `h` alone, not `w` and not the whole
+    /// state: an attempt is a decision of the harness, and
+    /// success still depends on `w`. Attempts, not guarantees:
+    /// whether a move succeeds can still depend on the world.
+    /// The type of `h` is left generic on purpose: the theory
+    /// does not fix what `h` contains.
+    pub fn available_moves<H>(&self, _harness_state: &H) -> Vec<ParsedMove> {
         todo!()
     }
 }
