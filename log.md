@@ -93,3 +93,7 @@ Drop-tested the minimal core: removing any one of the seven claims loses somethi
 ## 2026-10-24 — Membership
 
 Membership test: harness runs a policy's inner loop, is designer-controlled, acts on w or h, has a designer-fixed control outside the policy's write set. Macedo T1-T4 corrected: harness-directed acts count; agent-rewritable caps are not control; weak context is bad, not absent. Open: goodness.
+
+## 2026-10-24 — Basic questions
+
+Basic questions added: action space, POMDP fit, major harnesses today, steps and ending, state vs context, tools vs subagents, harness vs framework, errors, costs and permissions, human intervention, and variation across harness kinds.

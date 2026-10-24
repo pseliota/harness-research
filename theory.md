@@ -2453,6 +2453,47 @@ badly. Membership is binary; goodness is
 comparative, and it is the question the
 core leaves open.
 
+## Basic questions
+
+These questions come before the more elaborate parts of
+the theory. They have no clean answers, but any theory
+of harnesses must say something about each of them.
+
+1. What is the action space? Is an action a token, an
+   API response, or a tool call, and how do those levels
+   relate? Can the action space change as the harness
+   state changes?
+2. Is a partially observable Markov decision process the
+   right mathematical framework? What does it capture,
+   what does it distort, and what should complement or
+   replace it?
+3. What are the major harnesses used today, and what
+   varies among them? Coding agents, frameworks for
+   building agents, and research prototypes are not the
+   same kind of thing.
+4. What is a step, a turn, and a run? When does a run
+   end, who decides, and what distinguishes stopping,
+   failing, and being halted?
+5. What is state, and how does it differ from context,
+   memory, and the world? What is in `s`, and what is
+   only text shown to the model?
+6. What is a tool, as opposed to a subagent, a prompt,
+   a skill, a memory, or a retrieval result? Are these
+   different kinds of things, or the same thing under
+   different names?
+7. What is a harness, as opposed to a framework, a
+   scaffold, an agent, an application, or a workflow?
+8. What happens when the model produces malformed
+   output, refuses, loops, or calls a tool that fails
+   or times out? What is the harness's error model?
+9. What do cost, latency, budgets, and permissions
+   constrain, and where do those constraints live?
+10. How can a human intervene in a run already under
+    way: pause it, edit it, redirect it, or take over?
+11. Do coding, browsing, chatting, and operating
+    harnesses belong to one theory, or does the word
+    "harness" cover different things in each case?
+
 ## Open questions
 
 1. What is the minimal core that all harnesses share, without being
