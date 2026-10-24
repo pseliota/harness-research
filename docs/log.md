@@ -205,3 +205,7 @@ Gemini CLI arbitration verified in outline against google-gemini/gemini-cli at c
 ## 2026-10-24 — Theory rewritten in ASD-STE100
 
 Theory rewritten in ASD-STE100 Simplified Technical English: short sentences, active voice, simple tenses, one term per concept. Math symbols kept verbatim and defined before first use; headings, claims, questions, and sources kept.
+
+## 2026-10-24 — Principal index renamed in STE theory
+
+Audited the STE rewrite against its own rule that no symbol is introduced without a definition: p was defined in Starting definitions as the probability function, then reused in Multiple principals as the name of a principal (p_p, o_p). Renamed the principal index to i, defined by "Let i name one principal", so p stays the probability function throughout and the family reads p_i(o_i | s). No other symbol collision found in the audit; G is redefined across sections (fixed point, set of goals, goal) and is left as an open question for the reviewer rather than renamed in this tick.

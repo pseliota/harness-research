@@ -252,7 +252,7 @@ The overseer observes the trace, costs, checks, and health of the system. The ov
 
 What multiplies is the observation. A single-agent account uses one p(o | s). A multi-principal view uses a family of functions. The family has one function per principal.
 
-In this notation, p names one principal. p_p is the observation function for one principal. o_p is the observation of that principal. For each principal p, the function has the form p_p(o_p | s).
+Let i name one principal. p_i is the observation function for principal i. o_i is the observation of principal i. For each principal i, the function has the form p_i(o_i | s).
 
 In the weather case, one tool call in s yields three observations:
 
