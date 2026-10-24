@@ -141,3 +141,7 @@ Removed closed-source adapters Claude Code, Cursor, and Copilot from adaptations
 ## 2026-10-24 — POMDP verdict
 
 POMDP verdict: a single tuple is one step's shape, not a harness theory. A run fits a POMDP per level, epoch, and principal, under designer vetoes; tower, per-principal views, aspiration, and trace judgement fill what one tuple cannot hold.
+
+## 2026-10-24 — Basic questions as consideration, not resolution
+
+Basic questions reframed: they require explicit consideration, not a resolved answer. theory.md intro and OKR.md updated to match: a question counts as addressed when its bearing, assumptions, and open remainder are stated, even with no settling answer in sight.

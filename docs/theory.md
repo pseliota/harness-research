@@ -2908,8 +2908,13 @@ the disagreement itself is the finding.
 ## Basic questions
 
 These questions come before the more elaborate parts of
-the theory. They have no clean answers, but any theory
-of harnesses must say something about each of them.
+the theory. They do not require a resolved answer.
+What a theory of harnesses owes each of them is
+consideration: an explicit account of how the
+question bears on the theory, what the theory
+takes for granted about it, and where it leaves
+the question open, even if no settling answer
+is in sight.
 
 1. What is the action space? Is an action a token, an
    API response, or a tool call, and how do those levels

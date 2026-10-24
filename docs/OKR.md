@@ -60,9 +60,10 @@ stubs, how X can be adopted on top of the core in
   are removed, or explicitly marked as open or
   deferred, rather than left to accumulate.
 - The basic questions stay visible as questions. A
-  basic question is not marked answered by assertion;
-  it is answered with evidence, or left open with
-  what would settle it.
+  basic question does not need a resolved answer;
+  it needs explicit consideration: what the theory
+  says about it, what it takes for granted, and
+  where it leaves the question open.
 
 ## Later months: examples, not commitments
 
@@ -71,8 +72,9 @@ Later months may, for example:
 - Adopt a second harness, from a different category
   than the first, and compare where the two adoptions
   agree and where they diverge.
-- Answer one basic question with evidence from a
-  worked example, rather than by argument alone.
+- Consider one basic question in depth, from a
+  worked example, rather than by argument alone,
+  without requiring it to be resolved.
 - Implement one core module, once stubs and theory
   are aligned and a month explicitly decides that
   implementation, with tests, is the next step.
