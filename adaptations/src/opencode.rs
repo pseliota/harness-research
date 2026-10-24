@@ -11,11 +11,16 @@
 //! intervention, checked against anomalyco/opencode,
 //! dev branch, commit 17b79f4e0c16dcff200b0417567ed22aeb2d7166
 //! (2026-10-24). See `controls` and `gaps` below, and
-//! the intervention section in `docs/theory.md`. Two
+//! the intervention section in `docs/theory.md`. Three
 //! of its former gaps are now verified, not open:
-//! interruption settlement (run-coordinator) and
+//! interruption settlement (run-coordinator),
 //! partial-step resumption (step abort, new step on
-//! the next drain). Intervention precedence remains open.
+//! the next drain), and intervention precedence
+//! (per-mechanism, not a ranking of principals:
+//! interrupt over in-flight work, execution over
+//! edit, steer over queue, deny over move, reply
+//! over pending move; user versus shutdown is
+//! decided by arrival order, not rank).
 
 use harness_core::adoption::AdoptedHarness;
 use harness_core::membership::Candidate;
@@ -30,7 +35,6 @@ impl OpenCode {
             "Provider-agnostic policy: whether swapping the model changes only the policy, or also the loop, views, or controls, in the core's terms.",
             "Build and plan agents: whether these are two loops, two action spaces, or one loop with two modes.",
             "LSP and SDK surface: which parts belong to the harness, and which belong to tooling around it.",
-            "Intervention precedence: when user, overseer, and agent can all act on a running session, no rule yet decides whose intervention wins.",
         ]
     }
 }
@@ -74,7 +78,7 @@ impl AdoptedHarness for OpenCode {
 
     fn controls(&self) -> Vec<String> {
         vec![
-            "Arbitration: not yet stated — intervention precedence is open (see gaps): when user, overseer, and agent can all act on a running session, no rule yet decides whose intervention wins.".to_string(),
+            "Arbitration: no ranking of principals — intervention precedence is per mechanism: interrupt over in-flight work, active execution over revert (busy error), steer over queue at promotion, permission deny over a move, and a user reply over the whole pending permission batch; user versus shutdown is decided by arrival order, since the coordinator's only interrupt reasons are user and shutdown.".to_string(),
             "Approvals for actions outside the allowed set.".to_string(),
             "Tool registry: only listed tools are available moves.".to_string(),
             "User interrupt of a running session (Session.interrupt, reason 'user'; acknowledged on acceptance, cleanup settles asynchronously; idle interrupt is a no-op; a second interrupt while stopping, or in the settlement window, returns false and claims recorded wakes; wakes during cleanup start a successor at settle; awaitIdle waits for settlement).".to_string(),

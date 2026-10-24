@@ -3057,11 +3057,12 @@ its own interrupt over its own judge would fail
 the boundary test, not pass the intervention
 test.
 
-Two of the opens an earlier draft of this
+Three of the opens an earlier draft of this
 section left standing are settled by the run
-coordinator, in the same code at the same
-commit, and are settled here so the next
-reader does not reopen them.
+coordinator and the surrounding code, in the
+same code at the same commit, and are
+settled here so the next reader does not
+reopen them.
 
 Settlement first. The settlement window is
 not a gap in the design; it is a state the
@@ -3106,17 +3107,107 @@ you left off" observation is not part of
 this path at all: it belongs to the
 interrupted-stream recovery above.
 
-What is left open is considerable, and it is
-worth stating plainly rather than smoothing
-over. First, precedence: when user, overseer,
-and agent can all act on a running session, no
-rule stated here decides whose intervention
-wins, and arbitration for intervention is not
-yet stated. Second, the batch case: for a
-harness with no live view and no interrupt
-endpoint, intervention may genuinely
-collapse to starting a new run, and whether
-that counts as intervention at all, or only
+Precedence third. The open above asked for a
+rule deciding whose intervention wins. The
+code gives no such rule, and that absence
+is itself the finding — but it is not a
+gap. Precedence in OpenCode is decided
+per mechanism, not by a ranking of
+principals, and there is no overseer party
+to rank: the only interrupt reasons the
+coordinator knows are "user" and
+"shutdown", and the session endpoint
+records an interrupt's reason as "user".
+
+An interrupt beats the agent's in-flight
+work unconditionally: the execution fibre
+is interrupted, the step fails as aborted,
+and wakes recorded before the interrupt
+are claimed, so they start no successor.
+It does not beat the future: wakes
+arriving during cleanup are new
+admissions, and start a successor at
+settle. Between the two interrupt
+reasons there is no ranking at all: the
+first interrupt sets the execution
+stopping, and a second returns false,
+whichever reason it carries. Arrival
+order, not precedence, decides that pair,
+and arrival order is itself a fixed
+mechanism of the coordinator, not a
+ranking invented at runtime.
+
+An active execution beats an edit: revert
+staging returns a busy error while an
+execution is active, so the clients
+interrupt and wait before staging. And a
+pending prompt that has not been
+delivered is withdrawn by cancelling its
+inbox entry, not by interrupting the work
+it waits behind: pending input never
+preempts running work on its own.
+
+At promotion, steered input beats queued
+input: a steer-scoped drain promotes
+steers only, and an input-scoped drain
+takes one queued input only when no
+steers wait. A compaction control jumps
+ahead of earlier steers, so their text
+stays verbatim after the checkpoint, but
+nothing is promoted across a move, and a
+control item behind a queued prompt waits
+its turn. In wake coalescing, an
+input-scope wake subsumes a steer-scope
+one.
+
+A permission rule beats a single move
+without asking: a deny rule fails the
+move before it is attempted, and an ask
+rule defers to the user. A user reply
+beats the pending move and every other
+pending permission request for the
+session, since a reject fails the whole
+batch. A bare decline is a typed failure
+the model does not continue from, while
+a decline with feedback becomes a tool
+failure the model continues from — so
+the form of the refusal, not only its
+verdict, decides what happens next. And
+an interrupt beats a pending permission
+decision: the permission wait is left
+interruptible, so the interrupt cancels
+the wait rather than queueing behind
+the reply. A closed permission service
+grants nothing: ask denies outright,
+and assert fails.
+
+What this means for the theory's
+arbitration section is that its partial
+order on action pairs is the right
+shape, but in OpenCode the order is per
+pair and mechanism-given: interrupt
+over in-flight work, execution over
+edit, steer over queue, deny over move,
+reply over pending move. There is no
+total order on principals to find,
+because the code has no overseer
+principal and no ranking between its
+two interrupt reasons. The arbitration
+section's default — suspend what no
+precedence decides — is therefore not
+needed for intervention here: every
+pair above has a decider, and the one
+pair without a ranking is decided by
+arrival, which is a fixed mechanism,
+not an improvisation.
+
+What is left open is the batch case, and
+it is worth stating plainly rather than
+smoothing over. For a harness with no
+live view and no interrupt endpoint,
+intervention may genuinely collapse to
+starting a new run, and whether that
+counts as intervention at all, or only
 as replacement, is still open.
 
 The test a later reader can apply is therefore
