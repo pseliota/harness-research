@@ -137,3 +137,7 @@ Parallel adaptations crate added with stub adapters for Claude Code, Codex, Curs
 ## 2026-10-24 — Open-source-only adaptations
 
 Removed closed-source adapters Claude Code, Cursor, and Copilot from adaptations/; narrowed Codex to its Apache 2.0 CLI only. Remaining adapters are all open source: Codex CLI, Gemini CLI, OpenCode, SWE-agent.
+
+## 2026-10-24 — POMDP verdict
+
+POMDP verdict: a single tuple is one step's shape, not a harness theory. A run fits a POMDP per level, epoch, and principal, under designer vetoes; tower, per-principal views, aspiration, and trace judgement fill what one tuple cannot hold.

@@ -251,6 +251,170 @@ and executed into effects at the level above,
 with the set of available moves varying with
 harness state.
 
+## Is a POMDP the right framework?
+
+The short answer is: for one step, yes; for
+a harness, no. A partially observable Markov
+decision process is the shape of a step, not
+the theory of the thing that takes the steps.
+
+What it captures is real. A policy chooses
+from an observation it does not fully control;
+the harness carries out a transition over a
+state the policy does not fully see; the next
+observation is engineered from that state.
+Partial observability is the point: the
+agent never sees `w` directly, and much of
+what it sees is `h`, designed. An action
+that changes `h` changes the next
+observation and the next transitions, so
+control over observation and control over
+transitions are both ordinary POMDP effects,
+once `h` is in `s`. That is why the opening
+definitions could be stated in POMDP terms
+at all, and why they are not wrong.
+
+But the fit is thinner than it looks, and
+the thinness is instructive. A POMDP is a
+single tuple: one state set, one action set,
+one observation set, one transition, one
+observation function, one reward. A harness
+is not one tuple, in five ways.
+
+First, it is not one action set. The tower
+above is a family of POMDPs, one per level:
+tokens, parsed moves, effects. A token-level
+POMDP and a move-level POMDP are related by
+parsing and by expansion, not identical, and
+a token sequence the parser rejects is in
+neither action set. A subagent move is worse
+for a single tuple still: it runs for a
+variable number of steps and returns a
+summary, so at the outer level it is a
+temporally extended action, an option in a
+semi-Markov process, not a one-step move.
+One tuple cannot hold the tower; it can
+hold one floor of it.
+
+Second, it is not one observation function.
+A POMDP has `p(o | s)` for the agent. A
+harness serves several principals, each with
+its own observation function over the same
+`s`, satisfying sufficiency and separation
+for that principal. Giving the overseer the
+agent's observation is not a POMDP with a
+different policy; it is a different
+observation function, and the theory needs
+one per principal. A multi-agent POMDP does
+not close this gap, because its parties are
+agents choosing actions, while arbitration
+is a designer-fixed rule on transitions,
+not another party's policy.
+
+Third, its transition, observation, and
+reward functions are fixed, and a harness's
+are not, except within an epoch. The
+designer fixes the registry, the parser,
+the history processor, and the thresholds
+for a run, and a later design act can
+change them. Cost and timeout are not
+rewards the policy may trade against a
+larger payoff; a blocklist is a veto, not
+a price, and a policy that could pay to
+violate it would have no control left.
+A shifting goal is not a fixed reward
+either; aspiration and epochs replace a
+point `G` with a moving target and a
+record of its revisions. Within one epoch,
+with one parser, one registry, and one set
+of thresholds, a run is a POMDP. Across
+epochs, it is a family of POMDPs indexed
+by the design acts that separate them.
+
+Fourth, its observations are evidence about
+the state, and a harness's observations are
+artefacts designed from it. That sounds
+like a quibble until history is rewritten.
+SWE-agent's history processor replaces
+older observations with a note that lines
+were omitted, and the agent's next
+observation is built from the rewritten
+trajectory, not from the run as it
+happened. Formally this still fits, but
+only because `h` in the code includes the
+trajectory lists themselves: the rewritten
+record is part of the state. The fit is
+bought by putting the record in `s`, and
+once it is there, the POMDP's usual
+inference intuitions no longer apply
+unchanged. A belief formed from a designed
+record is not a belief about `w`; it is a
+belief about what the designer chose to
+show, and the value of an observation is
+not only the information it carries about
+the world, but the check it forces, the
+cost it incurs, and the view it gives
+another principal.
+
+Fifth, its judgement is a reward on steps,
+and a harness's judgement is partly over
+traces. Safety is step-local, but liveness
+— deadlock, starvation, livelock, progress
+against aspiration — is a property of a
+whole history, and no step reward encodes
+it without smuggling the trace judgement
+into the reward function. A harness that
+always halts safely and a harness that
+works can have the same step rewards and
+different traces, and the difference is
+exactly what the theory must judge.
+
+There is a further vacuity to name, because
+it is the one that makes the POMDP answer
+look more settled than it is. If `s` is
+allowed to contain the whole history, and
+`o` is allowed to be the whole history,
+then any process is Markov: the past is
+in the present by construction. The
+statement "a run is a POMDP" is then true
+and empty. It becomes informative only
+when `s` is fixed independently — world
+plus harness state, with the trajectory
+named as part of `h` where it belongs —
+and the question becomes which POMDP, at
+which level, in which epoch, for which
+principal, under which vetoes. Ask those
+four questions of any candidate, and the
+single tuple dissolves into the structure
+the theory already describes. That is the
+test for whether the formalism is doing
+work or merely relabelling the run.
+
+So the verdict is a division of labour.
+Keep the POMDP as the local shape: at one
+level, in one epoch, a policy over
+engineered observations, a transition over
+`s = (w, h)`, a return of a summary or a
+step. Around it, put what a single tuple
+cannot hold: the tower of levels, with
+options for subagent moves; one observation
+function per principal; designer-fixed
+vetoes in the supervisory-control shape,
+not prices; aspiration and epochs in place
+of a fixed reward; and trace judgements
+for liveness. None of these is a rival
+formalism waiting to replace the POMDP.
+Each is a named place where the POMDP
+stops, and the theory's other claims —
+boundary, state split, authorship, views,
+arbitration, liveness, meta-rule — are
+claims about who controls the tuple, who
+may rewrite it, and what judges the trace,
+which no tuple by itself can state. A
+formalism that cannot say who may change
+its own transition function cannot be a
+theory of a designed thing.
+
 ## Goals
 
 Fix an agent, and vary the harness to make reaching a set of goals
@@ -2937,3 +3101,24 @@ bundles action set, the cost, timeout, and blocklist
 controls, and the separation of submit from
 SWE-bench grading are the source of the worked
 example section.
+- Planning under partial observability, as the
+formalism judged, not authority: Leslie Pack
+Kaelbling, Michael L. Littman, and Anthony R.
+Cassandra, "Planning and acting in partially
+observable stochastic domains", Artificial
+Intelligence, 1998. A POMDP policy maps
+histories, or beliefs over states, to actions;
+the formalism itself says nothing about who
+fixes its transition and observation
+functions, which is the source of the POMDP
+section's division of labour.
+- Temporally extended actions, as complement,
+not authority: Richard S. Sutton, Doina Precup,
+and Satinder Singh, "Between MDPs and
+semi-MDPs: a framework for temporal
+abstraction in reinforcement learning",
+Artificial Intelligence, 1999. An option runs
+until a termination condition, then returns
+control, which is the source of the POMDP
+section's treatment of a subagent move as a
+semi-Markov action at the outer level.
