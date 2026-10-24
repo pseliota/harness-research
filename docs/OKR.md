@@ -30,7 +30,7 @@ stubs, how X can be adopted on top of the core in
 
 - A stub adapter for X exists, naming, in the core's
   terms, X's loop, action space `A(h)`, state split,
-  views, arbitration and controls, and ending.
+  views, arbitration and controls, and run termination.
 - The membership test is applied to X in stubs, with
   the result stated plainly: which of the four
   conditions hold, and which do not.

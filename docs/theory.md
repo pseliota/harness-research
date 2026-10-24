@@ -1197,7 +1197,10 @@ for the next run. Ending the harness
 is retiring the standing machinery
 itself: no new runs, existing runs
 brought to a close, responsibilities
-handed on or discharged. The first
+handed on or discharged. The two
+senses are kept apart by vocabulary:
+a run terminates, a harness ends.
+The first
 distinction to hold is that ending is
 a design act, not a verdict. A
 verdict is computed by the core from
@@ -2849,8 +2852,8 @@ and trajectory lists themselves, not just the
 container state. If `h` were only the container,
 history rewriting would be unstateable.
 
-Ending and verdict come apart here, and the split
-is worth keeping. The loop ends — `done` becomes
+Termination and verdict come apart here, and the split
+is worth keeping. The loop terminates — `done` becomes
 true — on submit, on forfeit, on cost, context, or
 timeout, or by autosubmission after an error, where
 the harness extracts the current diff from the
@@ -2899,7 +2902,7 @@ submit a patch that fails every test.
 The stub adapter in `adaptations/src/swe_agent.rs`
 names these same items in the core's terms: the
 loop, the action space, the state split, the
-views, the controls, and the ending, with the
+views, the controls, and the termination, with the
 membership result and the gaps above stated
 plainly. A second adoption, from a different
 category, can be compared against this one in
@@ -2934,7 +2937,7 @@ are the finding. Four acts, four landing sites:
 
 First, pause. `Session.interrupt` stops an active
 session, with the reason recorded as "user". It
-is not a halt verdict, not an ending, and not a
+is not a halt verdict, not a termination, and not a
 judgement on the run: it suspends transitions.
 Interruption is acknowledged as soon as it is
 accepted, while cleanup settles asynchronously
@@ -3219,7 +3222,7 @@ on the move that was interrupted. SWE-agent's
 autosubmission after an error is a third shape:
 the harness ends the run by submitting the diff
 from the last trajectory step's state. An error
-there becomes an ending, not a retry and not a
+there becomes a termination, not a retry and not a
 verdict on success, which is judged outside the
 loop.
 
@@ -3232,7 +3235,7 @@ exceeding a cost or context limit ends the run.
 Calling that an agent error would misattribute
 a control to the policy, the same way calling a
 blocklist refusal a world failure would. A
-single command timeout and a run-ending timeout
+single command timeout and a run-terminating timeout
 are also different events, and an error model
 should not merge them: one is a failed move the
 policy may learn from, the other is the loop's

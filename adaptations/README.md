@@ -5,7 +5,7 @@ demonstrating how the core can be adapted to various
 popular harnesses. Each module is one stub adapter: a
 struct implementing `harness_core::adoption::AdoptedHarness`,
 naming, in the core's terms, that harness's loop, action
-space, state split, views, controls, ending, and
+space, state split, views, controls, termination, and
 membership.
 
 Nothing here runs a harness, and there are no tests.

@@ -85,8 +85,8 @@ impl AdoptedHarness for SweAgent {
         ]
     }
 
-    fn ending(&self) -> String {
-        "The loop ends, done becomes true, on submit, on forfeit, on cost, context, or timeout, or by autosubmission after an error, where the harness submits the diff from the last trajectory step's state. On submit the review-on-submit bundle shows the model its own diff and asks it to rerun the reproduction script, remove that script, revert any test files it touched, and submit again. Success is judged outside the loop by the SWE-bench evaluation hook, not by the loop itself.".to_string()
+    fn termination(&self) -> String {
+        "The loop terminates, done becomes true, on submit, on forfeit, on cost, context, or timeout, or by autosubmission after an error, where the harness submits the diff from the last trajectory step's state. On submit the review-on-submit bundle shows the model its own diff and asks it to rerun the reproduction script, remove that script, revert any test files it touched, and submit again. Success is judged outside the loop by the SWE-bench evaluation hook, not by the loop itself.".to_string()
     }
 
     fn membership(&self) -> Candidate {

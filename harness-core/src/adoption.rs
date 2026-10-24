@@ -40,8 +40,10 @@ pub trait AdoptedHarness {
     /// Its arbitration rule, if any, and its designer-fixed controls.
     fn controls(&self) -> Vec<String>;
 
-    /// Its ending: when a run ends, and who decides.
-    fn ending(&self) -> String;
+    /// Its termination: when a run terminates, and who decides.
+    /// "Ending" is reserved for retiring the harness itself;
+    /// a run terminates, a harness ends.
+    fn termination(&self) -> String;
 
     /// The membership test, applied to this harness.
     fn membership(&self) -> Candidate;

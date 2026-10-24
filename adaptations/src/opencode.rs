@@ -83,8 +83,8 @@ impl AdoptedHarness for OpenCode {
         ]
     }
 
-    fn ending(&self) -> String {
-        "The loop ends when the task is complete, when the user stops it, or when a control refuses a required action.".to_string()
+    fn termination(&self) -> String {
+        "The loop terminates when the task is complete, when the user stops it, or when a control refuses a required action.".to_string()
     }
 
     fn membership(&self) -> Candidate {

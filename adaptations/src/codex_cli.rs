@@ -99,8 +99,8 @@ impl AdoptedHarness for CodexCli {
         ]
     }
 
-    fn ending(&self) -> String {
-        "The loop ends when the task is complete, when the user stops it, or when a sandbox or approval control refuses a required action.".to_string()
+    fn termination(&self) -> String {
+        "The loop terminates when the task is complete, when the user stops it, or when a sandbox or approval control refuses a required action.".to_string()
     }
 
     fn membership(&self) -> Candidate {
