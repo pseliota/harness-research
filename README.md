@@ -60,12 +60,15 @@ no longer holds up should be taken out, not left to confuse.
 - `docs/OKR.md` — long-term direction and monthly objectives
 - `harness-core/` — rough Rust stubs matching the theory;
   no implementation, no tests
+- `adaptations/` — stub adapters showing how popular
+  harnesses can be adopted on top of `harness-core`;
+  no harness is run, no tests
 - `visualization/` — interactive diagram of the harness
   shape, generated from `harness-core` by `generate.py`
 
 The theory files live in `docs/`. Code lives in
-`harness-core/`, and the diagram lives in
-`visualization/`, each with its own README.
+`harness-core/` and `adaptations/`, and the diagram
+lives in `visualization/`, each with its own README.
 
 Care here is not a metric. It cannot be reduced to a count of notes,
 commits, or refactors, and optimizing such a count would go against

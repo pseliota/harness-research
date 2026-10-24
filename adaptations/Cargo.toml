@@ -1,0 +1,9 @@
+[package]
+name = "harness_adaptations"
+version = "0.1.0"
+edition = "2021"
+description = "Stub adapters showing how popular harnesses can be adopted on top of harness_core. No harness is run here, and there are no tests."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+harness_core = { path = "../harness-core" }

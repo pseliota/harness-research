@@ -129,3 +129,7 @@ Theory files moved to docs/: theory.md, log.md, and OKR.md now live in docs/, wi
 ## 2026-10-24 — SWE-agent stub adoption
 
 SWE-agent adopted in stubs: SweAgent implements AdoptedHarness with loop, A(h), state split, views, controls, ending, a passing membership result, and gaps left open; theory's worked example points at it.
+
+## 2026-10-24 — Adaptations folder
+
+Parallel adaptations crate added with stub adapters for Claude Code, Codex, Cursor, Gemini CLI, Copilot, OpenCode, and SWE-agent, each mapping loop, action space, state, views, controls, ending, and membership onto harness-core, with gaps to verify.
