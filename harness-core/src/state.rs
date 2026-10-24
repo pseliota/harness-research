@@ -1,7 +1,6 @@
 //! The state split: `s = (w, h)`.
 //!
-//! Theory: "One principle or several? World-directed and
-//! harness-directed actions". World state is what neither
+//! Theory: "Definitions" and "The minimal core". World state is what neither
 //! designer nor agent controls; harness state is what the
 //! designer controls. This is a stub.
 
@@ -14,9 +13,9 @@ pub struct State<W, H> {
     pub harness: H,
 }
 
-/// Where an action's immediate effect lands.
+/// Which state component an action changes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum LandingSite {
+pub enum EffectTarget {
     /// The action changes world state.
     World,
     /// The action changes harness state.
@@ -28,7 +27,7 @@ pub enum LandingSite {
 impl<W, H> State<W, H> {
     /// Sort an action by where its effect lands.
     /// Stub only: the action type is left as a name here.
-    pub fn landing_site(&self, _action: &str) -> LandingSite {
+    pub fn effect_target(&self, _action: &str) -> EffectTarget {
         todo!()
     }
 }

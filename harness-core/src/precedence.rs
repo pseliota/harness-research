@@ -1,7 +1,7 @@
-//! Conflict between principals: arbitration is harness, not a principal.
+//! Conflict between principals: precedence is harness, not a principal.
 //!
-//! Theory: arbitration is a designer-fixed rule on
-//! transitions. It is veto, not compulsion: it disables
+//! Theory: "Observation functions and precedence". A precedence rule is a
+//! designer-fixed rule on transitions. It is veto, not compulsion: it disables
 //! some proposed transitions and forces none. Preemption
 //! must be legible to the preempted principal, and a
 //! conflict no precedence decides suspends only the
@@ -14,13 +14,13 @@ pub struct Proposal {
     pub transition: String,
 }
 
-/// A designer-fixed arbitration rule.
+/// A designer-fixed precedence rule.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ArbitrationRule {
+pub struct PrecedenceRule {
     pub description: String,
 }
 
-impl ArbitrationRule {
+impl PrecedenceRule {
     /// Select which proposed transitions are enabled.
     /// The rest are disabled for this step. Nothing is
     /// invented: a proposal that is not enabled is not

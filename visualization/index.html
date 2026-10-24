@@ -33,7 +33,7 @@
 <body>
 <h1>The shape of a harness, at a glance</h1>
 <p class="lede">The middle row is the loop: a policy chooses, an action executes,
-state changes, a view renders an observation, and the loop runs again.
+state changes, an observation function renders an observation, and the loop runs again.
 The rows around it govern, shape, or judge that loop. Click any node
 to see what it is, what theory it comes from, and which Rust stubs
 in <code>harness-core</code> it corresponds to.</p>
@@ -59,7 +59,7 @@ const DATA = {
       "y": 50,
       "file": "harness-core/src/boundary.rs",
       "theory": "the designer-control boundary",
-      "description": "The harness boundary, by designer control.  Theory: \"The harness boundary: what the designer controls\". The environment splits three ways by who can change what. This is a stub: classification is not implemented.",
+      "description": "The harness boundary, by designer control.  Theory: \"Harness boundary by control\". The environment splits three ways by who can change what. This is a stub: classification is not implemented.",
       "stubs": [
         "enum Side",
         "struct Change",
@@ -67,35 +67,36 @@ const DATA = {
       ]
     },
     {
-      "id": "arbitration",
-      "title": "Arbitration",
+      "id": "precedence",
+      "title": "Precedence",
       "layer": "governs",
       "x": 410,
       "y": 50,
-      "file": "harness-core/src/arbitration.rs",
-      "theory": "designer-fixed arbitration over transitions",
-      "description": "Conflict between principals: arbitration is harness, not a principal.  Theory: arbitration is a designer-fixed rule on transitions. It is veto, not compulsion: it disables some proposed transitions and forces none. Preemption must be legible to the preempted principal, and a conflict no precedence decides suspends only the contested transition. This is a stub.",
+      "file": "harness-core/src/precedence.rs",
+      "theory": "designer-fixed precedence over transitions, veto not compulsion",
+      "description": "Conflict between principals: precedence is harness, not a principal.  Theory: \"Observation functions and precedence\". A precedence rule is a designer-fixed rule on transitions. It is veto, not compulsion: it disables some proposed transitions and forces none. Preemption must be legible to the preempted principal, and a conflict no precedence decides suspends only the contested transition. This is a stub.",
       "stubs": [
         "struct Proposal",
-        "struct ArbitrationRule",
+        "struct PrecedenceRule",
         "fn enabled",
         "fn suspend_contested"
       ]
     },
     {
-      "id": "meta",
-      "title": "Meta-rule",
+      "id": "write_permission",
+      "title": "Write permission",
       "layer": "governs",
       "x": 730,
       "y": 50,
-      "file": "harness-core/src/meta.rs",
-      "theory": "the meta-rule: recorded, prospective, visible design acts",
-      "description": "The meta-rule.  Theory: \"Thresholds without a designer\" and \"The minimal core\". Authority predates the act it authorises and sits outside the party it judges. Revision is a recorded, prospective, visible design act. Where no rule covers the case, inherited values freeze rather than relax. This is a stub.",
+      "file": "harness-core/src/write_permission.rs",
+      "theory": "agent write permission over harness state, fixed core and modification policy",
+      "description": "Write permission over harness state.  Theory: \"Harnesses that rewrite themselves\" and \"The minimal core\". The agent may write harness state within a scope the designer permitted, and thereby shape its own future observations and transitions. The fixed core and the modification policy stay outside the agent's write set. This is a stub.",
       "stubs": [
-        "struct DesignAct",
-        "trait MetaRule",
-        "fn record_design_act",
-        "fn freeze_if_uncovered"
+        "struct FixedCore",
+        "struct MutableSupplement",
+        "struct ModificationPolicy",
+        "fn permits",
+        "fn apply"
       ]
     },
     {
@@ -106,7 +107,7 @@ const DATA = {
       "y": 270,
       "file": "harness-core/src/run_loop.rs",
       "theory": "the policy loop itself",
-      "description": "The policy loop itself.  Theory: \"Starting definitions\". An agent is a policy `pi(a | o)`; the harness carries out the transition `p(s' | s, a)` and the observation `p(o | s)`. This is a stub: no loop is actually run.",
+      "description": "The policy loop itself.  Theory: \"Definitions\" and \"The loop\". An agent is a policy `pi(a | o)`; the harness carries out the transition `p(s' | s, a)` and the observation `p(o | s)`. This is a stub: no loop is actually run.",
       "stubs": [
         "trait Policy",
         "trait HarnessLoop"
@@ -114,13 +115,13 @@ const DATA = {
     },
     {
       "id": "action",
-      "title": "Action tower",
+      "title": "Action levels",
       "layer": "loop",
       "x": 280,
       "y": 270,
       "file": "harness-core/src/action.rs",
-      "theory": "the action space as a tower of levels",
-      "description": "The action space: a tower, not a set.  Theory: \"The action space: a tower, not a set\". There is no single set `A` for every level. At the lowest level an action is a token; at the next level a parsed move; moves execute into effects, and some executions contain whole inner loops. The available moves depend on harness state: `A(h)`, not `A`. This is a stub.",
+      "theory": "the action space at levels of abstraction",
+      "description": "The action space at levels of abstraction, not a single set.  Theory: \"Action space at levels of abstraction\". There is no single set `A` for every level. At the lowest level an action is a token; at the next level a parsed move; moves execute into effects, and some executions contain whole inner loops. The available moves depend on harness state: `A(h)`, not `A`. This is a stub.",
       "stubs": [
         "struct Token",
         "enum ParsedMove",
@@ -137,72 +138,37 @@ const DATA = {
       "y": 270,
       "file": "harness-core/src/state.rs",
       "theory": "the state split, `s = (w, h)`",
-      "description": "The state split: `s = (w, h)`.  Theory: \"One principle or several? World-directed and harness-directed actions\". World state is what neither designer nor agent controls; harness state is what the designer controls. This is a stub.",
+      "description": "The state split: `s = (w, h)`.  Theory: \"Definitions\" and \"The minimal core\". World state is what neither designer nor agent controls; harness state is what the designer controls. This is a stub.",
       "stubs": [
         "struct State",
-        "enum LandingSite",
-        "fn landing_site"
+        "enum EffectTarget",
+        "fn effect_target"
       ]
     },
     {
-      "id": "views",
-      "title": "Views / observation",
+      "id": "observation_functions",
+      "title": "Observation functions",
       "layer": "loop",
       "x": 760,
       "y": 270,
-      "file": "harness-core/src/views.rs",
+      "file": "harness-core/src/observation_functions.rs",
       "theory": "one observation function per principal",
-      "description": "Multiple principals, one state.  Theory: \"Multiple principals, one state\". One state, one observation function per principal, each satisfying sufficiency and separation: enough to do the job, never conferring a write by showing a read. This is a stub.",
+      "description": "Observation functions, one per principal.  Theory: \"Observation functions and precedence\". One state, one observation function per principal, each satisfying sufficiency and separation: enough to do the job, never conferring a write by showing a read. This is a stub.",
       "stubs": [
         "enum Principal",
         "struct Observation",
-        "trait View"
-      ]
-    },
-    {
-      "id": "authorship",
-      "title": "Authorship",
-      "layer": "governs",
-      "x": 40,
-      "y": 490,
-      "file": "harness-core/src/authorship.rs",
-      "theory": "agent authorship over harness state",
-      "description": "Agent authorship over harness state.  Theory: the agent may write harness state within a scope the designer permitted, and thereby shape its own future observations and transitions. The fixed core and the modification policy stay outside the agent's write set. This is a stub.",
-      "stubs": [
-        "struct FixedCore",
-        "struct MutableSupplement",
-        "struct ModificationPolicy",
-        "fn permits",
-        "fn apply"
-      ]
-    },
-    {
-      "id": "liveness",
-      "title": "Liveness",
-      "layer": "governs",
-      "x": 280,
-      "y": 490,
-      "file": "harness-core/src/liveness.rs",
-      "theory": "liveness over histories, progress, epochs",
-      "description": "Liveness over histories, and progress toward a vague or shifting goal.  Theory: \"Liveness under precedence\" and \"Progress toward a vague or shifting G\". Safety is step-local; liveness is judged over traces, by counters and timers against designer-fixed thresholds, with progress measured against aspiration, tied proxies, and recorded epochs. This is a stub.",
-      "stubs": [
-        "struct Trace",
-        "enum RunStatus",
-        "struct Aspiration",
-        "struct Epoch",
-        "fn judge",
-        "fn is_progress"
+        "trait ObservationFunction"
       ]
     },
     {
       "id": "membership",
       "title": "Membership",
       "layer": "governs",
-      "x": 520,
+      "x": 280,
       "y": 490,
       "file": "harness-core/src/membership.rs",
       "theory": "what counts as a harness, and what does not",
-      "description": "Membership: what counts as a harness, and what does not.  Theory: \"Membership\". A candidate is an agent harness exactly when four things hold: it runs a loop; its machinery is designer-controlled and outside the policy's write set except for a permitted authorship scope; the policy can act through it; and at least one designer-fixed control can alter or suspend execution without the policy's cooperation. Weakness is not absence: a bad harness is still a harness. This is a stub.",
+      "description": "Membership: what counts as a harness, and what does not.  Theory: \"Membership\". A candidate is an agent harness exactly when four things hold: it runs a loop; its machinery is designer-controlled and outside the policy's write set except for a permitted write scope scope; the policy can act through it; and at least one designer-fixed control can alter or suspend execution without the policy's cooperation. Weakness is not absence: a bad harness is still a harness. This is a stub.",
       "stubs": [
         "struct Candidate",
         "fn is_harness"
@@ -212,35 +178,13 @@ const DATA = {
       "id": "adoption",
       "title": "Adoption",
       "layer": "bridge",
-      "x": 760,
+      "x": 520,
       "y": 490,
       "file": "harness-core/src/adoption.rs",
       "theory": "how an existing harness is adopted on top of this core; the first adapter is SWE-agent",
       "description": "Adopting an existing harness on top of this core.  This is the adapter shape for the monthly objective of unifying a popular harness under the theory: an existing harness is not rewritten, it is mapped onto the core. Each method names one thing the adapter must be able to say about the existing harness, in the core's terms. Adapters themselves live in the parallel `adaptations` crate, not here, so the core stays free of any one harness: a later adapter for a different harness implements the same trait, so the two adoptions can be compared in the core's terms.",
       "stubs": [
         "trait AdoptedHarness"
-      ]
-    },
-    {
-      "id": "extensions",
-      "title": "Extensions",
-      "layer": "extension",
-      "x": 760,
-      "y": 380,
-      "file": "harness-core/src/extensions.rs",
-      "theory": "applications of the core, not the core itself:",
-      "description": "Applications of the core, not the core itself.  Theory: succession, ending, debts, chains, identity, trust, anchors, and root rotation are applications of the meta-rule to the next thing that could evade it. They are kept here, outside the core modules, so that building on the core does not require adopting them. Everything in this module is a stub.",
-      "stubs": [
-        "struct Succession",
-        "fn is_legitimate",
-        "struct Ending",
-        "fn end",
-        "struct Debt",
-        "struct Identity",
-        "fn traces_intact",
-        "struct TrustRecord",
-        "struct RootLedger",
-        "fn walk_from"
       ]
     }
   ],
@@ -259,12 +203,12 @@ const DATA = {
     ],
     [
       "state",
-      "views",
+      "observation_functions",
       "solid",
       "state rendered"
     ],
     [
-      "views",
+      "observation_functions",
       "run_loop",
       "solid",
       "observation o"
@@ -276,28 +220,16 @@ const DATA = {
       "who controls what"
     ],
     [
-      "authorship",
+      "write_permission",
       "state",
       "dashed",
       "agent writes h"
     ],
     [
-      "arbitration",
+      "precedence",
       "action",
       "dashed",
       "veto, not compulsion"
-    ],
-    [
-      "liveness",
-      "state",
-      "dashed",
-      "judged over traces"
-    ],
-    [
-      "meta",
-      "arbitration",
-      "dashed",
-      "rules about rules"
     ],
     [
       "membership",
@@ -310,12 +242,6 @@ const DATA = {
       "run_loop",
       "dashed",
       "existing harness, mapped"
-    ],
-    [
-      "extensions",
-      "state",
-      "dashed",
-      "applications, not core"
     ]
   ]
 };
@@ -337,7 +263,7 @@ for (const [a, b, kind, label] of DATA.edges) {
   if (!A || !B) continue;
   const [x1, y1] = centre(A), [x2, y2] = centre(B);
   let d;
-  if (a === 'views' && b === 'run_loop') {
+  if (a === 'observation_functions' && b === 'run_loop') {
     d = `M ${x1} ${y1 + H / 2} C ${x1} ${y1 + 180}, ${x2} ${y2 + 180}, ${x2} ${y2 + H / 2}`;
   } else {
     d = `M ${x1} ${y1} L ${x2} ${y2}`;

@@ -1,6 +1,6 @@
 //! The harness boundary, by designer control.
 //!
-//! Theory: "The harness boundary: what the designer controls".
+//! Theory: "Harness boundary by control".
 //! The environment splits three ways by who can change what.
 //! This is a stub: classification is not implemented.
 

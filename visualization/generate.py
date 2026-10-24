@@ -35,48 +35,39 @@ OUT = Path(__file__).resolve().parent / "index.html"
 # the things that govern, shape, or judge that loop.
 LAYOUT = {
     "boundary": (40, 50, "governs"),
-    "arbitration": (410, 50, "governs"),
-    "meta": (730, 50, "governs"),
+    "precedence": (410, 50, "governs"),
+    "write_permission": (730, 50, "governs"),
     "run_loop": (40, 270, "loop"),
     "action": (280, 270, "loop"),
     "state": (520, 270, "loop"),
-    "views": (760, 270, "loop"),
-    "authorship": (40, 490, "governs"),
-    "liveness": (280, 490, "governs"),
-    "membership": (520, 490, "governs"),
-    "adoption": (760, 490, "bridge"),
-    "extensions": (760, 380, "extension"),
+    "observation_functions": (760, 270, "loop"),
+    "membership": (280, 490, "governs"),
+    "adoption": (520, 490, "bridge"),
 }
 
 TITLES = {
     "boundary": "Boundary",
-    "arbitration": "Arbitration",
-    "meta": "Meta-rule",
+    "precedence": "Precedence",
+    "write_permission": "Write permission",
     "run_loop": "Policy loop",
-    "action": "Action tower",
+    "action": "Action levels",
     "state": "State s = (w, h)",
-    "views": "Views / observation",
-    "authorship": "Authorship",
-    "liveness": "Liveness",
+    "observation_functions": "Observation functions",
     "membership": "Membership",
     "adoption": "Adoption",
-    "extensions": "Extensions",
 }
 
 # Solid loop edges, and dashed governing edges.
 EDGES = [
     ("run_loop", "action", "solid", "policy chooses"),
     ("action", "state", "solid", "transition"),
-    ("state", "views", "solid", "state rendered"),
-    ("views", "run_loop", "solid", "observation o"),
+    ("state", "observation_functions", "solid", "state rendered"),
+    ("observation_functions", "run_loop", "solid", "observation o"),
     ("boundary", "state", "dashed", "who controls what"),
-    ("authorship", "state", "dashed", "agent writes h"),
-    ("arbitration", "action", "dashed", "veto, not compulsion"),
-    ("liveness", "state", "dashed", "judged over traces"),
-    ("meta", "arbitration", "dashed", "rules about rules"),
+    ("write_permission", "state", "dashed", "agent writes h"),
+    ("precedence", "action", "dashed", "veto, not compulsion"),
     ("membership", "run_loop", "dashed", "is this a harness?"),
     ("adoption", "run_loop", "dashed", "existing harness, mapped"),
-    ("extensions", "state", "dashed", "applications, not core"),
 ]
 
 
@@ -175,7 +166,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <body>
 <h1>The shape of a harness, at a glance</h1>
 <p class="lede">The middle row is the loop: a policy chooses, an action executes,
-state changes, a view renders an observation, and the loop runs again.
+state changes, an observation function renders an observation, and the loop runs again.
 The rows around it govern, shape, or judge that loop. Click any node
 to see what it is, what theory it comes from, and which Rust stubs
 in <code>harness-core</code> it corresponds to.</p>
@@ -210,7 +201,7 @@ for (const [a, b, kind, label] of DATA.edges) {
   if (!A || !B) continue;
   const [x1, y1] = centre(A), [x2, y2] = centre(B);
   let d;
-  if (a === 'views' && b === 'run_loop') {
+  if (a === 'observation_functions' && b === 'run_loop') {
     d = `M ${x1} ${y1 + H / 2} C ${x1} ${y1 + 180}, ${x2} ${y2 + 180}, ${x2} ${y2 + H / 2}`;
   } else {
     d = `M ${x1} ${y1} L ${x2} ${y2}`;

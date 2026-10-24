@@ -7,7 +7,7 @@
 //! its actual code and documentation.
 //!
 //! One part is verified, not merely stubbed:
-//! arbitration, checked in outline against
+//! precedence, checked in outline against
 //! google-gemini/gemini-cli, commit
 //! cd1b45c2db0a5ea7b7fc3b67c1ba5879601d6005
 //! (2026-10-24), in `packages/core/src/policy/`
@@ -63,7 +63,7 @@ impl AdoptedHarness for GeminiCli {
         )
     }
 
-    fn views(&self) -> Vec<String> {
+    fn observation_functions(&self) -> Vec<String> {
         vec![
             "Agent: the context history, including tool results.".to_string(),
             "User: terminal output, diffs, and summaries.".to_string(),
@@ -73,7 +73,7 @@ impl AdoptedHarness for GeminiCli {
 
     fn controls(&self) -> Vec<String> {
         vec![
-            "Arbitration: none — no designer-fixed rule deciding between contending principals' proposals was found. What exists is veto and approval over a single proposed move, not a choice between proposals. The policy engine decides one move at a time: ALLOW, DENY, or ASK_USER, from the first matching rule when rules are sorted by priority, with tiers admin (5), user (4), workspace (3), extension (2), default (1), so an admin rule beats a user rule about the same move — rule precedence, not arbitration between proposals. DENY blocks the move with a policy-violation error; ASK_USER sends it to the user for confirmation. Confirmation itself is raced between the terminal and the IDE companion, first response winning, which is one user through two channels, not two principals. Hooks aggregate the same way: any blocking hook denies, and an ask decision stands only if no hook blocks. No rule suspending only a contested transition while unrelated work proceeds was found.".to_string(),
+            "Precedence: none — no designer-fixed precedence rule deciding between contending principals' proposals was found. What exists is veto and approval over a single proposed move, not a choice between proposals. The policy engine decides one move at a time: ALLOW, DENY, or ASK_USER, from the first matching rule when rules are sorted by priority, with tiers admin (5), user (4), workspace (3), extension (2), default (1), so an admin rule beats a user rule about the same move — rule precedence, not a precedence rule between proposals. DENY blocks the move with a policy-violation error; ASK_USER sends it to the user for confirmation. Confirmation itself is raced between the terminal and the IDE companion, first response winning, which is one user through two channels, not two principals. Hooks aggregate the same way: any blocking hook denies, and an ask decision stands only if no hook blocks. No rule suspending only a contested transition while unrelated work proceeds was found.".to_string(),
             "Approvals for actions outside the allowed set.".to_string(),
             "Tool registry: only listed tools and extensions are available moves.".to_string(),
             "User stop and interruption of a running loop.".to_string(),

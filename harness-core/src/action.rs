@@ -1,6 +1,6 @@
-//! The action space: a tower, not a set.
+//! The action space at levels of abstraction, not a single set.
 //!
-//! Theory: "The action space: a tower, not a set".
+//! Theory: "Action space at levels of abstraction".
 //! There is no single set `A` for every level. At the
 //! lowest level an action is a token; at the next level
 //! a parsed move; moves execute into effects, and some

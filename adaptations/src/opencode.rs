@@ -11,7 +11,7 @@
 //! intervention, checked against anomalyco/opencode,
 //! dev branch, commit 17b79f4e0c16dcff200b0417567ed22aeb2d7166
 //! (2026-10-24). See `controls` and `gaps` below, and
-//! the intervention section in `docs/theory.md`. Three
+//! `controls` below. Three
 //! of its former gaps are now verified, not open:
 //! interruption settlement (run-coordinator),
 //! partial-step resumption (step abort, new step on
@@ -68,7 +68,7 @@ impl AdoptedHarness for OpenCode {
         )
     }
 
-    fn views(&self) -> Vec<String> {
+    fn observation_functions(&self) -> Vec<String> {
         vec![
             "Agent: the context history, including tool results.".to_string(),
             "User: terminal output, diffs, and summaries.".to_string(),
@@ -78,7 +78,7 @@ impl AdoptedHarness for OpenCode {
 
     fn controls(&self) -> Vec<String> {
         vec![
-            "Arbitration: no ranking of principals — intervention precedence is per mechanism: interrupt over in-flight work, active execution over revert (busy error), steer over queue at promotion, permission deny over a move, and a user reply over the whole pending permission batch; user versus shutdown is decided by arrival order, since the coordinator's only interrupt reasons are user and shutdown.".to_string(),
+            "Precedence: no ranking of principals — intervention precedence is per mechanism: interrupt over in-flight work, active execution over revert (busy error), steer over queue at promotion, permission deny over a move, and a user reply over the whole pending permission batch; user versus shutdown is decided by arrival order, since the coordinator's only interrupt reasons are user and shutdown.".to_string(),
             "Approvals for actions outside the allowed set.".to_string(),
             "Tool registry: only listed tools are available moves.".to_string(),
             "User interrupt of a running session (Session.interrupt, reason 'user'; acknowledged on acceptance, cleanup settles asynchronously; idle interrupt is a no-op; a second interrupt while stopping, or in the settlement window, returns false and claims recorded wakes; wakes during cleanup start a successor at settle; awaitIdle waits for settlement).".to_string(),

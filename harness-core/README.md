@@ -7,17 +7,13 @@ Each module corresponds to a part of the theory:
 
 - `boundary` — the designer-control boundary
 - `state` — the state split, `s = (w, h)`
-- `action` — the action space as a tower of levels
-- `authorship` — agent authorship over harness state
-- `views` — one observation function per principal
-- `arbitration` — designer-fixed arbitration over transitions
-- `liveness` — liveness over histories, progress, epochs
-- `meta` — the meta-rule: recorded, prospective, visible design acts
+- `action` — the action space at levels of abstraction
+- `write_permission` — agent write permission over harness state, fixed core and modification policy
+- `observation_functions` — one observation function per principal
+- `precedence` — designer-fixed precedence over transitions, veto not compulsion
 - `membership` — what counts as a harness, and what does not
 - `run_loop` — the policy loop itself
 - `adoption` — how an existing harness is adopted on top of this core; the first adapter is SWE-agent
-- `extensions` — applications of the core, not the core itself:
-  succession, ending, debts, identity, trust, and roots
 
 Functions marked with `todo!()` are stubs: their signatures
 are the claim, their bodies are deliberately empty. A trait

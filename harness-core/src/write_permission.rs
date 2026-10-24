@@ -1,6 +1,7 @@
-//! Agent authorship over harness state.
+//! Write permission over harness state.
 //!
-//! Theory: the agent may write harness state within a
+//! Theory: "Harnesses that rewrite themselves" and "The minimal core".
+//! The agent may write harness state within a
 //! scope the designer permitted, and thereby shape its
 //! own future observations and transitions. The fixed
 //! core and the modification policy stay outside the

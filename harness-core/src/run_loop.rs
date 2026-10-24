@@ -1,6 +1,6 @@
 //! The policy loop itself.
 //!
-//! Theory: "Starting definitions". An agent is a policy
+//! Theory: "Definitions" and "The loop". An agent is a policy
 //! `pi(a | o)`; the harness carries out the transition
 //! `p(s' | s, a)` and the observation `p(o | s)`.
 //! This is a stub: no loop is actually run.

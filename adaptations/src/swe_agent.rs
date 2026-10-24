@@ -32,7 +32,7 @@ impl SweAgent {
     pub fn gaps(&self) -> Vec<&'static str> {
         vec![
             "No live view for a second principal: an overseer gets the trajectory file and the trajectory inspector after the run, not an observation function of its own during it.",
-            "No arbitration: there is a single policy, so the only conflicts are vetoes, a blocklist refusing a command, not principals contending over a transition.",
+            "No precedence rule: there is a single policy, so the only conflicts are vetoes, a blocklist refusing a command, not principals contending over a transition.",
             "No human intervention in a run already under way: a human model replaces the policy rather than pausing, editing, redirecting, or taking over a running loop.",
             "Control is veto plus cost, not admission: the blocklist refuses known bad commands, it does not bound in advance what a shell string can do.",
             "Termination and verdict come apart: a run can terminate as submitted without ever having succeeded, and success is judged outside the loop by the SWE-bench evaluation hook.",
@@ -69,7 +69,7 @@ impl AdoptedHarness for SweAgent {
         )
     }
 
-    fn views(&self) -> Vec<String> {
+    fn observation_functions(&self) -> Vec<String> {
         vec![
             "Agent: the next-step observation, built from the trajectory by the configured history processor, rendered as OBSERVATION: {{observation}} and truncated at 100,000 characters with the elided count noted.".to_string(),
         ]
@@ -77,7 +77,7 @@ impl AdoptedHarness for SweAgent {
 
     fn controls(&self) -> Vec<String> {
         vec![
-            "Arbitration: none — there is a single policy, so the only conflicts are vetoes, a blocklist refusing a command, not principals contending over a transition.".to_string(),
+            "Precedence: none — there is a single policy, so the only conflicts are vetoes, a blocklist refusing a command, not principals contending over a transition.".to_string(),
             "Per-instance and total cost limits: exceeding either ends the run.".to_string(),
             "Command timeout of 30 seconds, total execution timeout of 1800 seconds, and exit after repeated consecutive timeouts.".to_string(),
             "Blocklist: interactive and escape commands are refused and not executed; the model is requieried, up to three times, for a different action.".to_string(),

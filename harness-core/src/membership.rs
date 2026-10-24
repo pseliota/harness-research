@@ -3,7 +3,7 @@
 //! Theory: "Membership". A candidate is an agent harness
 //! exactly when four things hold: it runs a loop; its
 //! machinery is designer-controlled and outside the
-//! policy's write set except for a permitted authorship
+//! policy's write set except for a permitted write scope
 //! scope; the policy can act through it; and at least
 //! one designer-fixed control can alter or suspend
 //! execution without the policy's cooperation.
@@ -20,7 +20,7 @@ pub struct Candidate {
     /// the next step can depend on the previous observation.
     pub runs_loop: bool,
     /// Its machinery is designer-controlled, outside the
-    /// policy's write set except for permitted authorship.
+    /// policy's write set except for permitted write scope.
     pub designer_controlled: bool,
     /// The policy can act through it: at least one action
     /// lands in the world or in harness state.

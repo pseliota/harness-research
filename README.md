@@ -34,11 +34,7 @@ now. A theory should be internally consistent, grounded in examples,
 and able to encompass developments that do not exist yet. If it cannot
 do that, it is a description, not a theory.
 
-It should also be beautiful to read. Someone should be able to look at
-it and think, this is clear. Beauty here is not decoration. A clear
-mental model is what makes code flexible later, because when a new
-development arrives, you know exactly where it belongs, or whether it
-belongs at all.
+It should be clear enough that a reader can tell at once what belongs in the core and what does not.
 
 ## How to read this repo
 
@@ -46,17 +42,13 @@ For the shape at a glance, open `visualization/index.html`.
 It is an interactive diagram generated from the Rust stubs
 in `harness-core`, so it changes when the stubs change.
 
-Start in `docs/theory.md` for the theory itself. The log
-of what was tried, found, ruled out, and left open is in
-`docs/log.md`. The high-level objectives and key results
+Start in `docs/theory.md` for the theory itself. It states only the core: what a harness is, how to test a candidate, and how to adopt an existing harness. The high-level objectives and key results
 are in `docs/OKR.md`. Removal counts as work: an idea that
 no longer holds up should be taken out, not left to confuse.
 
 ## Repo structure
 
-- `docs/theory.md` — the theory, and its basic and open questions
-- `docs/log.md` — dated log of what was tried, found, ruled out,
-  and left open
+- `docs/theory.md` — the core theory, and its basic and open questions
 - `docs/OKR.md` — long-term direction and monthly objectives
 - `harness-core/` — rough Rust stubs matching the theory;
   no implementation, no tests

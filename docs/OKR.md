@@ -30,7 +30,7 @@ stubs, how X can be adopted on top of the core in
 
 - A stub adapter for X exists, naming, in the core's
   terms, X's loop, action space `A(h)`, state split,
-  views, arbitration and controls, and run termination.
+  observation functions, precedence and controls, and run termination.
 - The membership test is applied to X in stubs, with
   the result stated plainly: which of the four
   conditions hold, and which do not.
@@ -54,8 +54,9 @@ stubs, how X can be adopted on top of the core in
 
 - The theory reads as a single pass. Governance topics
   — succession, ending, debts, identity, trust, roots —
-  are clearly marked as applications or extensions,
-  not as core, in both the theory and the package.
+  are removed from the theory and the core, not kept
+  as extensions, unless a later month shows they change
+  an adoption or a membership result.
 - One pruning pass is done: ideas that no longer hold
   are removed, or explicitly marked as open or
   deferred, rather than left to accumulate.

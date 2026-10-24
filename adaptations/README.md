@@ -5,11 +5,11 @@ demonstrating how the core can be adapted to various
 popular harnesses. Each module is one stub adapter: a
 struct implementing `harness_core::adoption::AdoptedHarness`,
 naming, in the core's terms, that harness's loop, action
-space, state split, views, arbitration and controls,
+space, state split, observation functions, precedence and controls,
 termination, and membership. Every adapter states its
-arbitration position in `controls()`: the rule itself,
+precedence position in `controls()`: the rule itself,
 or that there is none, or that it is not yet stated.
-Silence about arbitration is not a statement — a reader
+Silence about precedence is not a statement — a reader
 must be able to tell absence from an unnamed rule.
 
 Nothing here runs a harness, and there are no tests.
@@ -35,7 +35,7 @@ Adapters included:
   sandbox policy, approval modes, and escalation
   are verified in outline against openai/codex;
   escalation is a guardian-or-user decision with a
-  turn or session scope, not arbitration in the
+  turn or session scope, not precedence in the
   theory's sense, and is kept apart from the
   durable exec-policy amendment a user approval
   may also make. The rest of the adapter is still
@@ -65,7 +65,7 @@ and terms again.
 
 To add a new adapter: copy one module, implement
 `AdoptedHarness` for the new harness, state its
-arbitration position explicitly in `controls()` (the
+precedence position explicitly in `controls()` (the
 rule, that there is none, or that it is not yet
 stated), list its gaps, add the module to `src/lib.rs`,
 and add it to the list above. Do not add behaviour, and do not add tests,

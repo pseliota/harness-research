@@ -78,7 +78,7 @@ impl AdoptedHarness for CodexCli {
         )
     }
 
-    fn views(&self) -> Vec<String> {
+    fn observation_functions(&self) -> Vec<String> {
         vec![
             "Agent: the context history, including tool results.".to_string(),
             "User: terminal output, diffs, and summaries.".to_string(),
@@ -93,7 +93,7 @@ impl AdoptedHarness for CodexCli {
             "Approval modes: untrusted (approval required unless an exec-policy rule allows the command), on-request (the default; the model decides when to ask), granular (per-category allow, or automatic rejection instead of a prompt, for sandbox approvals, policy-rule prompts, skill approvals, and permission requests), or never (never ask; a command needing approval is rejected outright and the failure returns to the model).".to_string(),
             "Approval-seeking is not itself the control under the default on-request mode: the model decides when to ask, so the controls that hold regardless are sandbox enforcement and forbidden exec-policy rules, not the asking.".to_string(),
             "Escalation, agent-initiated: the agent calls a request_permissions tool asking for wider permissions; the request is decided by the automated guardian reviewer when it decides, and otherwise goes to the user as an event to answer. A grant is scoped to the turn, or to the session when the user approves for the session; it is not written to disk. Under approval mode never, or a granular configuration that disallows permission requests, the request returns an empty grant: escalation is refused without asking.".to_string(),
-            "Arbitration: none — escalation is not arbitration in the theory's sense: no designer-fixed rule over action pairs decides it. It is a judging party, guardian or user, allowing or refusing the agent's request, with a scope choice. The sandbox policy and forbidden rules still bound what any grant can permit.".to_string(),
+            "Precedence: none — escalation is not a precedence rule in the theory's sense: no designer-fixed rule over action pairs decides it. It is a judging party, guardian or user, allowing or refusing the agent's request, with a scope choice. The sandbox policy and forbidden rules still bound what any grant can permit.".to_string(),
             "Exec-policy amendment, a separate and durable act: when approving a command, the user may also approve an amendment adding a prefix rule that permits future matching commands. That amendment is persisted both in memory and on disk, so it changes the control rule itself, not just one outcome. A turn- or session-scoped grant and a persisted amendment are different acts, and the adapter keeps them apart.".to_string(),
             "User interrupt of a running task: a session interrupt aborts the current task, if any.".to_string(),
         ]

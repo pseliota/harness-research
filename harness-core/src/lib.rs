@@ -11,13 +11,10 @@
 
 pub mod action;
 pub mod adoption;
-pub mod arbitration;
-pub mod authorship;
+pub mod precedence;
+pub mod write_permission;
 pub mod boundary;
-pub mod extensions;
-pub mod liveness;
 pub mod membership;
-pub mod meta;
 pub mod run_loop;
 pub mod state;
-pub mod views;
+pub mod observation_functions;
