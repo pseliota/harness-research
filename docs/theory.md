@@ -62,7 +62,7 @@ The action set depends on state: write A(h), not A. Registry, access control, sk
 
 Skills, prompts, and memories are not moves. They are harness state that changes later moves and later observations. A skill changes moves and the parser. A prompt shapes the next observation. A note changes a later observation. A skill installed now changes A(h) later.
 
-A retrieval result is an observation, not an action. A chat reply lands in the transcript in h, for another principal to see. The state component and the audience differ in that case. Unparseable token sequences are no action at all, not failed actions. The harness still responds, with an error, a retry, or a halt. That response follows a transition rule in the error model, not a rule in the action space.
+A retrieval result is an observation, not an action. A chat reply lands in the transcript in h, for another principal to see. The state component and the audience differ in that case. Unparseable token sequences are no action at all, not failed actions. The harness still responds, with an error, a retry, or a halt. That response follows a transition rule, not a rule in the action space.
 
 Invert the cut: the harness code is the policy, and the model is the environment. The same levels of abstraction apply, and the two roles exchange places.
 
@@ -187,7 +187,7 @@ These questions come before the more elaborate parts of the theory. They do not 
 ## Open questions
 
 1. What is the minimal core that all harnesses share, without being so general that it says nothing? POMDP alone is too general to guide design.
-2. What distinguishes a good harness from a merely working one, once cost, robustness, legibility to humans, and failure modes are included, not just reaching `G`?
+2. What distinguishes a good harness from a merely working one, once cost, robustness, legibility to humans, and failure modes are included, not just reaching the task goal?
 3. Is agent control over observation the central principle, or one principle among several, alongside control over transitions and legibility?
 4. How should a theory handle multiple principals at once: the agent, the user, and the human overseer, each needing their own observation function?
 5. What invariants survive across good harnesses, across models, and across tasks?
