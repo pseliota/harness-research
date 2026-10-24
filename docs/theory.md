@@ -2896,7 +2896,7 @@ reactive rather than bounding, and a harness
 that passes can still cost too much, starve, or
 submit a patch that fails every test.
 
-The stub adapter in `harness-core/src/adoption.rs`
+The stub adapter in `adaptations/src/swe_agent.rs`
 names these same items in the core's terms: the
 loop, the action space, the state split, the
 views, the controls, and the ending, with the
@@ -3115,6 +3115,163 @@ harness that answers only the first is a
 harness with a stop button. A harness that
 answers all four is a harness a human can
 actually steer.
+
+## The harness's error model: what fails, and who decides next
+
+Basic question 8 asks what happens when the model
+produces malformed output, refuses, loops, or calls
+a tool that fails or times out. "Error" is not one
+kind of event, and a theory that treats it as one
+will misattribute every failure it meets. The
+failures below differ in whether a move was ever
+attempted, in who refused or failed it, and in
+whether the run continues, retries under a bound,
+or ends. Those three questions — attempted, by
+whom, what next — are the error model. They are
+applications of claims already in the core: the
+tower, arbitration, views, and liveness. They add
+no eighth core claim.
+
+First, a failure to parse is not a failed action.
+The tower section already says this, and it is
+worth repeating here because error handling is
+where the distinction is most often lost. A token
+sequence the parser cannot map to a move is not
+an action at all, and the harness must still do
+something with it: return an error observation,
+retry, or halt. That response is a harness
+transition rule, not an agent choice, and it
+belongs to the error model, not to the action
+space. Counting malformed output as an action
+would hand the policy credit for a move it never
+made, and would hide the harness rule that
+decided what happened next.
+
+Second, a move refused before it is attempted is
+not a world failure. A blocklist, a forbidden
+exec-policy rule, or an approval mode that never
+asks does not report that the world refused; it
+reports that a designer-fixed control disabled
+the transition. The policy's useful response is
+therefore different: retrying the same move
+unchanged will fail again, because the rule, not
+the world, has not changed. SWE-agent shows the
+shape: a blocked command is not executed, and
+the model is requieried, up to three times, for
+a different action. Codex CLI shows the same
+shape from the other side: under approval mode
+never, a command needing approval is rejected
+outright, and the failure returns to the model.
+In both cases the refusal is an observation that
+invites a different move, not a verdict that
+ends the run. What happens after SWE-agent's
+third requery is not stated in the account above,
+and is left open rather than assumed.
+
+Third, a move attempted and failed by the world
+is an observation about `w`, not a harness
+defect and not a control verdict. A file the
+world deleted, a service that refuses, a test
+that fails: each is something the policy may
+learn from and retry differently. The distinction
+from the previous case matters for the view:
+an observation that does not say whether the
+failure was a rule or the world leaves the
+policy unable to tell whether retrying the same
+move is sensible or futile. Sufficiency, in the
+multi-principal sense, applies to errors too:
+the agent's view must carry enough of the
+failure's kind to choose the next move, not
+merely that something failed.
+
+Fourth, two things that look like errors are not
+step errors at all. A model refusal, emitted as
+text, is a parsed move, not a harness failure:
+the policy chose to say no, and the harness's
+question is what it does with that answer, not
+how it flags the refusal. A loop — the agent
+retrying the same failing move, or the overseer
+re-halting the same step — is likewise fine at
+every step and defective only over the trace.
+That is the liveness section's shape: repeated
+preemption or repeated failure without progress
+is judged by counters and timers over histories,
+not by flagging any one step as erroneous. An
+error model that only flags steps will therefore
+miss exactly the failure that looks most like
+diligence: activity without progress.
+
+Fifth, the harness itself can fail, and its
+failures sort differently again. An interrupted
+provider stream in OpenCode is recovered inside
+the step, with a synthetic observation telling
+the model to continue from where it left off
+without repeating completed content. That is
+the harness repairing its own observation
+pipeline, not the agent erring and not the
+world refusing. A user interruption is the
+other side of the same coin: the step is failed
+as aborted, unsettled tools are failed as
+aborted, and completed tool results survive in
+history. The failure marking is the harness's
+record of its own settlement, not a judgement
+on the move that was interrupted. SWE-agent's
+autosubmission after an error is a third shape:
+the harness ends the run by submitting the diff
+from the last trajectory step's state. An error
+there becomes an ending, not a retry and not a
+verdict on success, which is judged outside the
+loop.
+
+Sixth, resource exhaustion is a stop rule, not
+an error in the agent's sense. Cost, context,
+and timeout limits end a run by designer-fixed
+control, whatever the policy was doing. SWE-agent
+exits after repeated consecutive timeouts, and
+exceeding a cost or context limit ends the run.
+Calling that an agent error would misattribute
+a control to the policy, the same way calling a
+blocklist refusal a world failure would. A
+single command timeout and a run-ending timeout
+are also different events, and an error model
+should not merge them: one is a failed move the
+policy may learn from, the other is the loop's
+stop rule firing.
+
+What the theory takes for granted here is that
+a failure is visible, and visible in its kind.
+A failure the agent never sees cannot be retried
+or avoided; a failure shown only as silence
+will be misattributed to the world or to
+another principal, and retried what the rule
+will keep refusing. That is the legibility
+condition applied to errors, and it is the
+reason the sorting above matters more than any
+single failure's label.
+
+What is left open is considerable. The retry
+bounds are unexplained: why three requeries in
+SWE-agent, and what happens at the bound, is a
+design choice the theory has not yet judged.
+Timeout classification is unsettled: is a slow
+tool a world failure, or a harness clock
+firing, and should the two be told apart in
+the observation? Provider errors and tool errors
+may need different marks in the trajectory, and
+whether history processors should preserve that
+mark when they rewrite history is unexamined.
+And refusal handling has no general rule here:
+what a harness should do with a policy that
+refuses its task, as opposed to a tool that
+refuses a command, is a question for a worked
+example, not for this sorting. The test a later
+reader can apply is therefore four questions,
+one per failure: was a move attempted; who
+refused or failed it — control, world, harness,
+or policy; what observation followed; and did
+the run continue, retry under a bound, or end?
+A harness whose failures cannot answer all
+four has an error model only in name.
 
 ## Basic questions
 
