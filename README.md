@@ -46,25 +46,24 @@ For the shape at a glance, open `visualization/index.html`.
 It is an interactive diagram generated from the Rust stubs
 in `harness-core`, so it changes when the stubs change.
 
-Start in `theory.md` for the theory itself. The log of what
-was tried, found, ruled out, and left open is in `log.md`.
-The high-level objectives and key results are in `OKR.md`.
-Removal counts as work: an idea that no longer holds up
-should be taken out, not left to confuse.
+Start in `docs/theory.md` for the theory itself. The log
+of what was tried, found, ruled out, and left open is in
+`docs/log.md`. The high-level objectives and key results
+are in `docs/OKR.md`. Removal counts as work: an idea that
+no longer holds up should be taken out, not left to confuse.
 
 ## Repo structure
 
-- `theory.md` — the theory, and its basic and open questions
-- `log.md` — dated log of what was tried, found, ruled out,
+- `docs/theory.md` — the theory, and its basic and open questions
+- `docs/log.md` — dated log of what was tried, found, ruled out,
   and left open
-- `OKR.md` — long-term direction and monthly objectives
+- `docs/OKR.md` — long-term direction and monthly objectives
 - `harness-core/` — rough Rust stubs matching the theory;
   no implementation, no tests
 - `visualization/` — interactive diagram of the harness
   shape, generated from `harness-core` by `generate.py`
 
-The theory files stay at the repo root, so existing
-references to them do not break. Code lives in
+The theory files live in `docs/`. Code lives in
 `harness-core/`, and the diagram lives in
 `visualization/`, each with its own README.
 

@@ -1,6 +1,6 @@
 # harness_core — stubs only
 
-A rough Rust package whose shapes match `theory.md`. It is
+A rough Rust package whose shapes match `docs/theory.md`. It is
 not an implementation, and it has no tests.
 
 Each module corresponds to a part of the theory:

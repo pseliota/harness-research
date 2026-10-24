@@ -1,4 +1,4 @@
-//! Rough stubs for the harness theory in `theory.md`.
+//! Rough stubs for the harness theory in `docs/theory.md`.
 //!
 //! No behaviour is implemented here, and there are no tests.
 //! Each module names the shape of one part of the theory;

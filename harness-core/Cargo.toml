@@ -2,7 +2,7 @@
 name = "harness_core"
 version = "0.1.0"
 edition = "2021"
-description = "Rough stubs for the harness theory in theory.md. No behaviour is implemented, and there are no tests."
+description = "Rough stubs for the harness theory in docs/theory.md. No behaviour is implemented, and there are no tests."
 license = "MIT OR Apache-2.0"
 
 [dependencies]

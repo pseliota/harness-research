@@ -121,3 +121,7 @@ Rust stubs and monthly OKRs: rough harness-core package in Rust with stubs match
 ## 2026-10-24 — Visualization and organization
 
 Repo organized with a structure map in README; interactive visualization added in visualization/, generated from harness-core stubs by generate.py, so it updates when stubs change. No theory files moved.
+
+## 2026-10-24 — Move theory files to docs
+
+Theory files moved to docs/: theory.md, log.md, and OKR.md now live in docs/, with README and code references updated. Content unchanged.
