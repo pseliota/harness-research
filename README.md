@@ -11,6 +11,18 @@ But: what is the structure that all harnesses share, stated so clearly
 that new developments fit into it without breaking it, and so simply
 that the resulting code needs very little maintenance?
 
+## The goal
+
+Fit all of this under one simple, unified, mathematical
+theory that can be easily implemented in code.
+
+Its core should be so tight and generalizable that any
+harness can build on top of it. That is the test for
+what belongs in the core: if a claim cannot be stated
+simply, defined mathematically, and implemented as code
+that other harnesses can build on, it does not belong
+in the core, however interesting it is elsewhere.
+
 ## The approach
 
 Approach this as a mathematician, not as a developer or as an

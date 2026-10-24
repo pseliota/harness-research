@@ -101,3 +101,7 @@ Basic questions added: action space, POMDP fit, major harnesses today, steps and
 ## 2026-10-24 — Action space as a tower
 
 Action space as a tower, not a set: tokens, parsed moves, and effects, with A depending on harness state h. Tools are single-step moves, subagents moves running an inner loop; skills, prompts, memories parametrize A and observation, not moves. Open: cost of a move at each level.
+
+## 2026-10-24 — Goal
+
+Goal added to README: one simple, unified, mathematical theory, easily implemented in code, with a core so tight and generalizable that any harness can build on top of it.
