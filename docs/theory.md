@@ -1,1281 +1,734 @@
 # Theory
 
-This document states the first definitions. It also states the questions that the definitions leave open.
+This document states the definitions. It also states the questions that the definitions leave open.
 
-## Starting definitions
+## Definitions
 
-w is the world state. w holds the state of the world outside the harness. h is the harness state. h holds the state inside the harness. s is the full state.
+- s stands for the pair (w, h).
+- w stands for the world state, the part of s that neither the designer nor the agent controls.
+- h stands for the harness state, the part of s that the designer controls.
+- a stands for an action, one token or one parsed move at a stated level.
+- o stands for an observation, the input at one step.
+- pi stands for a policy, a function from an observation to a distribution over actions.
+- Write pi(a | o) for the probability that the policy selects action a after observation o.
+- p stands for a probability function.
+- s' stands for the state after one step.
+- Write p(s' | s, a) for the probability that action a in state s leads to state s'.
+- Write p(o | s) for the probability that state s yields observation o.
+- V stands for the model vocabulary, the set of tokens the model outputs.
+- A stands for an action set at one level of abstraction.
+- A1 stands for the action set at the next level, the set of parsed moves.
+- A(h) stands for the set of moves available to attempt in harness state h.
+- G stands for the set of goals for one run.
+- A principal is a party with its own goal, observation function, and write permission set, such as the user, the agent, or the overseer.
+- p_i(o_i | s) stands for the observation function for principal i, where o_i is the observation of principal i.
+- G_i stands for the version of G in epoch i. An epoch is a period in which the harness functions stay fixed and G stays at one version.
+- An index letter ranges over the set named with it. In G_i, i ranges over epochs. In p_i, i ranges over principals.
 
-s is the pair (w, h).
+The harness is part of the environment. The harness carries out the transition function and the observation function.
 
-o is an observation. o is what the agent sees at one step. In the case of a large language model, o is the full context history. a is an action. At the lowest level, a is one token or one log-probability.
+A tool gives the agent an answer without work by the agent. The harness calls an outside service and puts the answer in the next observation. For weather, the harness calls a weather service and puts the result in the next observation.
 
-The network generates a.
+## Harness boundary by control
 
-pi is a policy. A policy is a rule for action choice. pi(a | o) gives the action choice for observation o. An agent is pi(a | o). s' is the state after one step from s.
+Sutton and Barto draw the boundary by control. What the agent does not control counts as environment. The same rule splits the environment three ways, by who controls what.
 
-p is a probability function.
+- The agent side is the policy and, for a language model, its weights.
+- The harness side is the transition and observation machinery, internal state, interfaces, budgets, and checks.
+- The world side is weather, external service answers, and retrieved documents.
 
-p(s' | s, a) is the transition. A transition is a change from s to s' after action a. p(o | s) is the observation function. An observation function gives o for state s. The harness is part of the environment.
+The system prompt is harness, not agent. The designer rewrites it and leaves the weights unchanged.
 
-The harness carries out p(s' | s, a) and p(o | s).
+Apply this test: the designer changes a part, and the agent and the world stay fixed. If the part changes, it is harness. If a change to the weights changes the part, it is agent side. If a change to the world changes the part, it is world side.
 
-G is the set of goals for the run.
+The label "harness" does not mean all outside the agent. That broad label merges the designer lever with the world. The merge hides who caused a failure, the designer or the world.
 
-A harness is a system that the designer builds around the agent. The designer is the person who builds the harness. The harness carries out the transition and the observation function. A tool is an engineered shortcut. The harness jumps to a state that holds the answer.
+## Harnesses that rewrite themselves: fixed core and mutable supplement
 
-The harness then shows the answer to the agent. A dummy case is a simple example. The weather today is a dummy case.
+Prime Agent Continual Harness rewrites its own prompts, memories, and skills. This fact looks like a counterexample to the boundary by control. It is not a counterexample at the right level. Split the harness into a fixed core and a mutable supplement. The core is the base prompt, the runtime that applies edits at turn boundaries, and a version record that records provenance and permits rollback. The supplement is prompt notes, memories, skills, and subagent specifications.
 
-## The harness boundary: what the designer controls
+The agent edits the supplement through ordinary actions, under a modification policy from the designer. The policy states what the agent edits, when it edits, on what evidence, and with what provenance. The test survives one level up: the designer controls the core and the policy, not the supplement.
 
-A boundary is a split by control. Sutton and Barto draw the boundary by control. Environment is what the agent does not change at will. The same rule draws the harness boundary. The rule splits the environment three ways by who changes what.
+A bad skill from the agent is agent side. A bad core, a permissive policy, or a failed rollback is designer side. This attribution holds exactly when the modification machinery sits outside the write set of the agent. The write set is the set of state components the agent has write permission for. Prime Agent keeps its runtime outside the writable state.
 
-The agent is what the agent controls. The agent controls its policy. For a large language model, the agent controls its weights. The agent does not control its prompt. The harness is what the designer controls.
+This document does not cover a harness that learns its own modification policy from experience.
 
-The designer controls the harness with no change to the agent. The designer controls the harness with no change to the world. The designer controls the transition and observation machinery. The designer controls internal state, interfaces, budgets, and checks. The world is what neither the agent nor the designer controls.
+## Action space at levels of abstraction
 
-The world holds the weather. The world holds answers from external services. The world holds retrieved documents.
+No single action set serves every level of abstraction. Each level has its own action set, with the same shape for one step. An executed action at a higher level unfolds into a run at the level below.
 
-Apply this test to each part of the system. The designer changes the part with no change to the agent. The designer changes the part with no change to the world. Retrain of the agent puts the part on the agent side. A change to the world puts the part on the world side.
+At the lowest level, the action set is V. The policy pi(a | o) is a distribution over V, and nothing else is an action at this level. At the next level, the harness groups token sequences into parsed moves in A1. The parsed moves are emit text, call a tool, spawn a subagent, or stop. A1 is a quotient of token sequences: two spellings of one tool call count as one move. The same text is a different move under a different parser or registry.
 
-No other result leaves the part in the harness.
+A move has two parts: its parsed intent and the state component it changes. Two moves with the same intent but different state components are different moves. A move changes w, h, or both. A tool move takes one harness step. A subagent move runs a whole inner loop and returns only a summary. The inner loop is itself a harness.
 
-Do not define the harness as all that lies outside the agent. That definition folds the lever of the designer into the world. Attribution is the assignment of a failure to its cause. That fold makes failure unattributable. The system prompt is harness, not agent.
+The action set depends on state: write A(h), not A. Registry, access control, skills, and a budget cap in h add or remove moves. A new skill adds moves, a lost tool removes moves, and an exhausted budget cap leaves no costly move. A(h) lists moves available to attempt, not guarantees. Success still depends on w.
 
-The designer rewrites the system prompt with no change to the weights.
+Skills, prompts, and memories are not moves. They are harness state that changes later moves and later observations. A skill changes moves and the parser. A prompt shapes the next observation. A note changes a later observation. A skill installed now changes A(h) later.
 
-## The boundary, one level up: self-modifying harnesses
+A retrieval result is an observation, not an action. A chat reply lands in the transcript in h, for another principal to see. The state component and the audience differ in that case. Unparseable token sequences are no action at all, not failed actions. The harness still responds, with an error, a retry, or a halt. That response follows a transition rule in the error model, not a rule in the action space.
 
-A self-modifying harness is a harness that rewrites itself. The Continual Harness from Prime Agent is a concrete case. Prime Agent is a system with a self-rewriting harness. A self-rewriting harness looks like a counterexample. It looks like a counterexample because designer and agent cease to be separate parties.
+Invert the cut: the harness code is the policy, and the model is the environment. The same levels of abstraction apply, and the two roles exchange places.
 
-It is not a counterexample at the right level. Apply the split at the right level.
+## POMDP as the shape of one step
 
-Split the harness into a fixed core and a mutable supplement. The core is fixed. The supplement is mutable. The core holds the immutable base prompt. A turn boundary is the end of one turn.
+For one step, a POMDP fits. For a harness, it does not fit. A POMDP is the shape of a step, not the theory of the steps. The agent never sees w directly, and much of what it sees is designed h. But a POMDP is one tuple: one state set, one action set, one observation set, one transition function, one observation function, and one reward.
 
-The core holds the runtime that applies edits at turn boundaries. Provenance is the record of the origin of each change. Rollback is the return to an earlier version. The core holds versioning. Versioning records provenance and enables rollback.
+1. First, a harness has not one action set. The levels of abstraction give a family of POMDPs, one per level, and the parser and expansion link the levels. A rejected token sequence is in neither action set. A subagent move spans many steps, so it is not a one-step move.
+2. Second, a harness has not one observation function. Each principal has its own p(o | s) over the same s. The user, the designer, and a subagent see different observations of the same state.
+3. Third, the functions of a POMDP stay fixed, but the functions of a harness do not. An epoch is a period in which the harness code stays fixed. Within one epoch, a run is a POMDP, and across epochs, a run is a family of POMDPs, one for each recorded design decision. Registry, parser, and thresholds change by later design decisions. A blocklist is a veto, not a price: it forbids a move, it does not add a cost. G moves across epochs, with a revision record for each change.
+4. Fourth, the observations of a POMDP are evidence, but the observations of a harness are designed artefacts. SWE-agent history processor replaces older observations with an omission note. The next observation comes from the rewritten trajectory. This fit holds only because trajectory lists sit in h. A belief from a designed record is a belief about what the designer chose to show, not about w.
+5. Fifth, the judgement of a POMDP is a step reward, but the judgement of a harness is partly over traces. Liveness is a whole-history property: deadlock, starvation, livelock, and progress against G. A step reward looks at one step only, so it misses a deadlock that spans many steps. A step reward encodes a trace judgement only if the trace enters the reward.
 
-A subagent specification is a description of a subagent. The supplement holds prompt notes, memories, skills, and subagent specifications. A skill is a stored ability. The harness adds a skill to the harness state.
-
-The edits of the agent are ordinary actions. A modification policy is a rule for change. The edits stay within a modification policy that the designer fixes. The rule allows edits to certain parts. The rule allows edits at certain times.
-
-The rule allows edits on certain evidence. The rule requires provenance for each edit.
-
-The test survives one level up. The designer controls the core and the policy. The designer does not control the harness in operation. Attribution survives also. A bad skill that the agent wrote is agent-side.
-
-A bad core is designer-side. A permissive policy is designer-side. A failed rollback is designer-side. A write set is the set of parts that the agent has permission to write. Attribution holds exactly in one case.
-
-In that case, the modification machinery lies outside the write set of the agent. Prime Agent keeps its runtime outside the writable state. This document does not cover a harness that learns its own modification policy from experience.
-
-## The action space: a tower, not a set
-
-A tower is a stack of levels of description. A level is one layer of description in the tower. A POMDP is a model with a hidden state and observations. Each level has its own action set. Each level has the same POMDP shape.
-
-A is an action set. A holds the actions at one level of description. No single set A serves every level of description. A run is a sequence of steps at one level. Expansion is the unfold of one action into a run at the level below.
-
-Expansion relates the levels to each other. An executed action unfolds into a run at the level below.
-
-V is the vocabulary of the model. At the lowest level, the action set is V. At the lowest level, the agent takes one token per step. pi(a | o) is a distribution over V. A distribution gives a probability for each choice.
-
-At the lowest level, nothing else is an action.
-
-A1 is the next level of action. At the next level, the harness groups token sequences into parsed moves. A parsed move is a move from tokens. The harness parses the tokens. A1 holds four kinds of parsed move.
-
-- The agent emits text.
-- The agent calls a tool.
-- The agent spawns a subagent.
-- The agent stops.
-
-A1 is a quotient, not a subset, of token sequences. A quotient groups distinct spellings into one item. A parser is a part that reads tokens into moves. A registry is a list of tools and moves that the harness knows. Two spellings of one tool call are one action.
-
-Under different parsers, the same text is a different move. Under different registries, the same text is a different move. A move has an identity. The identity of a move is its parsed intent plus its target in s. Parsed intent is the intent that the parser reads from the tokens.
-
-The target in s is the place in s where the move acts.
-
-A move executes into w, into h, or into both w and h.
-
-A loop is a sequence of steps that repeats. An inner loop is a loop inside a move. A tool move takes one harness step. A subagent move runs a whole inner loop. The subagent move returns only a summary.
-
-The inner loop is itself a harness.
-
-A(h) is the set of attempted moves in harness state h. Write A(h), not A. State-dependent means that the set changes with h. The action set is state-dependent. Registry, permissions, skills, and budget are all harness state.
-
-Registry, permissions, skills, and budget add moves. Registry, permissions, skills, and budget remove moves. Install of a skill gains moves. Loss of a tool loses moves. Exhaustion of budget leaves no costly move.
-
-A(h) lists attempts, not guarantees. Success still depends on w.
-
-Tools and subagents are moves. Tools and subagents differ only in execution. A tool move executes in one step. A subagent move executes in one loop. Skills, prompts, and memories are not moves.
-
-Skills, prompts, and memories are harness state that shapes the tower. A skill changes moves and the parser. A prompt shapes the next observation. A note changes a later observation. Install of a skill changes A(h) later.
-
-A retrieval result is an observation, not an action.
-
-A principal is a party with its own view. A view is what one principal sees. A chat reply lands in the transcript in h. The chat reply is for the view of another principal. Target and audience differ for a chat reply.
-
-Unparseable token sequences are not failed actions. Unparseable token sequences are no action at all. The harness still responds to an unparseable token sequence. The harness responds with an error, with a retry, or with a halt. A transition rule in the error model of the harness governs the response.
-
-An error model is a set of rules for errors. The action space of the harness does not govern the response.
-
-Invert the cut for a last point. In the inverted cut, the harness code is the policy. In the inverted cut, the model is environment. The tower stays the same in the inverted cut. The cut differs in the inverted cut.
-
-## Is a POMDP the right framework?
-
-A POMDP is a model with a hidden state and observations. A tuple is one fixed group of parts. A reward is a number that judges one step. A POMDP is one tuple. The tuple holds one state set, one action set, and one observation set.
-
-The tuple holds one transition, one observation function, and one reward. For one step, a POMDP is the right framework. For a harness, a POMDP is not the right framework. A POMDP is the shape of a step. A POMDP is not the theory of the steps.
-
-The agent never sees w directly. The designer designs much of what the agent sees in h.
-
-First, a POMDP has not one action set for a harness. The tower is a family of POMDPs. The family has one POMDP per level. Parser choice and expansion relate the POMDPs in the family. A rejected token sequence is in neither action set.
-
-A subagent move is a temporally extended action. A semi-Markov process is a process with actions that take many steps. An option is a temporally extended action in a semi-Markov process. A subagent move is an option, not a one-step move.
-
-Second, a POMDP has not one observation function for a harness. Each principal needs its own observation function over the same s. Each observation function gives o for state s for one principal.
-
-An epoch is a period with fixed harness functions. A design act is an act of design after the start of a run. Third, the functions of a POMDP stay fixed. The functions of a harness are not fixed, except within an epoch. Later design acts change registry, parser, and thresholds.
-
-A veto is a refusal, not a cost. A price is a cost. A blocklist is a veto, not a price. Aspiration is a target that moves. An aspiration is what the harness aims at over time.
-
-A single fixed goal point is the old picture. Aspiration and epochs replace that picture with a target that moves and its revision record. A revision record is the record of each revision of the target. Within an epoch, a run is a POMDP. Across epochs, a run is a family indexed by design acts.
-
-Design acts index the family across epochs.
-
-Evidence is information about w. A designed artefact is a thing that the designer builds. Fourth, the observations of a POMDP are evidence. The designer builds the observations of a harness as artefacts. SWE-agent is a harness.
-
-A history processor is a part that rewrites history. An omission note is a note that states an omission. A trajectory is the record of steps in a run. The history processor of SWE-agent replaces older observations with an omission note. The harness builds the next observation from the rewritten trajectory.
-
-The case fits only because trajectory lists are in h.
-
-A belief is a judgement about what is true. A belief from a designed record is a belief about the record. The belief is about what the designer chose to show. The belief is not about w.
-
-A trace is the full record of one run. Fifth, the judgement of a POMDP is a step reward. The judgement of a harness is partly over traces. Liveness is a whole-history property. A whole-history property depends on the full history, not on one step.
-
-Liveness holds four parts.
-
-- Deadlock is a state where no move proceeds.
-- Starvation is a state where one move never proceeds.
-- Livelock is motion with no progress.
-- Progress against aspiration is advance toward the target that moves.
-
-No step reward encodes liveness. A step reward that encodes liveness smuggles in the trace judgement. Smuggle in means hide inside without a clear statement.
-
-Vacuity is emptiness of meaning. Markov means that the present state holds all past information for the next step. Finally, consider the vacuity. If s and o are each the whole history, any process is Markov. If any process is Markov, the claim "a run is a POMDP" is true and empty.
-
-The claim is informative only for a fixed s. For a fixed s, ask these questions.
-
-- Which POMDP holds for this run?
-- Which level holds for this run?
-- Which epoch holds for this run?
-- Which principal holds for this run?
-- Which vetoes hold for this run?
-
-Keep the POMDP as local shape, one level, one epoch. The rest goes around the POMDP. A designed thing is a thing that a designer builds. A formalism is a formal system for description. A formalism that does not state who changes its own transition function does not serve as a theory of a designed thing.
-
+Finally, the vacuity point: if s and o each hold the whole history, any process is Markov. Then the claim "a run is a POMDP" is true and empty. The claim gains content only for a fixed s. For a fixed s, state which POMDP, which level, which epoch, which principal, and which vetoes apply. Keep the POMDP as local shape, for one level and one epoch. The rest of the theory goes around it.
 ## Goals
 
-A harness is the system around an agent. The harness shapes the work of the agent. The designer fixes the agent. The designer varies the harness. The variation makes it easier to reach a set of goals. G is the set of goals for the run.
+G can contain task goals and goals outside task performance.
+For example, a human checks system health in a run.
 
-Specification of G is hard in a wide form, especially where people take part. Some goals are not about agent performance at all. A human can monitor the health of the system with ease.
+Fix the agent.
+Vary the harness.
+The harness change makes G easier to reach.
+People find G hard to specify in full.
+People change goals, and a run must accept a revised goal.
 
-G shifts over time. Designers generally make harnesses easy to modify. A theory that cannot survive a change in G is not yet a theory.
+## Example: Recursive Language Model
 
-## An example that clarifies the framing
+In a Recursive Language Model, a long prompt lives as one variable in a Python REPL.
+The root model sees only metadata about the prompt.
+The root model writes code to inspect the prompt and split the prompt into parts.
+The root model calls sub-models on the parts.
+Python does not create the power.
 
-A Recursive Language Model (RLM) is a language model that works recursively. A REPL is an interactive tool for code. In an RLM, a long prompt lives as a variable in a Python REPL.
+The agent gains control over its next observation.
+The agent explores.
+The agent acts on what it learns.
+The agent explores again.
+
+The agent can select only evidence that supports one branch.
+The agent can miss evidence against one branch.
+The agent can stay in one plausible branch.
+The agent can miss a better branch.
+
+The designer must decide which observation actions exist.
+The designer must decide what each observation action costs.
+The designer must decide which check requires a second look.
+
+## World-directed actions and harness-directed actions
+
+w holds facts outside designer control, such as tool results and external messages.
+h holds facts the designer controls, such as prompts, memory entries, and plans.
+
+o can hold text, a structured tool result, or system metrics.
+
+
+A world-directed action changes w.
+For example, an agent sends a message.
+For example, an agent places an order.
+
+A harness-directed action changes h.
+For example, an agent writes a REPL variable.
+For example, an agent writes a memory entry.
+For example, an agent writes a plan.
+
+The harness gives the agent partial write permission over h.
+Write permission states which state components the agent may change.
+A write outside the permission set fails.
+A change to h changes the next observation.
+A change to h changes the next available action.
+In RLM, a write to a REPL variable shapes the next observation.
+
+SWE-agent shows the same split.
+An edit to program code changes w.
+An edit to a plan changes h.
+
+The designer must set the write permission.
+The designer must set the cost of each write.
+The designer must set the check on each write.
+The designer must record the source of each write.
 
-The root model sees only metadata about the prompt. The root model writes code to inspect the prompt. The code decomposes the prompt. The root model calls sub-models on pieces of the prompt. Each call works on a piece of the prompt.
+The fixed core is the part of h that the agent cannot revise.
+The agent cannot revise a fixed core check.
 
-The power is not Python as such. The agent gains control over its own next observation. An observation is an item of information that the agent receives.
+The split depends on the boundary the designer draws.
+The same file counts as h if the designer controls the file.
+The same file counts as w if an external party controls the file.
 
-Observation is endogenous in an RLM. Endogenous means that the actions of the agent produce the next observation. Observation is adaptive in an RLM. Adaptive means that the next observation changes with what the agent learns.
+One principle does not cover all harness questions.
+Write permission explains control over future observations and transitions.
+Write permission does not decide what another principal sees.
+Write permission does not decide conflict between principals.
 
-The agent explores. The agent acts on what it learns. The agent explores again.
+## Multiple principals and one state
 
-An agent that chooses what to see faces three risks:
+A principal is a party with one goal, one observation function, and one write permission set.
 
-- The agent can cherry-pick evidence.
-- The agent can miss evidence against a claim.
-- The agent can stay stuck in a plausible branch.
+The modification policy states which changes to h the overseer allows.
 
-Control over observation moves harness design up a level. What observation actions are available? What do they cost? What forces a check?
+The agent observes the context history.
+The agent writes h within its write permission.
+The agent pursues G.
 
-## One principle or several? World-directed and harness-directed actions
+The user observes an answer or a summary.
+The user writes instructions that set or revise G.
+The user judges whether the answer serves the user.
 
-A state is the full situation at one step. The state has the form s = (w, h). World state (w) is the part of the state that neither the designer nor the agent controls. Harness state (h) is the part of the state that the designer controls.
+The overseer observes the trace, the costs, the checks, and system health.
+The overseer writes the fixed core and the modification policy.
+The overseer can halt a run and roll back a change.
+The overseer pursues a goal outside the task.
 
-An action is a step that changes the state. A world-directed action changes w. A world-directed action does one of these acts:
+In one weather case, one tool call in s yields three observations.
+The agent gets the structured result.
+The user gets "sunny, 21°".
+The overseer gets latency, cost, and success of the call.
 
-- send a message
-- place an order
+Sufficiency means the observation gives the principal enough to do the job.
+If the agent observation lacks the tool result, the agent cannot act on the result.
+Separation means a read does not confer a write.
+If a user read of a plan grants a write to the plan, separation fails.
+A read of one state component must not change write permission for that component.
+A write to h changes what each principal sees next.
 
-A harness-directed action changes h. A harness-directed action writes one of these items:
+The designer must decide in advance which agent writes each principal sees.
+A change to the modification policy changes what principals see.
 
-- a REPL variable
-- a memory
-- a skill
-- a plan
+## Conflict between principals: precedence rules in the harness
 
-A transition is a change from one state to a next state.
+When goals disagree, the harness decides.
+The designer fixes the precedence rule in advance.
+The precedence rule is a recorded design decision in the harness.
+A decider with its own goal counts as one more principal.
+The harness applies the fixed rule at run time.
+The harness must not invent a new precedence rule at run time.
 
-o is an observation. p(o | s) is the observation function. The function gives the probability of observation o in state s.
+At one step, principals propose actions.
+The precedence rule enables some proposed actions for that step.
+The precedence rule disables the rest for that step.
+Precedence works as veto without compulsion.
+The harness can disable one proposed action.
+The harness cannot force the agent to take a different action.
 
-Control over observation is the harness-directed case from the observation side. A change to h changes what p(o | s) delivers next.
+Ramadge and Wonham describe a supervisor with the same limit.
+The supervisor disables some controllable events.
+The supervisor cannot force the plant to generate one event.
 
-Control over transitions is the harness-directed case from the transition side. A change to h changes which transitions are available next.
+Precedence does not rank principals in one total order.
+A user revision of G outranks agent continuation of the old goal.
+A fixed core check outranks user urgency.
 
-The principle is this. A harness gives the agent partial authorship over harness state. That authorship gives the agent control over its own future observations. That authorship also gives the agent control over its own future transitions.
+If two proposed actions conflict and no fixed precedence decides between them, the harness suspends only the contested action.
+Unrelated work proceeds, so one conflict does not block all progress.
+The harness surfaces the conflict to the designer through the overseer.
 
-In an RLM, the agent writes a REPL variable. That action shapes the next observation.
+An overseer that halts at each step blocks each user goal.
+Each run terminates with no answer and a halt record.
+The user can check the failure from the halt record.
+The user cannot obtain the answer from a halted run.
 
-The job of the harness then shifts up a level. The harness no longer only delivers observations. The harness governs authorship.
+Preemption must show in the observation of the preempted principal.
+The observation must name the rule behind the preemption.
+The observation must name the suspended action.
+If the observation lacks the rule and the action, the preempted principal cannot check why the old goal continued.
 
-Which harness state may the agent write? At what cost? With what checks? With what provenance?
+For example, the harness suspends a user revision of G.
+The user sees only the old answer.
+The user cannot tell that a fixed core check blocked the revision.
+## Safety and liveness under a precedence rule
 
-The split is relative to the boundary that the designer draws. The split is not absolute.
+Alpern and Schneider (1985) show that each property of a run history combines a safety property and a liveness property. Safety is step-local. A safety property states that nothing bad happens. A violation of a safety property already shows in a finite prefix of the run history.
 
-A view is what one party sees of s. Legibility to other principals is separate. Legibility is about views on s. Legibility is not about the actions of the agent on s.
+Liveness is a property of a whole run history. A liveness property states that something good eventually happens. Each finite prefix of a run history can still extend to satisfy a liveness property.
 
-## Multiple principals, one state
+Deadlock means that no principal can act. Starvation means that the actions of one principal never take effect while other principals act. Livelock means that actions occur but the run makes no progress toward G. Ramadge and Wonham require a supervisor that leaves a path to completion from each reachable state.
 
-A principal is a party with three items:
+A precedence rule states which principal acts first when two principals seek the same action. Preemption occurs when a precedence rule blocks an action. A precedence rule that always vetoes the actions of one principal causes starvation. The run history shows starvation when the actions of that principal never take effect. A fairness condition bounds how long a principal waits before it acts. Round-robin, a time limit on delay, or an explicit override fixes starvation.
 
-- its own observation function
-- its own write set
-- its own goal
+A counter counts consecutive preemptions of one action. A timer measures the time since the run last made progress toward G. The designer fixes what counts as progress and what threshold marks a defect. When a counter or a timer crosses the threshold, the run becomes defective. A defective run is a run that fails the liveness condition.
 
-An observation function maps a state to an observation for one principal.
+The liveness verdict is a change in run status, not an action that competes for precedence. The harness computes the verdict from the run history. The overseer then aborts the run, escalates to the designer, or relaxes the check. The overseer takes only actions that the designer permits. The observation function of a preempted principal must include the fact of preemption and the rule that fired. If it does not include them, the principal cannot distinguish preemption from its own failure.
 
-The agent observes the context history. The agent writes harness state within the permitted scope. The agent pursues G.
+## Progress toward a vague or revised goal set: epochs, satisficing levels, and proxies
 
-The user observes an answer or a summary. The user writes instructions. The instructions set G. The instructions revise G. A revision changes the set of goals. The user judges whether the answer serves the user.
+G is often vague. G often shifts. Simon (1955) defines a satisficing level as a level that a principal judges as good enough. Search stops at the first state that clears the satisficing level, not at an optimum. The principal judges progress on criteria that the principal can observe. Progress is approach to the current satisficing level, not distance to a fixed point.
 
-A trace is the history of a run. A policy is a rule that the designer fixes in advance. A modification policy is a policy for changes to the harness.
+A proxy is a substitute measure for progress. New information gained and uncertainty reduced are examples of a proxy. A proxy is legitimate only when it ties back to G. The tie means that a principal can use the proxy to judge G or to advance toward G. If a principal optimizes the proxy instead of G, the proxy fails. For example, the run can gain information forever and never reach G.
 
-The overseer observes the trace, costs, checks, and health of the system. The overseer writes the fixed core and the modification policy. The overseer can halt a run. The overseer can roll back a change. The overseer pursues a goal that is not the task at all.
+Only a principal with write permission over G may revise G. That principal is usually the user. Each revision starts a new epoch. The revisions form the sequence G_0, G_1, ... Counters and timers run within one epoch. Counters and timers reset only at an epoch boundary that the harness records with provenance.
 
-What multiplies is the observation. A single-agent account uses one p(o | s). A multi-principal view uses a family of functions. The family has one function per principal.
+A revision that redefines G to a state already reached does not count as progress in the old epoch. If the principal that revises G accepts the current state under the new goal, the run completes under the new epoch. The harness records that completion as a revision, not as progress. A silent redefinition that resets timers without a recorded epoch boundary is evasion, not an epoch.
 
-Let i name one principal. p_i is the observation function for principal i. o_i is the observation of principal i. For each principal i, the function has the form p_i(o_i | s).
+Churn means that revisions repeat and each revision resets the timers. In churn, no epoch completes and no epoch becomes defective. The harness counts revisions and time without a completed epoch. When that count crosses a threshold that the designer fixes, the run becomes defective. The rule that defines progress sits in the fixed core.
 
-In the weather case, one tool call in s yields three observations:
+## Thresholds without a designer: rules that govern design decisions, values fixed in advance, and succession
 
-- The agent gets a structured result for action.
-- The user gets "sunny, 21°".
-- The overseer gets latency, cost, and a note on success of the call.
+Thresholds in the fixed core persist as inheritance. They stay in force until a legitimate revision changes them. The agent must not set its own thresholds. The overseer must not set thresholds at runtime in its role as judge. The harness must not learn thresholds from its own run histories.
 
-A view must satisfy two conditions. The two conditions pull in different directions.
+A threshold is normative. It states what must count as a defect, not what usually happens.
 
-Sufficiency means that the view gives the principal enough to do the job.
+The designer fixes a rule that governs design decisions. That rule states how the harness computes a threshold value, from what inputs, and within what bounds. The quantity that the rule judges must not set its own threshold. For example, a delay threshold must not grow because delays grow longer. The quantity must not scale with the trouble itself.
 
-Separation means that sight of an item does not give the right to write the item.
-
-When the agent writes h, that action changes what every principal sees next. The designer must decide in advance which writes of the agent each principal sees.
-
-The modification policy is therefore also a visibility policy. The modification policy is not only a write policy.
-
-## Conflict between principals: arbitration is harness, not a principal
-
-Arbitration is the harness rule for a conflict between principals. When goals of principals disagree, the harness decides. The harness decides by a rule that the designer fixes in advance. Arbitration is harness, not another principal. An arbitrator that has its own goal is one more principal.
-
-The core is the fixed part of the harness. A rule in the core makes a resolution binding. That rule decides which transition actually occurs.
-
-Principals propose actions at a step. The arbitration rule of the core selects proposed transitions. The arbitration rule enables the selected transitions. The arbitration rule disables the rest for that step.
-
-Precedence is a partial order on pairs of actions. Precedence is not a total order on principals.
-
-The user revises G. That revision outranks the old goal that the agent continues. The user cannot override a check in the fixed core. That check outranks the urgency of the user.
-
-Arbitration, in this form, is veto, not compulsion. Veto means that the harness disables a transition. Compulsion means that the harness forces a transition. The plant is the system under control. The supervisor of Ramadge and Wonham disables a subset of controllable events. That supervisor has no means to force the plant to generate an event.
-
-Preemption means that precedence disables a proposed transition. The view of the preempted principal must show the preemption. The view must also show the rule behind the preemption.
-
-Two proposed actions can conflict. No fixed precedence decides between the two actions.
-
-In that case, the harness does not invent a precedence at runtime. The harness suspends only the contested transition. The harness lets unrelated work proceed. The harness surfaces the conflict to the designer through the overseer.
-
-## Liveness under precedence: safety is step-local, liveness is history
-
-An overseer that always halts starves the goal of the user forever. A check that always gates also starves the goal of the user forever. Neither case violates a precedence rule.
-
-Alpern and Schneider present the decomposition in "Defining Liveness" (1985). Every trace property is the conjunction of a safety property and a liveness property.
-
-Safety is step-local. A safety property states that no bad outcome happens. A finite prefix already shows a violation of a safety property.
-
-Liveness is history. Liveness is a property of a trace. A liveness property states that a good outcome eventually happens. Every finite prefix still admits an extension that satisfies the liveness property.
-
-Deadlock is a case in which the core enables no transition. No work proceeds in deadlock.
-
-Starvation is a case in which the core always disables transitions of one principal. Transitions of other principals proceed in that case. The run looks alive in that case. One party receives no service in that case.
-
-Livelock is a case in which transitions fire. The run never approaches G in that case.
-
-The classical precedent is the nonblocking supervisor of Ramadge and Wonham. Under that supervisor, every reachable state has a path to a marked state.
-
-The core judges liveness over traces at runtime. The core does not judge liveness over the state graph in advance.
-
-Runtime detection is therefore a rule of the core over histories. The rule uses counters and timers.
-
-A counter counts consecutive preemptions of one transition. A timer measures time since the run last made progress toward G.
-
-When a counter crosses a threshold, the status of the run changes from "held" to "defective". When a timer crosses a threshold, the status of the run also changes from "held" to "defective".
-
-A criterion is a standard for a verdict. The designer fixes the criterion in the core. The criterion states what counts as progress. The criterion states what threshold marks a defect.
-
-A verdict is a judgement on a trace. The core computes the verdict from the trace.
-
-The overseer acts on the verdict. The write set of the overseer already contains the actions for the verdict:
-
-- Abort the run.
-- Escalate to the designer.
-- Relax the check.
-
-In some cases, the overseer preempts a transition. The view of the user must still show the verdict.
-
-A liveness verdict is not a transition proposal. A liveness verdict does not enter arbitration. A liveness verdict is a status change on the run.
-
-## Progress toward a vague or shifting G: epochs, aspiration, and proxies
-
-A harness is the system that runs an agent and checks the run. An agent is the actor that acts toward G. G is the set of goals for the run. G is often vague. G also shifts over time.
-
-This section treats each version of G as an aspiration, not as a single point goal. An aspiration is a level that a principal judges as good enough. Herbert Simon calls this idea satisficing (Simon, 1955). A principal holds an aspiration level. The principal can judge the criteria for that level. Search stops at the first state that clears the level.
-
-Search does not seek an optimum. A view is what a principal sees of a run. Progress is not distance to a point. Progress is approach to the current aspiration. The principal judges that approach in the view of the principal.
-
-A proxy is a substitute measure for a goal. A proxy may serve where even aspiration is hard to state. A proxy can take one of these forms:
-
-- new information about the world
-- less uncertainty about the world
-- less uncertainty about what G itself is
-
-A proxy is legitimate only with a tie back to the aspiration. A principal must use the gain to judge G. A principal must also use the gain to advance toward G.
-
-The write set is the group of principals that can revise G. Each revision comes from a principal in the write set for G. Typically, the user makes the revision. Each item in a goal sequence is one version of G. Let G_i name the version of G in epoch i. Write the goal sequence as: `G_0, G_1, ...`
-
-An epoch is one period under one version of G. Each revision starts a new epoch. Counters and timers run within an epoch. Counters and timers reset only at a recorded epoch boundary. The harness records the provenance of each boundary. Provenance is the record of who made a change and when the change occurred.
-
-The core is the fixed rule set of the harness. The progress predicate is the rule that judges progress. The progress predicate is part of the core.
-
-Masking is a revision that redefines G to a state already reached. That revision does not count as progress within the old epoch. If the principal that revises G accepts the current state under the new goal, the run completes under the new epoch. The harness records that completion as a revision, not as progress.
-
-A silent redefinition that merely resets the timers without a run termination is an evasion, not an epoch. A run termination is the stop of a run. Churn is repeated revision of G. Each revision resets the timers. No epoch ever turns defective. No epoch ever completes.
-
-Count revisions. Count time without a completed epoch. When revisions cross a designer-fixed threshold, the run turns defective. A threshold is a fixed value at which a counter or timer changes a run state. The designer is the authority that sets the core rules.
-
-## Thresholds without a designer: meta-rules, frozen values, and succession
-
-Liveness is the requirement that a run continues to progress. A threshold is a fixed value at which a counter or timer changes a run state. The designer fixes that threshold. At that threshold, a counter or timer changes a run from held to defective. The liveness and progress sections assume that threshold. Those sections do not defend that threshold.
-
-The thresholds already in the core persist as inheritance. Those thresholds stay in force until a legitimate revision changes them. The agent must not set its own thresholds. An overseer is a judge of runs. The overseer must not set thresholds at runtime in the capacity of judge. The harness must not learn thresholds from its own traces.
-
-A trace is the record of a run. A threshold states what counts as a defect. A threshold does not state what usually happens.
-
-A meta-rule is a rule about how to compute a threshold value. The designer fixes a meta-rule in the core. The meta-rule fixes three items:
-
-- how the harness computes a threshold value
-- what inputs the harness uses for the computation
-- what bounds limit the value
-
-The meta-rule carries one sharp condition. The quantity that the harness judges must not set its own bar. That quantity must not scale with the trouble itself.
-
-Where no meta-rule covers the case, the default is freeze, not relax. The last designer-set values stay in force. Revision remains possible. Revision counts only as a design act. A design act is a recorded change to the core by the designer.
-
-The designer records each threshold change as a designer act. The designer records the provenance of each change. Every principal can see each change.
-
-A verdict is a judgment about a trace. Prospective means that a change applies only to future traces. A threshold change is prospective only. A threshold change does not erase the prior verdict. A threshold change does not retroactively clear the history that produced the verdict.
-
-Legibility means that a view shows a fact clearly. The absence of the designer must be legible in the views. The views show the thresholds as inherited and frozen. The views show that the designer is not currently reachable. The next section treats succession.
+Where no rule that governs design decisions covers the case, the default is to keep the last values, not to relax them. A later revision is possible only as a recorded design decision. The harness records a threshold change with provenance, and the observation of each principal includes it. A threshold change applies only to future run histories. It does not erase a prior verdict or clear the run history that produced it. The observation of each principal must show that thresholds come from inheritance and that the designer is not currently reachable.
 
 ## Succession: who inherits the designer role, and on what authority
 
-The designer role is the authority to revise the core. The designer role covers five items:
+Succession is the transfer of the designer role. The designer role is the authority to revise the fixed core. Those rules include the precedence rules, the progress rule, the thresholds, and the rules that govern design decisions. Succession is not an action that competes for precedence. The precedence rule does not decide succession, because it gates actions. A liveness verdict does not decide succession, because it judges run histories.
 
-- the precedence rules
-- the progress predicate
-- the thresholds and their meta-rules
-- the modification policy
-- the views
+The succession rule must already sit in the fixed core before the absence it governs. In the first legitimate form, the fixed core name a person, a role, or an ordered list. Authority passes down the list when the trigger condition holds. In the second legitimate form, the fixed core name no person but fix how the harness chooses a successor. That procedure states who initiates the choice, who meets, within what time, and by what vote or confirmation. The successor that the procedure chooses inherits the role.
 
-Succession is the transfer of meta-authority. Meta-authority is the authority to revise the core. Succession is not a transition proposal. A transition proposal is a proposal to change a run state. Succession is not a view. Succession is not a verdict.
+Self-appointment is evasion. A principal that declares itself designer has no prior rule behind it. The agent cannot succeed the designer. Succession by the agent puts the judged principal in charge of its own threshold.
 
-Arbitration is the process that gates proposals. Arbitration gates proposals. Arbitration therefore does not decide succession. A liveness verdict judges traces. A liveness verdict therefore does not decide succession.
+The overseer cannot promote itself from judge to designer in order to escape a verdict. Promotion by the overseer lets the judge escape its own verdict. A user majority at runtime cannot confer the role unless a fixed procedure states that a vote confers it. Then the procedure, not the majority, confers it.
 
-The succession rule must already be in the core before the absence that it governs. A trigger is the event that starts succession. The first legitimate form is a named successor. A named successor is a person, a role, or an ordered list that the core names. Authority passes down the list when the trigger occurs.
+A legitimate successor inherits the designer role, not only its powers.
 
-The second legitimate form is a fixed procedure. The core names no person under a fixed procedure. The procedure fixes four items:
+- The successor inherits the fixed core as they stand, with the rules that govern design decisions and the values fixed in advance.
+- The successor inherits the records, the provenance, and the prior verdicts, and it cannot erase them or clear them retroactively.
+- The successor inherits the constraints on design decisions, and the harness records each decision, applies it prospectively, and shows it to every principal.
 
-- who initiates the choice
-- who meets for the choice
-- within what time the choice occurs
-- by what vote or confirmation the choice occurs
+A delegate acts within a mandate that the designer still holds and can revoke. A successor replaces the designer, and the old designer cannot revoke the succession.
 
-The successor that the procedure chooses inherits the role.
+Succession also needs a trigger condition in the fixed core. Without that condition, succession is usurpation with a name attached. Once the trigger condition holds, the transfer must be legible. The observation of each principal must show that the designer is absent and that the trigger condition holds. It must also show that the successor now holds the role under the prior rule.
 
-Self-appointment is evasion. Self-appointment is a claim to the role without a prior rule. A party that declares itself designer has no prior rule behind it. That party has only its own say-so.
+If no successor exists, runs complete or suspend under the values fixed in advance, and the vacancy stays visible. The vacancy does not pass to the principal that acts first.
 
-The agent cannot succeed the designer. That succession collapses the agent-designer separation. The whole theory rests on that separation. That succession puts the judged party in charge of the bar.
+## Retirement: when a harness may properly retire, and how it retires well
 
-The overseer cannot promote itself from judge to designer in order to escape a verdict. The overseer cannot set its own thresholds. A promotion by the overseer lets a judge judge its own promotion.
+Retirement is not the same as termination of a run. A run terminates. A harness retires. In retirement, the harness accepts no new runs, closes open runs, and hands on or discharges responsibilities.
 
-A user majority is more than half of the users at runtime. A user majority at runtime cannot confer the role. A core procedure can confer the role through a vote. Then the procedure confers the role, not the majority.
+Retirement is a recorded design decision, not a verdict. The designer role decides retirement, under the constraints on design decisions. The harness records each retirement decision, applies it prospectively, and shows it to every principal. Only the designer or a legitimate successor under the succession rule may retire the harness. A harness that simply stops, with no record of who decided or why, is abandoned, not retired.
 
-A legitimate successor inherits the office, not just its powers. That inheritance covers three items together:
+Three legitimate retirements exist, and they differ in shape, not only in name.
 
-- the core as it stands, with its meta-rules and frozen values
-- the records, provenance and prior verdicts
-- the constraints on design acts
+- In completion of purpose, the epochs of G complete and no new epoch opens.
+- In supersession, a new harness takes over the purpose, and it receives the fixed core, the records, and the constraints on design decisions.
+- In sunset, the designer or a successor judges that the purpose is no longer worth the cost of readiness. That judgement is a recorded design decision with reasons, like a threshold revision.
 
-The successor cannot erase the records, provenance and prior verdicts. The successor cannot retroactively clear the records, provenance and prior verdicts. Design acts stay recorded. Design acts stay prospective. Every principal can see design acts.
+The designer or a successor announces retirement in advance, with a date, before it takes effect. The announcement lets principals finish their epochs or move. The harness accepts no new runs. It lets open runs complete or checkpoint at a clean boundary. It stops only after open runs reach that boundary. The harness archives the records and does not erase them.
 
-A delegate acts within a mandate that the designer still holds. The designer can revoke that mandate. A successor replaces the designer. After succession, the old designer cannot revoke the role.
+## Definitions for succession and trust
 
-Succession also needs a trigger fixed in the core. Without a fixed trigger, a transfer counts as usurpation, even with a name attached. Once the trigger occurs, the transfer must be legible. The sufficiency condition requires that the views show three facts:
+An epoch is a period with fixed harness functions and goals. Outstanding obligations are obligations that an old harness still owes at handover. The designer role is the role that holds design authority for a harness.
 
-- that the designer is absent
-- that the trigger occurred
-- that this party now holds the role, under the prior rule
+A recorded design decision is a decision that the harness records before it takes effect and that stays visible to principals. Provenance is the record of who wrote a record, when, and under which recorded design decision. A trust anchor is a key, a copy, or a witness that a principal holds directly. It is not a further record.
 
-A vacancy is an empty designer role. If no successor exists, the frozen inheritance becomes terminal. Each run completes or suspends under the frozen core. The harness surfaces the vacancy. The harness does not fill the vacancy with whoever acts first.
+## What a successor owes: outstanding obligations
 
-## Ending: when a harness may properly end, and how it ends well
+In supersession, a successor takes over from an old harness. The successor inherits the core, the records, and the constraints. It also inherits outstanding obligations. A successor that takes authority and disowns outstanding obligations uses supersession to default.
 
-A harness is the standing machinery that runs work for principals. A principal is a party to whom the harness owes work or a record. A designer is the role that makes design acts for the harness. A design act is an act that sets or changes a rule of the harness.
+An obligation transfers only if it appears in the record.
 
-An aspiration is the goal that an epoch seeks. An epoch is one bounded span of work under one aspiration. A run is one execution of work by the harness. Termination is the close of one run. Ending is the retirement of the harness itself.
+- An in-flight epoch is an epoch that starts under the old harness and still runs at handover.
+- A recorded commitment is a commitment that the old harness records with a stated term.
+- A promised checkpoint or handover is a checkpoint or handover that the old harness promises to a principal.
 
-Ending differs from the close of a run. Ending retires the standing machinery itself. After ending, the harness accepts no new run. The harness brings each run in flight to a close. The harness discharges each responsibility or hands it on.
+For an in-flight epoch, the successor completes the epoch under the old terms. Alternatively, the successor brings the epoch to a clean checkpoint and announces the transfer. A recorded design decision may revise the terms, but the revision stays prospective and visible.
 
-Ending is a design act. Ending is not a verdict on past work. The designer role decides an ending.
+For a recorded commitment, the successor honours the commitment until its recorded term. Alternatively, the successor renegotiates the commitment.
 
-Ending carries the constraints of every design act. The designer records the act. Prospective means that the act applies only to future work. Every principal can see the act.
+Transfer adds no new cost, no new visibility, and no new condition to an in-flight epoch. The successor gives notice and renegotiates before it adds a burden of that kind.
 
-A harness that simply stops does not end. No record shows who decided the stop. No record shows why the stop occurred. The principals treat that stop as abandonment.
+The successor may set new terms for new epochs. That power is its design authority.
 
-Only the designer may end the harness. A legitimate successor may also end the harness. Succession is the transfer of the designer role to a successor. The successor acts under the succession rule.
+## Chains of succession: limits on a line of successors
 
-Three legitimate endings exist. Each ending differs in shape. The three endings are not three names for one stop.
+An outstanding obligation is owed by whoever holds the designer role. The creditor stays the same when the role passes. The principal collects once. Each holder owes the whole outstanding amount.
 
-- Completion of purpose ends the harness.
-- Supersession ends the harness.
-- Sunset ends the harness.
+Each handover record accounts for every outstanding obligation as completed, renegotiated, declined, or passed on. An obligation with none of those four marks in the next record is a default at that link.
 
-The designer builds the harness for a goal. Each epoch of the goal completes. The designer opens no new epoch.
+A recorded term survives handover. Handover resets no clock and extends no deadline. A recorded design decision may revise the term, but the revision stays prospective and visible. A chain that outlives a term without completion, renegotiation, or decline is a default stretched across links.
 
-The core is the set of rules that govern the harness. A verdict is a decision that the harness records about work. A new harness takes over the purpose. The old harness ends by handover, not by disappearance. The old harness passes three inheritances to the new harness.
+Each link in the chain traces its authority to a prior core rule. A break at any link breaks every link after it. A successor chosen through a procedure that a party without authority wrote holds no authority.
 
-- The new harness receives the core as it stands.
-- The new harness receives the records and the prior verdicts.
-- The new harness receives the constraints on design acts.
+Repeated handover with no completion, no renegotiation, and no decline can hide a default. The designer role fixes a threshold in advance for handovers or for time without a decision on an obligation. When the chain crosses that threshold, the chain is defective.
 
-The designer or a successor judges the purpose no longer worth the cost of readiness. A threshold is a limit that triggers a change. A threshold revision changes a threshold rule. The designer makes the sunset as a design act. The designer records the sunset with its reasons. The designer treats a sunset like any threshold revision.
+The chain ends cleanly when the successor pays, renegotiates, or declines every outstanding obligation. Then the designer role stands empty or ends. Sunset is also clean only after the old harness discharges every outstanding obligation or hands it to a successor. Without that discharge or handover, sunset is abandonment, not an end. If the chain breaks, the record shows where it failed.
 
-The designer announces an ending before the ending takes effect. The announcement states a date for the ending. Principals can then finish their epochs or move to a new harness.
+In corporate law, an asset buyer takes no seller obligation without express assumption. A harness successor claims the designer role itself. A successor that takes the name and the authority without the outstanding obligations is not a continuation.
 
-The harness drains at ending. The harness does not stop work at once. The harness accepts no new run. A run in flight completes or reaches a clean checkpoint at a clean boundary. The harness stops only after that point.
+## Identity across revision: the designer role, not the code
 
-The designer archives the records at ending. The designer does not erase the records.
+The ship of Theseus replaces each plank until no original plank remains. A harness is not its code, and code sameness cannot test identity. Legitimate revision changes code and behavior, so sameness fails as a test. Small revisions can each preserve identity and still walk the code to a state with nothing in common with the original. A similarity threshold therefore permits total replacement or forbids every revision.
 
-## What a successor owes: debts, not just records
+Identity rests on three traces.
 
-When a harness ends by supersession, does the successor inherit only the records? Does the successor also inherit the obligations of the old harness? An obligation is a duty that the old harness still owes. A commitment is a promise that the harness records. An observation is a report about the world.
+- The authority trace shows no gap in title.
+- The revision trace shows every core change as a recorded decision that stays prospective and visible.
+- The revision trace shows no retroactive erasure.
+- The obligation trace shows the obligation record intact.
+- The obligation trace shows that principals lose nothing silently.
 
-The obligations include epochs in flight. The obligations include standing commitments. The obligations include promises that the old harness made and did not yet keep.
+Where all three traces stay intact, the harness stays the same, however much code changes. Where any trace breaks, the harness is not the same. An exact copy of the code with no chain to the designer role is a clone, not a continuation.
 
-A successor that takes the core, the records, and the constraints but disowns the old debts commits a default through supersession.
+Some rules are ordinary, and a successor may revise them extensively by recorded design decision. Other rules are constitutive. A constitutive rule determines what counts as a valid design decision, holder, or outstanding obligation. Constitutive rules include the rules that design decisions stay recorded, prospective, and visible, and that roles stay separate.
 
-Succession gains a fourth inheritance in supersession. The fourth inheritance is outstanding obligations. A debt is an outstanding obligation. A debt transfers only if the debt stands in the record.
+The test for a constitutive rule is functional, not a label. Ask whether a change alters how a later reader recognizes a valid design decision, holder, or outstanding obligation. If the answer is yes, the rule is constitutive.
 
-- An epoch in flight transfers as a debt.
-- A commitment transfers as a debt if the designer made the commitment as a design act with a stated term.
-- A checkpoint transfers as a debt if the old harness promised the checkpoint to a principal.
-- A handover transfers as a debt if the old harness promised the handover to a principal.
+A recorded design decision under the ordinary procedure for a constitutive change founds a new harness, however small the change. If the core fixes a higher procedure for a constitutive change, a change under that procedure preserves identity as an amendment, not a replacement. If the core fixes no higher procedure, a constitutive change requires an end to the old harness and a new harness. In that case, the old harness discharges outstanding obligations or hands them to a successor.
 
-A successor meets three debts in this order.
+A fork that departs from the chain the core authorizes is a new harness. A fork takes outstanding obligations only by explicit agreement. A merger of two designer roles is a new designer role. A recorded name change preserves identity. A retained name after a break does not restore identity.
 
-- First, the successor meets epochs in flight.
-- Second, the successor meets standing commitments.
-- Third, the successor gives no new burden without notice.
+## Trust in records: provenance, evidence, and conflicting logs
 
-An epoch that began under the old harness and does not complete does not restart silently under the successor. The successor does not drop that epoch. The successor completes the epoch under the terms of the old harness. A design act may revise those terms visibly.
+A record without provenance is a claim, not a record. A bare assertion that an obligation was paid is testable only by a question to the claimant.
 
-A progress predicate is the test for progress in an epoch. Those terms set the same aspiration. Those terms set the same progress predicate.
+A correction appends a new record that stays visible to every principal. The new record names the record it corrects, the reason, and the recorded design decision behind it. The old record stays in place. A silent rewrite with no new record for the change is forgery. Form distinguishes correction from forgery, not intent.
 
-The successor may bring the epoch to a clean checkpoint instead of completion. The successor announces the transfer at that checkpoint. The epoch of the principal continues across the handover. The epoch does not begin again.
+Without append-only records, the revision trace fails. The log must sit outside the write set of the parties that the records judge. A designer role that can rewrite the record of its own design decisions faces no constraint. Each principal holds enough of the log to check it. A rewrite must fool every principal copy.
 
-The successor honors a commitment that the old harness recorded. The successor honors the commitment until its recorded term. The successor may renegotiate the commitment instead.
+No log that the designer role controls proves the log against the designer role. Each record commits to the record before it. A change to an early record invalidates every later record that commits to it. A forger then rewrites the whole chain after it and every copy that another principal holds.
 
-- A scheduled run is such a commitment.
-- A promised observation is such a commitment.
-- A handover to a named party is such a commitment.
-- A standing cost arrangement is such a commitment.
-- A standing access arrangement is such a commitment.
+A chain held only inside the harness still leaves a forgery window. The window closes when a link reaches a log that neither the designer role nor the agent controls. A trust anchor does not make records true. It bounds the lie to before the trust anchor, or to a rewrite of the trust anchor in the open.
 
-Transfer does not add a burden in silence. Transfer adds no new burden to a principal without notice.
+A routine epoch completion may rest on a chained record in principal copies. A succession, a constitutive change, or an obligation discharge needs chained records, independent copies, and a link to a trust anchor. The core fixes in advance what strength each kind of act requires.
 
-- A new cost is such a burden.
-- A new visibility is such a burden.
-- A new condition on an epoch in flight is such a burden.
+Conflicting logs follow three steps in order.
 
-The successor may set new terms for new epochs. New terms for new epochs fall under the design authority of the successor. Terms for epochs in flight are debts. Terms for commitments in flight are debts. The successor honors those debts or renegotiates those debts. The successor does not rewrite those terms by fiat.
+- First, continuity decides: a log unbroken from the last agreed record or trust anchor is the continuation.
+- A log with a gap, or with a link that no other copy corroborates, is a fork.
+- A fork takes outstanding obligations only by explicit agreement.
+- Second, if two logs both continue unbroken from the same trust anchor, a fork rule recorded in advance decides, if the core has one.
+- Third, if the core has no fork rule, the dispute stays unresolved.
+- Suspend only the contested claims, let uncontested work proceed, and surface the dispute to the party that can fix a rule.
 
-## Chains of succession: what bounds a line of successors
+## Where the trust regress stops: trust anchors, not further records
 
-The office is the designer role. A holder is a party that holds the office at one time. A creditor is a principal with a claim to a debt. The office owes a debt, not the holder of the office. Whoever holds the designer role owes that debt. The creditor stays the same when the role passes.
+A trust anchor certifies only existence, order, and time, not truth. Many parties can hold the same link, and disagreement stays visible without a judgment on content. Provenance and continuity judge content inside.
 
-The chain does not multiply the debt. The principal collects the debt once. The chain does not divide the debt. Each holder owes the whole outstanding debt.
+The world boundary follows the designer-control test: the first log that no disputant controls, whose corruption stays visible to strangers. Inside that boundary, forgery stays cheap and invisible. Past that boundary, a forger must rewrite a log in the open, against disinterested holders. No log is uncontrolled in every sense. The chain climbs only past parties with a stake in this claim.
 
-Each transfer is intact and itemized. A link is one handover in the chain. Itemized means that the record lists each debt separately. The record of each handover accounts for every outstanding debt. The record marks each debt in one of four ways.
+A trust anchor needs no provenance, because a checker tests provenance against trust anchors. No one proves a trust anchor. The core names the trust anchors that each kind of act requires, and a recorded design decision adopts them in advance. The force of a trust anchor is the risk that the party that relies on it bears if it is wrong. If a trust anchor fails, that party bears the loss and replaces it by a recorded design decision. A compromised key is an example.
 
-- The record marks the debt as completed.
-- The record marks the debt as renegotiated.
-- The record marks the debt as declined.
-- The record marks the debt as passed on.
+A cycle grounds nothing. Two harnesses that anchor the logs of each other form borrowed trust in a circle. A chain that loops back to a disputant-controlled log does the same.
 
-A debt stands in the record of one link. That debt is absent from the record of the next link. No one of the four marks stands beside that debt in the next record. That absence is a default at that link.
+The chain must reach a log outside every disputant control, or a trust anchor that the principal holds, before it repeats a log. Otherwise, contested claims stand suspended. Mutual links are useful, but they do not ground a claim. A party does not certify itself.
 
-Transfer renews no term of a debt. The recorded term of a debt survives a handover. Handover does not reset the clock of a debt. Handover does not extend the deadline of a debt. A design act may revise the term visibly.
+## Rotation of a trust anchor without a break in the chain
 
-A chain outlives a term with no completion of a debt. A chain outlives a term with no renegotiation of a debt. A chain outlives a term with no decline of a debt. That chain commits a default across links. That default is not a continuation.
-
-No link launders legitimacy for a later link. The authority of each link traces to a prior core rule. A break at any link breaks everything downstream. A capturer is a party that seizes control without legitimate authority. A capturer writes a clean procedure. That procedure chooses a successor.
-
-No party confers an authority that the party does not hold. The successor therefore holds no authority from that procedure.
-
-The chain itself can become an evasion. A debt passes from holder to holder again and again. Each pass changes only the name of the holder. That pattern is churn.
-
-The designer counts handovers. The designer counts time with no debt completed, renegotiated, or declined. A designer-fixed threshold marks the limit. The chain flips to defective when the count crosses that threshold.
-
-A chain ends in one of three ways. Only two of those ways are clean.
-
-The holders pay each debt, renegotiate each debt, or decline each debt. The office then passes empty to a successor or ends.
-
-The designer ends the chain by sunset. Sunset does not erase debts. The holders first discharge the debts or hand the debts to a successor. A sunset without that step is abandonment, not ending.
-
-The chain breaks as a third way. That break is a failure. The record shows the failure point in legible form.
-
-Corporate law sets the opposite default. A buyer of assets does not inherit the debts of the seller. Express assumption means an explicit agreement to take a debt. Mere continuation is a second exception. A harness successor claims the office itself. A successor that takes the name of the office and the authority of the office without the debts does not continue the office.
-
-## Identity across revision: the office, not the planks
-
-A successor inherits the authority to revise the core. How much may a successor revise the core before the harness becomes a different harness? A successor that revises past that point is not a successor. The ship of Theseus gives the image. Workers replace the planks of the ship until no plank remains. The code of a harness is the planks.
-
-A harness is not its code. The identity of a harness is not a property of its code.
-
-Sameness of code fails as a test for identity. Sameness of behavior fails as a test for identity. Legitimate revision changes code. Legitimate revision changes behavior.
-
-A similarity threshold fails as a test. That failure is worse than the failure of sameness. Small revisions each preserve identity. Those revisions can change the code step by step until the code shares no part with the original. Transitivity means that identity passes through each step. The threshold permits total replacement or forbids every revision.
-
-Institutional continuity survives revision. Three traces carry that continuity. Title is a legitimate claim to the office.
-
-- Authority leaves no gap in title.
-- Revision makes every core change a recorded, prospective, visible act.
-- Revision allows no retroactive erasure.
-- Obligation keeps the debt ledger intact.
-- Obligation does not shrink the claim of a principal in silence.
-
-Retroactive erasure means removal of a past act from the record.
-
-Where all three traces stay intact, the harness stays the same. The code may change without limit in that case. Where any trace breaks, the harness is not the same. An exact copy of the code with no trace to the office is a clone. A clone is not a continuation.
-
-Some rules are ordinary. A successor may revise ordinary rules extensively by ordinary design acts. Other rules are constitutive.
-
-A constitutive rule determines what counts as a valid design act. A constitutive rule determines what counts as a valid holder. A constitutive rule determines what counts as an outstanding debt.
-
-- The designer records each act.
-- Each act applies only to future work.
-- Each act stays visible to every principal.
-- Roles stay separate.
-
-A recognition rule is the rule that identifies the rules of a system as its rules. A change to a recognition rule by an ordinary design act founds a new harness. The size of the change does not change that result.
-
-Whether a rule is constitutive is functional, not a label. The test asks one question. Does a change to the rule change how a later reader recognizes a valid design act? Does a change to the rule change how a later reader recognizes a valid holder? Does a change to the rule change how a later reader recognizes an outstanding debt?
-
-A yes answer means the rule is constitutive. A no answer means the rule is not constitutive.
-
-The core may fix a higher procedure for a change to constitutive rules. A change that obeys that procedure preserves identity. That change is an amendment, not a replacement.
-
-The core may fix no procedure for a change to constitutive rules. A constitutive change then requires ending the old harness. A constitutive change then requires that the designer found a new harness. The holders discharge the debts of the old harness or hand the debts to the new harness.
-
-A fork is a departure from the authorized chain. A fork departs from the chain that the core authorizes. That fork founds a new harness. A novation is an agreement that replaces an old obligation with a new obligation. That fork takes debts only by novation.
-
-A merger is a combination of two offices. A merger of two offices forms a new office. A recorded change of name preserves identity. A retained name after a break does not restore identity.
-
-## Trust in the records: provenance, evidence, and competing ledgers
-
-A harness is the system that runs an agent and judges the work of the agent. A store is a place that holds records. A record is a statement with provenance. Provenance is the history of a record. A design act is a decision that a designer records as a rule for the harness. Provenance names the writer of the statement, the time of the statement, the design act behind the statement, and the prior record in the chain.
-
-A chain is an ordered set of records. Each record links to the record before it in the chain. A bare statement such as "the debt was paid" has no provenance. Such a statement is not a record. Such a statement is a claim. Only the claimant answers a question about the claim.
-
-A correction differs from a forgery in form. The difference does not lie in intent.
-
-A principal is a party with a stake in the records. A correction adds a new record, and every principal sees the new record. The new record names the record that it corrects. The new record names the reason for the correction. The new record names the design act behind the correction. The old record stays in place.
-
-A forgery rewrites a record in silence. A forgery adds no new record to mark the change. A forger is a party that rewrites a record in silence. In an append-only store, no writer removes a record. Append-only records therefore support the identity test.
-
-A write set is the set of records that a party has power to change. A store sits outside the write set of the parties that the records judge. A designer with power to rewrite the record of a design act faces no constraint. A view is the set of records that a principal holds. Each view of a principal holds enough of the record for a check. A rewrite succeeds only if it fools every principal.
-
-No store under designer control serves as proof against the designer. Such a store serves as evidence. Evidence is a record that supports a check. Each record commits to the record before it.
-
-A change to an early record breaks every later record that commits to it. A forger then rewrites the whole chain after the early record. A forger also rewrites every copy that another principal holds.
-
-A chain inside the harness alone still leaves a forgery window. A forgery window is a period in which a rewrite stays hidden. The window closes when a principal publishes a link to a store that neither the designer nor the agent controls.
-
-An anchor is a published link to a store outside the harness. An anchor does not make a record true. An anchor limits a false claim to the time before the anchor. An anchor also limits a false claim to a rewrite of the anchor in public.
-
-Trust has grades. Trust is not binary. An epoch is a bounded period of work in the harness. A routine epoch completion rests on a chained record in the views of the harness.
-
-A succession is a transfer of authority from one office holder to the next office holder. A constitutive change is a change to the rules that define the harness. A debt discharge is an act that clears a debt.
-
-A succession, a constitutive change, or a debt discharge rests on records that meet three tests. The core is the set of rules that the harness follows. The core fixes the strength of evidence for each kind of act in advance.
-
-- The records link in a chain.
-- Separate principals hold copies of the records.
-- An anchor publishes a link to the records.
-
-Adjudication is a decision about rival claims. Rival ledgers face adjudication in the same terms. A ledger is an ordered chain of records. Continuity is an unbroken link from a shared point.
-
-First, continuity decides the case. A ledger unbroken from the last record that every view agrees on is a continuation. A ledger unbroken from the last anchor is also a continuation.
-
-A ledger with a gap is a fork. A fork is a ledger that breaks from the shared chain. A ledger with a link that no other view confirms is also a fork. A fork takes debts only by explicit agreement.
-
-Second, two ledgers both continue unbroken from the same anchor. Then the prior fork rule of the core decides the case. The rule applies only if the core has such a rule. The rule itself is a recorded act.
-
-Third, if the core has no fork rule, the dispute stays unresolved. The harness suspends only the contested claims. Uncontested work proceeds. The harness shows the dispute to the party that fixes a rule.
-
-## Where the anchor regress stops: roots, not further records
-
-An anchor seems to move trust one level out. Every store serves as a harness for another party. A regress is a chain of trust that asks for a further store at each step. The regress stops for three reasons.
-
-First, the claim of an anchor is thin. An anchor does not certify that a record is true. An anchor certifies only that a record existed, in a certain order, at a certain time. Many parties hold the same link. Disagreement is visible without a judgement of content. Principals judge content inside the harness.
-
-Principals judge content by provenance and continuity.
-
-Second, the regress stops at the world boundary. The world boundary is the first store that no disputant controls. A disputant is a party in a dispute. The designer-control test draws the boundary. The test asks whether a disputant controls the store.
-
-Corruption of the boundary store is visible to strangers. A stranger is a person outside the dispute. Inside the boundary, forgery is cheap and invisible. Past the boundary, a forger rewrites a store that disinterested parties hold, in public. Disinterested parties have no stake in the claim.
-
-No store is uncontrolled in every sense. The chain goes only past parties with a stake in this claim.
-
-Third, the regress stops at a root. A root is not a record. A root is a first point that a principal holds directly. A principal adopts a root by a design act that the core fixes in advance. The core names the roots that each kind of act requires.
-
-- A key is a root.
-- A copy of a chain is a root.
-- A witness that the principal knows by acquaintance is a root.
-- An event that the principal observes firsthand is a root.
-
-A root needs no provenance. Principals check provenance against roots. No principal proves a root. The force of a root is the risk that the principal that adopts it is wrong.
-
-If a root fails, the principal bears the loss. The principal replaces the root by a recorded design act. A compromised key shows the pattern.
-
-A cycle grounds no claim. Two harnesses that publish links to each other form a cycle. A chain that loops back to a store that a disputant controls also forms a cycle. Such a cycle is borrowed trust in a circle.
-
-The chain reaches a store outside the control of every disputant before it repeats a store. The chain also reaches a root that the principal that relies on it holds. Otherwise, contested claims stand suspended. Mutual links are useful. Mutual links do not ground a claim.
-
-The regress stops at a root that a principal adopted before the dispute. The root sits outside the control of the disputants. The party that relies on the root bears the failure of the root. A party does not certify itself.
-
-## Rotating a root without breaking the chain
-
-A principal adopts a root. A principal does not prove a root.
-
-Rotation is a new adoption. An office is a role that holds a root. A rule that the core fixes before the rotation authorises the new root of the same office. Rotation leaves past records unbroken. A change to the rules for recognition by an ordinary act founds a new harness. An ordinary act lacks the status of a design act.
+Rotation is a new adoption. The same designer role authorizes the new trust anchor by a rule fixed before the rotation. Rotation leaves past records unbroken. A constitutive change by an ordinary procedure founds a new harness.
 
 Planned rotation has three acts, in order.
 
-1. The old root vouches for the new root while the old root still holds trust. The old root vouches by a signature on the new root. The old root also vouches by publication of the new root under its anchor.
-2. Both roots live together. The new root is visible before principals trust it. Forgery in the transition then shows.
-3. The old root retires by a signed revocation that names its successor. A successor is the root that follows an old root. Retirement is prospective only. The old root remains valid for past records.
+- First, the old trust anchor, while it stays trusted, signs the new trust anchor or publishes it under its trust anchor.
+- Second, both trust anchors live together, the new trust anchor stays visible before it gains trust, and viewers notice transition forgery.
+- Third, the old trust anchor retires by a signed revocation that names its successor.
+- Retirement stays prospective only: the old trust anchor stays valid for past records.
 
-Continuity lives in the ledger of roots, not in any single root. A predecessor vouches for each adoption while the predecessor still holds trust. A reserve rule is a rule that the core fixes for an emergency. A reserve rule also vouches for an adoption.
+Continuity sits in the trust anchor ledger, not in any single trust anchor. A predecessor vouches for each adoption while that predecessor stays trusted, or a reserve rule fixed in advance authorizes it. A verifier that holds any trust anchor can walk forward to the present trust anchor.
 
-A verifier is a principal that checks a chain. A verifier that holds any root walks forward to the present root. A gap breaks the chain. An ordinary act does not adopt the next root. A compromised predecessor does not vouch for the next root. Records under such a root stand suspended.
+A gap breaks the chain. A trust anchor adopted under the ordinary procedure is not the next trust anchor. A trust anchor vouched for only by a compromised predecessor is not the next trust anchor. Records under such a trust anchor stand suspended.
 
-Emergency rotation tests the rule. A compromised root vouches for no root. An attacker is a party that forges a record. An attacker produces a signature from a stolen key. A stolen key alone does not vouch for a successor. The successor comes from the prior rule.
+A compromised trust anchor cannot vouch for a successor. A signature from a stolen key is exactly what an attacker can produce. A successor vouched for only by a compromised trust anchor is no successor. The successor comes from a prior rule.
 
-- The core names a reserve root. Principals hold the reserve root apart until the emergency.
-- The core fixes a quorum in advance. A quorum is a fixed number of witnesses that agree on an act.
-- If no uncompromised anchor remains, a fresh design act outside the chain starts the process. That act starts the system again rather than rotates a root.
+- A reserve trust anchor named in the core, held apart until the emergency, can serve as successor.
+- A quorum of witnesses fixed in advance can serve as successor.
+- If no uncompromised trust anchor remains, a recorded design decision from outside the core re-founds the harness rather than rotates a trust anchor.
 
-Then the authority of the new root starts with its adoption. Old records keep only their own anchors.
+In that case, the new trust anchor gains authority at its adoption. Old records keep only their own trust anchors.
 
-Rotation also includes retirement. Principals announce the rotation. The overlap drains records in progress under the old root. Then no record stays under a root that no principal names for judgement. The signed revocation announces the retirement to strangers. Principals archive the retired root.
+Rotation also ends a trust anchor: announced, drained, archived. The overlap drains records in flight under the old trust anchor. No record then stays under a trust anchor that no one can name. The signed revocation announces the retirement to strangers. The retired trust anchor stays archived, not deleted, so a later reader can name the trust anchor live at any record time.
 
-Principals do not delete the retired root. A later reader then names the root live at the time of any record.
+Non-key trust anchors rotate the same way. A witness, a copy, or a habit cannot sign a successor. For those trust anchors, rotation comes by a reserve rule or by a new start.
 
-Non-key roots rotate the same way. A witness, a copy, or a habit does not sign a successor. Rotation for such a root comes by a reserve rule or by a new start.
+## The trust anchor ledger needs no trust anchor beyond its trust anchors
 
-## The root ledger needs no anchor beyond its roots
+The trust anchor ledger is the ordered list of trust anchor adoptions. Its trust anchors are the trust anchors that it lists, and nothing stands above them.
 
-What anchors the ledger of roots? Its anchors are the roots that it lists. No anchor sits above the roots. The ledger needs no anchor beyond its roots for three reasons.
+A trust anchor above the ledger fails the tests in the trust regress section. It is a trust anchor, the very thing that the ledger lists, so a party certifies itself. Alternatively, it is a further ledger that needs its own trust anchor, and the regress reopens.
 
-First, an anchor above the ledger fails the tests of the regress section. Such an anchor is either a root or a further ledger. If it is a root, it is one of the roots that the ledger lists. Then a party certifies itself. If it is a further ledger, it needs an anchor of its own. That need reopens the regress.
+The ledger claim stays thin and checkable from inside. It covers only the order of adoptions. The trust anchor live at its time vouches for each adoption. The last trust anchor closes with a link that names its successor. Any verifier that holds a trust anchor can check every later link under a trust anchor that the verifier can reach.
 
-Second, the claim of the ledger is thin. A verifier checks the claim from inside the ledger. The claim covers only the order of adoptions. Each adoption receives a vouch from the root live at its time. The old root gives a final link that names its successor.
+The segment before the trust anchor that a verifier holds needs no further trust anchor. A verifier did not derive that trust anchor from the ledger. The verifier adopted that trust anchor and bears the risk of a wrong adoption. Everything before that trust anchor is grounded in that adoption. The ledger tells the verifier only what happened after that trust anchor, and the verifier can check that part.
 
-Any verifier that holds a root checks every later link. The verifier verifies each vouch under a root that the verifier reaches.
+Completeness covers a deleted or inserted adoption, and it follows the conflicting logs case. Many holders prevent a silent loss of a link, because holder copies disagree visibly, without a judgment on content. More independent holders make a silent rewrite harder. Where copies disagree and no prior rule settles them, adoptions after the break stand suspended, as do records judged under them.
 
-Third, the segment before the held root of a verifier needs no anchor. A segment is a part of the ledger. The held root is its anchor. Let R be a root that a verifier holds. R is that held root.
+A verifier that holds no trust anchor cannot check a link, because a verifier checks every link under some trust anchor. That gap shows no trust anchor. It is the act that stops the regress itself. Before a check, the verifier adopts a trust anchor by a recorded design decision from outside the ledger.
 
-A verifier that holds R did not derive R from the ledger. The verifier adopted R.
+Test: walk forward from a trust anchor you hold, verify each vouch under a reachable trust anchor, and compare your copy with another holder copy. If the walk completes and copies agree, the ledger is continuous from your trust anchor.
+## The minimal core
 
-The verifier bears the risk of a wrong adoption. All records before R rest on that adoption. The ledger tells the verifier only what happened after the held root. The verifier checks that later part.
+Seven claims form the core. Later sections apply these claims. They add no new core claim.
 
-Completeness is the case of a deleted adoption or an inserted adoption. That case is the competing-ledgers case. Continuity settles the case, with views that separate principals hold. A ledger that many principals hold shows any lost link. Copies from different holders disagree, visibly, without a judgement of content. More independent holders make a silent rewrite harder.
+1. Boundary. The boundary separates agent, harness, and world by write permission. The designer controls the harness. The agent controls its own moves. Neither the designer nor the agent controls the world.
+2. State split. The state split separates every state into w and h. A move changes w, h, or both, and the split names which part changes.
+3. Write permission. The agent holds write permission for part of h inside a scope the designer permits. That permission shapes later observations and transitions.
+4. Observation functions. Each principal i receives data through p_i. The function gives enough data for the job of principal i. The function gives no write permission through shown data.
+5. Precedence rule. A designer-fixed precedence rule decides conflicts between actions. Veto power blocks an action and never forces one. The rule shows its decision to the principal it preempts. The rule suspends an action that no precedence decides.
+6. Progress and fairness. Check progress and fairness over run histories, not over single steps. Counters and timers measure events and time against thresholds the designer fixes. Progress tests use goals in G, tied proxies, and epochs. A tied proxy is a measure tied to a goal in G. An epoch is one period in a run history.
+7. Rule that governs design decisions. Authority for a rule predates the act the rule judges. Authority sits outside the party the rule judges. Revision is a recorded design decision, visible to principals, for later acts only. An uncovered case keeps values from earlier rules.
 
-Where copies disagree and no prior rule settles them, adoptions after the break stand suspended. Records under those adoptions also stand suspended.
+The core also carries five applications. Succession passes authority only by a rule fixed before the absence. A harness retires only by a recorded design decision, not by a verdict on a run. A verdict on one run never retires the harness.
 
-A verifier that holds no root checks no link. Every link needs a root for its check. That gap is not an absent anchor. That gap is the act that stops the regress. Before a check, the verifier adopts a root by a recorded design act from outside the ledger.
+Obligations of the designer role survive a change of holder. Traces, not code, identify the harness after revision. A record earns trust from its provenance and from independent observation functions.
 
-A verifier walks forward from a root that the verifier holds. The verifier verifies each vouch under a reachable root. The verifier compares the copy of the verifier with the copy of another holder. If the walk completes and the copies agree, the ledger is continuous from the held root.
+A proposed claim joins the core only when it passes one test. Drop the claim and keep the core. Ask whether a failure then lacks an address, an evasion then stays open, or a principal then lacks service. Admit the claim only when the answer to one question is yes. A claim true of institutions in general fails the test when it says nothing about designer-controlled machinery. Questions about what makes a harness good, or what code looks like, fail the test.
 
-## The minimal core: what the theory commits to
+## What each core claim commits to
 
-A harness is designer-controlled machinery around a policy. A policy is the decision maker that selects an action from an observation. A loop is a repeat of steps for one policy on one task. An observation is what a principal sees at one step. A transition is a change from one state to the next state after an action.
+Drop the boundary. Bad design then looks like an uncooperative world. An agent edit to itself then looks like a designer edit.
 
-World state, written as `w`, is state that neither the designer nor the agent controls. Harness state, written as `h`, is state that the designer controls. Total state, written as `s`, is the pair of world state and harness state.
+Drop the state split. A REPL variable edit and an email then count as the same kind of act. Write permission then has no separate part to target.
 
-Harness state `h` can hold the history list and the trajectory list. A view is an observation function for one principal. Arbitration is a rule that decides between actions in conflict. Liveness is progress over a full history, not progress at one step.
+Drop write permission. The designer alone then fixes h. The agent then has no description for its next observation choice. The agent then has no description for a skill install.
 
-Aspiration is a target for progress that the designer fixes. An epoch is one segment of a history. Succession is a pass of the designer role from one holder to the next holder. Termination is the end of one run. Ending is the retirement of one harness, and ending means retirement only.
+Drop one function per principal. One function then serves overseer and agent alike. The overseer then sees too little to judge or too much to stay safe. A single function also leaves a principal with no function of its own.
 
-The theory grew by one move, repeated. The move answers a question one level up. Steps lead to histories. A harness leads to records. Records lead to roots. Roots lead to the ledger.
+Drop the precedence rule. Order of arrival then decides conflicts. The agent itself then decides conflicts, and the decider becomes a principal. A conflict with no rule then proceeds without suspension.
 
-The core is small. The core is these claims, and nothing else carries load.
+Drop progress over histories. Judgement then turns step-local. Every step then looks safe while the run never terminates. A run then loops forever with no forbidden step. Vague goals in G then give no test for progress.
 
-1. First, the boundary. The boundary splits the agent, the harness, and the world by who can change what. The designer-control test decides the split.
-2. Second, the state split. The state split is `s = (w, h)`. World state `w` stays outside control by the designer and by the agent. Harness state `h` stays under control by the designer.
-3. Third, authorship. The agent can write harness state `h` in a scope that the designer permits. The agent shapes future observations and future transitions by this write.
-4. Fourth, views. Each principal gets one observation function. Each function meets sufficiency and separation. Sufficiency means the function gives enough for the job. Separation means a read never grants a write.
-5. Fifth, arbitration. Arbitration is a rule that the designer fixes for transitions. The rule can veto an action. The rule never compels an action. The rule stays legible to the principal that loses. The rule suspends a conflict that no precedence decides.
-6. Sixth, liveness over histories. The judge judges liveness over traces. The judge uses counters and timers against thresholds that the designer fixes. The judge measures progress against aspiration. The judge uses tied proxies and epochs.
-7. Seventh, the meta-rule. Authority comes before the act and sits outside the party that the rule judges. Revision is a design act. The designer records the revision. The revision stays prospective and visible. A case with no rule freezes values that it inherits.
+Drop the rule that governs design decisions. The party a rule constrains then rewrites that rule. An uncovered case then gets an improvised decision, not a frozen value.
 
-Everything after the meta-rule is application, not addition. Succession applies the meta-rule to the designer role. Authority passes only by a rule that the designer fixed before the absence. Ending applies the meta-rule to the lifetime of the harness. Retirement is a design act, not a verdict.
+## Membership: what counts as a harness
 
-Debts apply the meta-rule to obligations. The obligations of the office remain after the holder leaves. Identity applies the meta-rule to revision. The traces are the harness, not the code. Trust applies the meta-rule to the record. The force of the record comes from provenance, chains, independent views, and roots that the parties adopted before the dispute.
+A candidate is a harness exactly when four things hold.
 
-A proposed addition earns a place only in two cases. The addition is a core claim. The addition applies one core claim to a new evasion, and the meta-rule decides the case. A claim can be true of institutions in general. Such a claim says nothing about designer-controlled machinery. Such a claim earns a place only if the theory forces it.
+1. Loop. One loop serves one policy on one task. The next step depends on the previous observation.
+2. Designer-controlled machinery. Designer-controlled machinery sits outside the policy write set. A permitted write scope forms the only exception.
+3. Action. At least one action changes w or h. A read alone never counts as action. A reshape of the machinery for the next observation counts as action.
+4. Designer-fixed control. A designer-fixed control alters or suspends execution without policy cooperation.
 
-The theory forces it in three cases. Without the claim, some failure gets no address. Without the claim, some evasion stays open. Without the claim, some principal gets no service.
+Weakness differs from absence. A loop that appends all history to context, with no curation, is a bad harness, not a non-harness. A minimal loop counts as a minimal harness when it runs the test suite and marks a task complete only when the suite passes. Its check does not depend on the model word.
 
-What makes a harness good is a next question, not a gap. What code looks like is a next question, not a gap. The test is simple. A claim that is neither in the core nor follows from the core is decoration. A core claim that costs nothing when lost does not belong.
+The neighbours fail the test as follows.
 
-## What each claim carries
+- A framework fails the loop test: it composes agents but runs no loops.
+- An SDK fails the loop test: it offers loop primitives but runs no loop.
+- A plugin fails the loop test: it suggests text with no task state and no verification.
+- An orchestrator fails the loop test: it chains steps with no branch on observation.
+- An evaluation harness fails the loop test: it grades after the run with no inner loop for a single task.
+- A runner fails the test: it launches a harness but runs no loop of its own.
+- A bare prompt fails the loop test: it runs no loop.
 
-The judge checks minimality. The judge does not assert minimality. Drop one claim and keep the other six claims. Then ask what the theory loses.
+Scaffold, workflow, application, and agent need the same test. A scaffold passes the test when it runs the loop under designer-fixed controls. Starter code or unfinished developer code fails the test: it offers parts of a loop and runs none.
 
-Drop the boundary. Failure loses its address. A prompt that misleads sits simply outside the agent. The judge cannot tell bad design from an uncooperative world. The judge cannot tell edits by the agent from edits by the designer.
+A workflow with no observation change to its course fails the loop test. A workflow that retries, replans, or branches on observation has a loop for that stretch. That stretch then passes or fails as a loop does.
 
-Drop the state split. A transition over an undivided state gets no landing site. A REPL variable edit and an email send are both just acts. Authorship loses its object, because no `h` exists for the agent to write.
+An application and an agent as a product are bundles, not candidates. Apply the test to the harness part of the bundle, not to the bundle as a whole. A policy alone fails the test. A bundle with no loop, no designer-controlled machinery, or no designer-fixed control fails the test, however complete it looks as a product.
 
-Drop authorship. The harness becomes a pipe. The designer alone fixes `h`. The agent chooses what to see next, but the theory gives that choice no description. The agent installs a skill, but the theory gives that install no description.
+Two corrections follow from the core. A test that counts only actions that change w misclassifies RLM. RLM REPL writes, notes, and skill installs change no world state. Those writes change the next observation. Their state component changed is h, not w.
 
-Drop views. Only one observation function exists. The overseer sees exactly what the agent sees. That view is too little for judgement or too much for safety. The overseer gets no function at all in the other case.
+A control counts by author, not by form. A rewritable cap counts as a suggestion, not a control. A cooperative guardrail counts as a suggestion, not a control.
 
-Drop arbitration. Actions conflict, and nothing decides the conflict except order of arrival. The agent itself decides the conflict in the other case. The agent as decider becomes a principal. A conflict with no rule proceeds in silence instead of a suspension.
-
-Drop liveness over histories. Judgement becomes step-local. Every step can be safe, yet the run never completes. The run can loop forever and do nothing forbidden. Vague goals become unjudgeable.
-
-Drop the meta-rule. Nothing stops the constrained party from a rewrite of the rules. A case with no rule gets improvisation instead of a freeze. The gap itself becomes the evasion.
-
-## Membership: what counts as a harness, and what does not
-
-Judge by function, not by product. Judge part by part.
-
-A candidate is an agent harness exactly when four things hold.
-
-1. First, a loop for one policy on one task. The next step can depend on the previous observation.
-2. Second, designer-controlled machinery outside the write set of the policy. The machinery allows one exception, a permitted authorship scope.
-3. Third, at least one action with a landing site in the world or in harness state. A read is not an action. A reshape of the machinery that produces the next observation is an action.
-4. Fourth, a designer-fixed control. The control alters execution or suspends execution without cooperation from the policy.
-
-Weakness is not absence. A loop can append all history to the context with no curation. That loop is a bad harness, not a non-harness.
-
-A minimal loop can run the test suite. The loop can call a task done only if the suite passes. That loop is embryonic. Its check does not depend on the word of the model.
-
-The neighbours fail one of the four conditions.
-
-- A framework combines agents, but the framework runs no loop for the agents.
-- An SDK offers loop primitives, but the SDK runs no loop.
-- A plugin suggests text without task state and without verification.
-- An orchestrator chains steps without a branch on observation.
-- An evaluation harness grades after the fact. The evaluation harness does not close the inner loop for a single task.
-- A runner starts a harness, but the runner is not a harness.
-- A bare prompt runs no loop.
-
-Scaffold, workflow, application, and agent need the same test.
-
-- A scaffold that runs the loop under designer-fixed controls is a harness under another name. Starter code is material, like an SDK. Connection code that a developer completes is material, like an SDK. The material offers parts of a loop and runs no loop.
-- A workflow with a course that no observation alters is not a loop. A workflow that retries, replans, or branches on observation holds a loop for that stretch. That workflow passes or fails as a loop does.
-- An application is a bundle, not a candidate. An agent as a product is a bundle, not a candidate. The test applies to the harness part of the bundle, not to the bundle as a whole.
-- A policy on its own is not a harness. A bundle with no loop is not a harness. A bundle with no designer control is not a harness. A bundle with no control is not a harness. A complete look as a product does not change this verdict.
-
-Two corrections come from the core. First, a count of actions that alter the world only is too narrow. In RLM, REPL writes alter no world state. In RLM, notes alter no world state. In RLM, skill installs alter no world state.
-
-These acts change the next observation. The landing site is `h`, not `w`.
-
-Second, a control counts by author. A rewritable cap is a suggestion, not a control. A cooperative guardrail is a suggestion, not a control.
-
-For any candidate, name four items. Name the policy. Name the loop. Name the landing site. Name the designer-fixed control outside the write set of the policy.
-
-If the judge cannot name any item, the candidate is a neighbour, not a harness. Membership is binary. Goodness is comparative.
+For any candidate, name the policy, loop, state component changed, and designer-fixed control outside the policy write set. If any item lacks a name, the candidate is a neighbour, not a harness. Membership is binary. Goodness is comparative.
 
 ## A worked example: SWE-agent
 
-SWE-agent takes a GitHub issue and a repository at the buggy commit. SWE-agent must produce a patch that fixes the issue (Yang and others, 2024, arXiv:2405.15793).
+SWE-agent takes a GitHub issue and a repository at the buggy commit. Its task is a patch that fixes the issue (Yang et al., 2024, arXiv:2405.15793).
 
-First, SWE-agent runs a loop. `DefaultAgent.run` is the loop of SWE-agent. `step_output` is the result of one step. The flag `done` shows that the loop terminates. `step()` runs one step of the loop. The code, in `sweagent/agent/agents.py`, is this loop:
+DefaultAgent.run names the loop. The file sweagent/agent/agents.py holds DefaultAgent.run. The loop calls step in each pass and stops when step_output.done turns true. Each step queries the model, parses thought and action, executes the action in a container, and saves the trajectory. The trajectory is the saved record of steps in the run.
 
-```
-while not step_output.done: step()
-```
+Templates, tool bundles, history processors, cost limits, blocklist, and timeouts form configuration. The file config/default.yaml and the agent and model configs hold that configuration. The designer sets that configuration, not the model.
 
-Each step queries the model. Each step parses thought and action. Each step executes in a container. Each step saves the trajectory.
+The policy acts on both w and h, though unevenly. World-directed moves edit files, write a reproduction script, and run the test suite. Harness-directed moves write the trajectory through the harness at each step. The harness builds the next observation from that trajectory.
 
-Second, the designer controls the machinery. The templates are configuration, not model output. The tool bundles are configuration, not model output. The history processors are configuration, not model output.
+Designer-fixed controls alter or suspend execution without policy cooperation. Per-instance and total cost limits terminate the run when the run exceeds either limit. A command times out after 30 seconds. Total execution times out after 1800 seconds. Repeated consecutive timeouts terminate the run.
 
-The cost limits are configuration, not model output. The blocklist is configuration, not model output. The timeouts are configuration, not model output. The configuration sits in `config/default.yaml` and in the agent and model configs.
+A blocklist refuses interactive and escape commands. The harness asks again, up to three times, for a different action after a block.
 
-Third, the policy acts on both sides of the split, though unevenly. World-directed actions are file edits. World-directed actions are reproduction scripts. World-directed actions are test suite runs.
+A move identity is its parsed intent and its state component changed, not its surface form. The moves are bash plus configured bundles: a registry, an editor, and a review-on-submit bundle. Because bash is a move, A(h) is not a closed list. Any shell string counts as a candidate move, minus the blocklist, minus budget and time left.
 
-Harness-directed action is thinner. Every step writes its own trajectory through the harness. The next observation comes from that trajectory.
+Observation is a function over the whole trajectory, not only over the container current state. The default history processor is the identity. It leaves the trajectory unchanged. The classic LastNObservations processor keeps five observations.
 
-Fourth, designer-fixed controls alter execution or suspend execution without cooperation from the policy. A per-instance cost limit terminates the run when the run exceeds the limit. A total cost limit terminates the run when the run exceeds the limit. A command times out after 30 seconds. Total execution times out after 1800 seconds. Repeated consecutive timeouts exit the run.
+It replaces older observations with the text "Old environment output: (n lines omitted)". A designer-fixed processor thus rewrites history between steps, with no agent action. This rewrite works only because h includes history and trajectory lists, not just container state.
 
-A blocklist refuses interactive commands and escape commands. The harness asks the policy again for a different action after a blocked action. The harness asks at most three times.
+Termination and verdict stay separate. The loop terminates on submit, forfeit, cost, context, or timeout. Autosubmission after an error submits the current diff. A diff is the patch as it stands at submit time. A run therefore terminates as submitted without success.
 
-A move gets its identity from its parsed intent and its landing site, not from its surface form. `bash` is a shell command. The moves are `bash` plus the configured bundles. The bundles are a registry, an editor, and a review-on-submit bundle.
+Success judgement sits outside the loop. The SWE-bench evaluation hook runs the maintainer test suite afterwards and grades the patch. That hook acts as a separate evaluation harness. Inside the loop, the review-on-submit bundle checks the model diff on submit.
 
-`A(h)` is the set of moves that the policy can take from harness state `h`. `bash` is a move, so `A(h)` is not a closed list.
+SWE-agent has no live observation function for a second principal. An overseer receives the trajectory file and inspector after the run, not an observation function of its own during the run. A human model replaces the policy. It never intervenes in a run already under way.
 
-Any shell string is a candidate move. The blocklist removes some strings. The budget that remains removes some strings. The time that remains removes some strings.
+SWE-agent passes the membership test. A pass on the test does not prove goodness. Its open shell leaves its control reactive. The control reacts to moves. It sets no advance bound on moves.
+## Human intervention in a run
 
-Observation is a function over the whole trajectory. Observation is not only a function over the current state of the container. The default history processor is the identity. `LastNObservations` is a history processor that keeps the last five observations.
+Basic question 10 asks how a human pauses, edits, redirects, or takes over a run already under way. The four verbs differ in what they change and in when the change takes effect.
 
-`n` is the count of lines that the processor omits. The processor replaces older observations with `Old environment output: (n lines omitted)`. A designer-fixed processor thus rewrites history between steps. The processor rewrites history without any agent action. This rewrite is possible only because `h` includes the history list and the trajectory list. `h` includes more than the state of the container.
+SWE-agent gives no live intervention. It runs as a batch loop. Policy replacement in SWE-agent starts a different run with the same loop. That replacement is not intervention in a run.
 
-Termination and verdict come apart. The loop terminates on submit. The loop terminates on forfeit. The loop terminates on cost. The loop terminates on context. The loop terminates on timeout.
+OpenCode gives the opposite case. The code inspected here comes from anomalyco/opencode, dev branch, commit 17b79f4e0c16dcff200b0417567ed22aeb2d7166.
 
-The loop terminates by autosubmission after an error. Autosubmission submits the current diff. A run can end with the status submitted. The patch can still fail.
+### Pause
 
-Success gets judgement outside the loop. The SWE-bench evaluation hook runs the test suite of the maintainer afterwards. The hook grades the patch as a separate evaluation harness. Inside the loop, the review-on-submit bundle checks the diff of the model on submit.
+Session.interrupt stops an active session. The harness records the reason as "user". The interrupt suspends transitions and does not terminate the run. The harness acknowledges the interrupt as soon as it accepts the interrupt. Cleanup settles after acceptance, on a separate path. An interrupt to an idle session changes nothing.
 
-What SWE-agent lacks is as informative as what SWE-agent holds. No live view exists for a second principal. An overseer gets the trajectory file and the inspector after the run. The overseer gets no observation function of its own in the run.
+### Redirect during a run
 
-A human model replaces the policy. The human model does not intervene in a run already under way. SWE-agent passes the membership test. A pass of the test is not goodness. Its open shell makes its control reactive rather than a bound.
+A new prompt does not rewrite the step in flight. The prompt enters the session inbox as steered input for a step boundary during work. The prompt enters the session inbox as queued input for the next turn.
 
-## Human intervention in a run already under way
+An interrupt with resume wakes the steered input. Queued prompts stay parked after that interrupt. No human edit touches a step already in execution.
 
-Basic question 10 asks how a human intervenes in a run already under way.
-The four verbs differ in what they change.
-The four verbs differ in when they can take effect.
+### Edit
 
-A harness is the system that runs a run.
-A run is one execution of an agent task.
-A policy is the agent or model that chooses the next move.
-A loop is the repeated cycle of steps in a run.
-A step is one turn of work in a loop.
+A revert returns a session to an earlier message. The revert restores files from snapshots. The revert stays staged and gated on idleness. Stage, clear, and commit refuse with a busy error during active execution. The order is fixed: pause first, edit second, and resume third. An interrupt alone rewinds no landed world effect and restores no file.
 
-A run in SWE-agent has no live intervention.
-In SWE-agent, a run is a batch loop.
-A batch loop runs without live human input.
-The only way in for a human is a policy replacement.
-That replacement is not an intervention in a run.
-It is a different run with the same loop.
+### Replace the policy
 
-OpenCode is the opposite case.
-A reviewer inspected OpenCode in its current code.
-The inspection used the dev branch of anomalyco/opencode.
-The commit is 17b79f4e0c16dcff200b0417567ed22aeb2d7166.
+A switch of agent or model publishes a selection event. The session, its history, and its harness state persist through the switch. The policy changes and the run continues. That change is takeover in the narrow sense. It differs from SWE-agent replacement, where a new run starts. It differs from a user who types the next step.
 
-Pause is the first intervention.
-`Session.interrupt` stops an active session.
-The harness records the reason as "user".
-The interrupt suspends transitions.
-A transition is one change of state in a session.
+Two interruptions need separate treatment. An interrupted provider stream recovers inside the step. The harness sends a synthetic observation that tells the policy to continue without repeat of completed content. A user interruption aborts the step. The harness fails the step as "Step interrupted". The harness fails unsettled tools as aborted and sends no continue instruction.
 
-The interrupt does not terminate the run.
-The interrupt does not judge the run.
-The harness acknowledges the interruption on acceptance.
-Cleanup settles after acceptance.
-An interrupt of an idle session is a no-op.
+The next drain starts a new step from the history. Completed tool results survive in the history. Aborted calls stand as failed in the history.
 
-Redirect while a run is in progress is the second intervention.
-A new prompt does not rewrite the step in flight.
-The new prompt enters a session inbox.
-A session inbox is a store for new prompts in a session.
+The theory assumes the user holds write permission for interrupt, steer, and revert. The harness records the reason for each intervention. The harness shows that reason to each party affected by the intervention. Without that record, an aborted step looks like a policy failure. Without that record, later parties lack a basis to judge the step.
 
-- A steered prompt waits for a step boundary in mid-work.
-- A queued prompt waits for the next turn.
+### Settlement
 
-An interrupt with resume wakes the steered input.
-Queued prompts stay parked.
-No human edits a step already in execution.
-The human decides what the next boundary delivers.
+A session counts as active through interruption cleanup and terminal settlement. A second interrupt in that window changes nothing and returns false. The second interrupt still claims each recorded resume request. Settlement therefore starts no next step for a dead intent. A resume request that arrives during cleanup counts as a new admission. That request starts a new step when the run settles.
 
-Edit is the third intervention.
-A revert returns a session to an earlier message.
-The harness restores files from snapshots in a revert.
-The harness stages a revert.
-The harness gates a revert on idleness.
-Idleness means no execution is active.
+A caller that needs settlement, not acceptance, uses awaitIdle. awaitIdle waits through each new step too. A new step scoped to steered input never promotes queued prompts.
 
-Stage, clear, and commit return a busy error while an execution stays active.
-Pause comes first.
-Edit comes second.
-Resume comes third.
-An interrupt alone does not rewind landed world effects.
-An interrupt alone does not restore files.
+### Partial steps
 
-Replace the policy without a replacement of the run is the fourth intervention.
-A switch of the agent or the model publishes a selection event.
-Harness state (h) is the state of the harness, apart from the world.
-The session persists.
-Its history persists.
-Its harness state persists.
+Resumption after a user interruption restarts the step. Resumption does not continue the interrupted step. The interrupted step fails, and its unsettled tools fail as aborted. Its completed tool results stand in the history. The next drain runs a new step with its step count reset. The new step starts only once a promoted input gives it work to do.
 
-That switch is takeover in the narrow sense.
-The policy changes.
-The run continues.
-This case differs from a replacement in SWE-agent.
-In SWE-agent, a new run starts.
-This case differs from a user takeover by a typed next step.
+### Precedence
 
-The two kinds of interruption differ.
+The code gives no rule that ranks principals. Each mechanism decides precedence for its own case. No overseer party ranks principals across mechanisms.
 
-The harness recovers an interrupted provider stream inside the step.
-An observation is information that the harness gives to the policy.
-A synthetic observation tells the model to continue.
-The model does not repeat completed content.
-
-A user interruption aborts the step.
-The harness fails the step as "Step interrupted".
-The harness fails unsettled tools as aborted.
-The harness injects no continue instruction.
-
-The next drain starts a new step from the history.
-Completed tool results survive in the history.
-Aborted calls remain failed.
-
-The theory takes for granted the write set of the user.
-The write set is interrupt, steer, and revert.
-The harness records each write with a reason.
-The harness records each write with an author.
-
-Settlement comes first.
-A session counts as active through interruption cleanup.
-A session counts as active through terminal settlement.
-Terminal settlement is the final close of a session.
-
-A second interrupt in that window is a no-op.
-The second interrupt returns false.
-The second interrupt still claims the recorded wakes.
-A dead intent is an intent that settlement does not continue.
-Settlement starts no successor for a dead intent.
-
-A successor is a new execution that follows a settled execution.
-A wake is a signal that starts work.
-Wakes that arrive in cleanup are new admissions.
-Those wakes start a successor when the run settles.
-
-That caller needs settlement, not acceptance.
-A caller that needs settlement uses `awaitIdle`.
-`awaitIdle` waits through any successor too.
-Promotion moves an input to the next step.
-A steer-scoped successor never promotes queued prompts.
-
-Partial steps come second.
-Resumption after a user interruption restarts the step.
-Resumption does not continue the step.
-The harness fails the interrupted step.
-The harness fails unsettled tools as aborted.
-Completed tool results stand in the history.
-
-The next drain runs a new step.
-The step count resets in the new step.
-A promoted input gives the new step work to do.
-
-Precedence comes third.
-The code gives no rule for the rank of principals.
-Each mechanism decides its own precedence.
-No overseer party ranks principals.
-An overseer is a party that ranks principals.
-
-- An interrupt beats in-flight work unconditionally.
-- An interrupt does not beat the future.
-- Wakes that arrive in cleanup start a successor at settle.
-- No order exists between the two interrupt reasons.
-- The first interrupt stops the execution.
+- An interrupt beats in-flight work without condition.
+- An interrupt does not control work that arrives after it.
+- A resume request during cleanup starts a new step at settle.
+- Between two interrupt reasons, no rank order exists.
+- The first interrupt stops execution.
 - A second interrupt returns false.
 - Arrival order decides that pair.
 - An active execution beats an edit.
 - At promotion, steered input beats queued input.
-- A permission rule beats a single move.
-- The harness asks no question for that rule.
-- A user reply beats all unsettled permission requests.
-- A reject fails the batch.
-- An interrupt cancels an unsettled permission wait.
-
-The batch case stays open.
-A harness with no live view has no interrupt endpoint.
-A view is what a human sees of a run.
-For that harness, intervention reduces to a start of a new run.
-The theory leaves open whether that start counts as intervention.
-The theory leaves open whether that start counts only as replacement.
-
-## The harness's error model: what fails, and who decides next
-
-What happens when the model produces malformed output?
-What happens when the model refuses?
-What happens when the model loops?
-What happens when the model calls a tool that fails?
-What happens when the model calls a tool that times out?
-
-"Error" is not one kind of event.
-They add no eighth core claim.
-A core claim is a central claim of the theory.
-
-Failures differ in whether an agent attempted a move.
-Failures differ in who refused a move.
-Failures differ in who failed a move.
-Failures differ in whether the run continues.
-Failures differ in whether the run retries.
-Failures differ in whether the run terminates.
-
-First, a parse failure is no action at all.
-A token sequence that the parser cannot map to a move is no action.
-
-The harness responds to a parse failure.
-
-- The harness gives an error observation.
-- The harness tries again.
-- The harness halts the run.
-
-That response is a harness transition rule.
-That response is not an agent choice.
-
-Second, a control refuses a move before the agent attempts the move.
-That refusal counts as no world failure.
-A blocklist reports a designer-fixed control.
-A designer-fixed control is a control that the designer fixes in advance.
-An approval mode that never asks reports the same control.
-The control disables the transition.
+- A permission rule blocks a single move with no request to a principal.
+- A user reply beats all open permission requests.
+- A user reject fails the whole batch of requests.
+- An interrupt cancels an open permission wait.
 
-The world does not refuse the transition.
-SWE-agent shows the shape of this case.
-A blocked command does not run.
-The harness asks the model again for a different action.
-The harness asks at most three times.
+The batch case stays open. A harness with no live observation function and no interrupt endpoint lacks live intervention. That harness leaves only a new run as intervention. Whether that act counts as intervention or only as replacement stays open.
 
-Third, world state (w) is the state of the world, apart from the harness.
-The world fails a move that the agent attempted.
-That failure is an observation about `w`.
-That failure is not a harness defect.
-That failure is not a control verdict.
+## Error model: what fails and who decides next
 
-The observation does not say whether a rule caused the failure.
-The observation does not say whether the world caused the failure.
-The policy cannot tell whether a retry is sensible.
-The policy cannot tell whether a retry is futile.
+Malformed output, refusal, loops, and tool failure or timeout need separate treatment. Error is not one kind of event. Failures differ in whether the harness attempted a move. Failures differ in who refused or failed the move. Failures differ in whether the run continues, retries, or terminates.
 
-Fourth, two cases look like errors.
-Neither case is a step error.
+### Parse failure
 
-A model refusal in text form is a parsed move.
-That refusal is not a harness failure.
-The policy chose to say no.
-The harness question is what the harness does with that answer.
+A token sequence that the parser fails to map to a move is not an action. The harness still responds to that sequence. The response is an error observation, a retry, or a halt. A transition rule in the error model decides that response. The policy does not decide that response. The action space does not decide that response.
 
-A loop is fine at every step.
-A trace is the full history of a run.
-A loop is defective only over the trace.
-Counters judge a loop over histories.
-Timers judge a loop over histories.
+### Refusal before attempt
 
-Fifth, the harness itself fails in some cases.
-The harness recovers an interrupted provider stream inside the step.
-A synthetic observation tells the model to continue from the point where it stopped.
-This case is the harness that repairs its own observation pipeline.
-This case is not an agent error.
+A move refused before attempt is not a world failure. A blocklist or an approval mode that never asks disables the transition by designer-fixed control. The control reports a disabled transition, not a world refusal. SWE-agent shows the shape. SWE-agent executes no blocked command. SWE-agent asks the policy again, up to three times, for a different action.
 
-A user interruption is the paired case.
-The harness fails the step as aborted.
-The harness fails unsettled tools as aborted.
-Completed tool results survive in the history.
+### World failure
 
-Sixth, resource exhaustion is a stop rule.
-Resource exhaustion is not an error in the sense of the agent.
+The world fails an attempted move and the harness gives an observation about w. That observation is not a harness defect. That observation is not a control verdict. An observation that hides the failure source leaves the policy blind on retry. The policy lacks a basis to judge whether a retry of the same move is sensible or futile.
 
-Cost limits terminate a run by designer-fixed control.
-Context limits terminate a run by designer-fixed control.
-Timeout limits terminate a run by designer-fixed control.
+### Refusal and loop
 
-A single command timeout is one event.
-A timeout that terminates a run is a different event.
-The single timeout is a failed move.
-The policy learns from that move.
-The timeout that terminates a run is a stop rule of the loop.
-The stop rule takes effect for the run.
+A model refusal, emitted as text, is a parsed move. That refusal is not a harness failure. The policy chose to say no. The harness question is what the harness does with that answer. A loop passes each step check and fails only over the trace. Counters and timers over histories judge the loop.
 
-The theory takes for granted that a failure is visible in its kind.
+### Harness failure
 
-A large set of questions stays open.
+The harness itself fails in two opposite cases. An interrupted provider stream in OpenCode recovers inside the step. The harness sends a synthetic observation that tells the policy to continue from the point of interruption. That repair fixes the observation pipeline, not a policy error. A user interruption gives the other case. The step fails as aborted, unsettled tools fail as aborted, and completed tool results survive in history.
 
-Retry bounds stay unexplained.
-A bound is a limit on retries.
-The theory does not judge why three requeries occur.
-The theory does not judge what happens at the bound.
+### Resource exhaustion
 
-Timeout classification stays unsettled.
-A slow tool is a world failure or a harness clock.
-The theory does not settle which case applies.
-The theory leaves open whether the observation tells the two cases apart.
+Resource exhaustion is a stop rule, not a policy error. Cost, context, and timeout limits terminate a run by designer-fixed control. A single command timeout differs from a timeout that terminates the run. The first timeout gives a failed move that the policy learns from. The second timeout fires the stop rule for the loop.
 
-A trajectory is the sequence of steps in a run.
-The theory leaves open whether provider errors and tool errors need different trajectory marks.
-The theory does not examine whether history processors preserve that mark.
+The theory assumes the harness marks the failure kind in the observation. Without that mark, the transition rule lacks a basis to choose error, retry, or halt.
 
-No general rule covers refusals.
-A policy that refuses its task differs from a tool that refuses a command.
+### Open points in the error model
 
-## Cost, budgets, latency, and permissions: where each lives
+- The reason for three requeries stays unexplained.
+- What happens at the retry bound stays unjudged.
+- Timeout classification stays unsettled.
+- A slow tool counts as a world failure or as a harness clock.
+- The observation needs to tell those two cases apart.
+- Whether provider errors and tool errors need different trajectory marks stays open.
+- Whether history processors preserve that mark stays unexamined.
+- No general rule covers refusal.
+- A policy refusal of its task differs from a tool refusal of a command.
 
-Basic question 9 asks what cost, latency, budgets, and permissions constrain. Basic question 9 also asks where each constraint lives. Do not treat the four constraints as one thing. A veto is not a price. A stop rule is not an agent error.
+## Cost, budget cap, latency, and access control
 
-A permission is not a budget. Each confusion assigns a constraint to the wrong place. This section sorts the four constraints. This section uses only two examples. The two examples are SWE-agent and Codex CLI.
+Basic question 9 asks what cost, latency, budget cap, and access control constrain, and where each constraint lives. The four are not one thing. A veto misread as a price, a stop rule misread as a policy error, or a permission misread as a budget cap misattributes the constraint.
 
-A harness is machinery that the designer controls. A policy is the part that chooses a move. A loop is a repeat of choice, action, and observation. An observation is data that the world returns after a move. World state, written as w, is the state of the world outside the harness. w holds the current facts of the world.
+### Cost
 
-Harness state, written as h, is the state of the machinery of the harness. h holds the current facts of the harness machinery. A principal is a party with a view and a right to judge. A view is the part of a state that a principal sees. An overseer is a principal who watches a run.
+Cost lives in the trace and in h. A principal observes cost through an observation function. The Codex CLI adapter gives the overseer cost records. SWE-agent gives its overseer only the trajectory file after the run. Cost spans tokens, tool calls, and world-directed effects.
 
-Cost lives in two places. Cost lives in the trace. Cost lives in h. A trace is a record of a run. Each principal sees cost only through the view of that principal.
+The harness counts tokens after generation. A tool call carries an execution cost unknown at choice time. A world-directed effect, such as a message sent, escapes any token count. No move therefore carries a single price that the policy weighs beforehand.
 
-An adapter connects a harness to a system. The adapter for Codex CLI gives cost records to the overseer. The overseer of SWE-agent receives only the trajectory file after the run. A trajectory file is a record of moves and results after a run.
+### Budget cap
 
-`A(h)` is the set of moves that the harness attempts in harness state h. Cost is a vector across levels. Cost is not a scalar that attaches to `A(h)`.
+A budget cap is not a price. A budget cap is a designer-fixed cap in the core. Exceedance of the cap terminates the run. SWE-agent carries a per-instance cost limit and a total cost limit. A budget cap shapes A(h) from the outside. A budget cap is not a move.
 
-- The harness counts tokens after generation.
+A budget cap is not a price that the policy trades against a larger payoff. A cap outside policy write permission binds the policy. A cap that the policy rewrites is a suggestion, not a cap. An agent-raised budget cap is evasion, not compliance. The harness measures cost, and the designer fixes a budget cap before the run.
 
-- The harness does not know the execution cost of a tool call when the policy chooses the tool call.
+A budget cap vetoes the run at a limit, whatever the payoff of the next move. A price changes total cost and leaves the run to continue. A blocklist vetoes one move, whatever the budget left. SWE-agent shows the blocklist case: a blocked command runs for no price.
 
-- No token count measures a world-directed effect, such as a message that an agent sends.
+### Latency
 
-The policy does not weigh a single price for a move before the policy chooses the move.
+Latency runs on two clocks, and the error model keeps the clocks apart. A per-move clock times a single command. A single command in SWE-agent times out after 30 seconds. That timeout fires a failed move that the policy learns from. A per-run clock times total execution. Total execution after 1800 seconds terminates the run.
 
-A budget is not a price. The designer fixes a budget as a cap in the core. The core is the fixed part of the theory. A budget also acts as a liveness threshold. Liveness is a condition that a run continues to make progress.
+The first timeout is not a run failure. The second timeout is not a policy error. Latency also enters progress as a timer. The timer measures time since the run last made progress toward G. A slow tool and a stuck loop look alike until the timer crosses its threshold. At that point, delay counts as a verdict.
 
-When cost exceeds a budget, the run terminates. SWE-agent carries two limits.
+### Access control
 
-- SWE-agent carries a cost limit for each instance.
+Access control shapes A(h) directly. Access control says which moves the harness attempts. Admission lists the moves that exist. The harness attempts no move outside that list. A veto is a designer-fixed rule that disables an attempted move. SWE-agent blocklist refuses known bad commands.
 
-- SWE-agent also carries a total cost limit.
+Codex CLI refuses commands under its forbidden exec-policy rules. Approval means a party decides a request. Codex CLI approval comes from a guardian or a user. A grant lasts for a turn or a session. The harness writes no grant to disk. Under default on-request approval, the policy chooses whether to seek approval.
 
-A budget shapes `A(h)` from outside the policy. A budget is not a move. A budget is not a price that the policy trades for a larger payoff. The author test gives two results. A cap that the policy rewrites is a suggestion.
+Sandbox rules and forbidden rules hold regardless of a request. A durable amendment differs from a grant. A grant changes attempts for a turn or a session. An amendment changes the rule itself. An amendment is a recorded design decision. Access control is neither a precedence rule nor a budget cap.
 
-A budget that the agent raises is evasion. The harness records cost. A budget is a norm about cost. The designer fixes a budget before the run starts.
+A precedence rule decides between proposals. A permitted move stays unaffordable in some runs. An affordable move stays forbidden in some runs.
 
-Latency runs on two clocks. The error model separates the two clocks.
+### Open points in cost, latency, and access control
 
-- Under a per-move clock, one command in SWE-agent times out after 30 seconds. The time out fires a failed move. The failed move gives the policy a lesson.
+- Whose observation function carries cost during a run stays open.
+- The harness charges an inner loop cost to the outer move that spawned it.
+- The summary hides the inner steps.
+- Latency as a progress proxy stays open.
+- Which permission changes the harness grants mid-run stays open.
 
-- Under a per-run clock, total execution after 1800 seconds terminates the run.
+## Kinds verdict: one theory for coding, browsing, chatting, and operating harnesses
 
-Do not call the first clock a run failure. Do not call the second clock an agent error. Each name assigns the fault to the wrong place. Latency also enters liveness as a timer. The timer measures time since the run last made progress toward an aspiration.
+Basic question 11 asks whether coding, browsing, chatting, and operating harnesses belong to one theory. This section considers the question and does not resolve it. Every adapter so far is a coding harness. The other kinds stand as kinds, not as verified systems.
 
-An aspiration is a goal that a run pursues. A slow tool and a stuck loop look alike. When the timer reaches its limit, a wait changes into a verdict. A verdict is a judgment about a run.
+The membership test is kind-blind, and that fact favours one theory. The test asks for a loop. The test asks for designer-controlled machinery outside policy write permission. The test asks for an action that lands somewhere. The test asks for a designer-fixed control that alters or suspends execution without policy cooperation. None of the four mentions files, pages, messages, or clicks.
 
-Permissions shape `A(h)` directly. Permissions say which moves the harness attempts. Admission is a registry. The registry lists the moves that exist. The harness does not attempt a move outside the registry.
+A loop that navigates pages passes the same test that SWE-agent passes. A loop that replies in a conversation passes the same test. A loop that drives a desktop passes the same test. A loop that fails any of the four fails the test in any kind.
 
-Veto is a rule that the designer fixes. The rule disables a move that the policy attempts. The blocklist of SWE-agent refuses known bad commands. Codex CLI refuses its own forbidden commands through forbidden exec-policy rules.
+Passage of the same test does not make two harnesses the same thing. The core stays put, but three applications change shape by kind.
 
-Approval is a decision by a decider. The decider decides a request. In Codex CLI, the guardian or the user acts as the decider. The guardian or the user gives a grant for a turn or a session. The harness never writes a grant to disk.
+### The world and harness line and the principal count
 
-Under default on-request approval, the model chooses whether to seek approval. The sandbox rules and the forbidden rules hold even when the model does not ask. A request does not replace those rules.
+In coding, the repository is w, and the trajectory, the templates, and the registry are h. In browsing, the web is w. In browsing, tabs, cookies, and a cached page are h. Cached divergence from the live world is therefore a harness failure. In operating, the desktop and its files are w. In operating, focus, the clipboard, and the screenshot pipeline are h.
 
-A durable amendment differs from a grant. A grant changes attempts for a turn or a session. An amendment changes the rule itself. An amendment is a design act. Permission is neither arbitration nor a budget.
+Chatting is the sharpest case. A reply lands in the transcript in h. That transcript serves another principal's observation function. The interlocutor is a principal who judges, interrupts, and terminates a run. A harness that treats the interlocutor as world loses observation functions, precedence rules, and principal-judged progress. A harness that treats the interlocutor as a principal makes chatting multi-principal from the start.
 
-Arbitration is a choice between proposals. A permitted move is sometimes unaffordable. An affordable move is sometimes forbidden.
+Single-policy SWE-agent contrasts with that case. The kind changes the principal count, not the core.
 
-Four items stay open.
+### Termination and verdict by kind
 
-- Which view carries the current cost?
+In coding, the loop terminates on submit. Tests outside the loop judge success. In browsing, no submit exists. A browsing loop terminates at a page state. A checker that reads a world that changes states whether it reads w or a harness snapshot.
 
-- An outer move spawns an inner loop. The harness charges the cost of the inner loop to the outer move. The summary hides the steps of the inner loop.
+In operating, system state is both work and verdict. A stop therefore mimics success in operating, unless a check separate from the loop is defined. In chatting, a reply closes a turn, not a run. A chatting run terminates when the interlocutor terminates it or a stop rule fires. Progress in chatting is principal satisfaction, not a change in w. Liveness over histories still applies in chatting.
 
-- The role of latency as a stand-in measure for progress stays open.
+A principal other than the designer holds G in chatting.
 
-- A fourth open item is which permission changes a grant allows in a run.
+### Irreversibility and the shape of the attempted moves
 
-## Do coding, browsing, chatting, and operating harnesses belong to one theory?
+In coding, open-shell moves are veto-based and often reversible by diff and revert. Review after the act repairs those moves in coding. In browsing, links and buttons on the current page offer candidate moves. A(h) lists moves available to attempt, not guarantees, in browsing. The world offers, the harness attempts, and the world determines success.
 
-Basic question 11 asks whether coding, browsing, chatting, and operating harnesses belong to one theory. Basic question 11 also asks whether the word harness covers different things in each kind. This section considers the question. This section does not resolve the question. Every adapter so far is a coding harness.
+In operating and chatting, moves are often irreversible. A message sent, a file deleted, and a purchase placed show that shape. Control in those kinds is pre-emptive, by admission, veto, or approval before the move. Post-hoc review does not suffice for those kinds. Review-on-submit is therefore inadequate for operating and chatting. Membership requires only some designer-fixed control, not that control shape.
 
-This section treats the other kinds as kinds. This section does not treat the other kinds as verified systems.
+Which control shape is adequate is goodness, not membership.
 
-The membership test is kind-blind. That fact supports one theory. The test asks for four things.
+### The browsing boundary
 
-- The test asks for a loop.
+Browsing strains the boundary in one further way. Page content is w and is untrusted. Page content contains instruction-like text. Control draws the boundary, and a page lacks designer control. A harness that treats page content as a designer instruction misattributes the source. The policy errs or the harness fails when it follows that content.
 
-- The test asks for machinery that the designer controls outside the write set of the policy. The write set of the policy is the set of places that the policy changes.
+A browsing harness keeps world content and designer instruction in different channels or observation functions. Without that separation, the boundary collapses in practice.
 
-- The test asks for an action that lands somewhere.
+A kind splits the theory only if it requires a new core claim. A kind splits the theory only if it systematically fails membership. The candidates do neither.
 
-- The test asks for a control that the designer fixes. The control alters execution or suspends execution. The policy gives no help to the control.
-
-None of the four items mentions files, pages, messages, or clicks. A loop that navigates pages passes the same test that SWE-agent passes. A loop that replies in a conversation passes the same test. A loop that drives a desktop passes the same test. A loop that fails any of the four items fails the test in any kind.
-
-The same test does not make two kinds the same thing. The core does not change. Three applications of the core change shape by kind.
-
-First, the line between world and harness changes by kind. The count of principals also changes by kind. In coding, the repository is the world. In coding, the trajectory, the templates, and the registry are h. In browsing, the web is the world.
-
-In browsing, tabs, cookies, and a cached page are h. A cached page sometimes diverges from the live world. That divergence is a failure of the harness. In operating, the desktop and the files of the desktop are the world. In operating, focus, the clipboard, and the screenshot pipeline are h.
-
-Chatting is the sharpest case. In chatting, a reply lands in the transcript in h. The transcript serves the view of another principal. An interlocutor is the other party in a conversation. The interlocutor is a principal.
-
-The interlocutor judges the run. The interlocutor interrupts the run. The interlocutor terminates the run. If a reader treats the interlocutor as world, the reader loses views. If a reader treats the interlocutor as world, the reader loses arbitration.
-
-If a reader treats the interlocutor as world, the reader loses progress that a principal judges. If a reader treats the interlocutor as a principal, chatting has more than one principal from the start. SWE-agent has one policy. The kind changes the principal count. The kind does not change the core.
-
-Second, termination and verdict come apart differently by kind. Termination is the stop of a run. In coding, the loop stops on submit. Submit is an act that offers work for judgment. Tests outside the loop judge success.
-
-In browsing, no submit exists. A loop in browsing stops at a page state. A checker reads a world that changes. The checker states whether the checker reads the world or a snapshot of the harness. A snapshot is a copy of h at one time.
-
-In operating, system state is both work and verdict. A stop in operating looks like success. Operating needs a check separate from the loop. The check defines success apart from the loop.
-
-In chatting, a reply stops a turn. A reply does not stop a run. A run in chatting terminates when the interlocutor terminates the run. A run in chatting also terminates when a stop rule fires. Progress in chatting is principal satisfaction.
-
-Principal satisfaction is approval by a principal. Progress in chatting is not a measure in w. Liveness over histories still applies in chatting. A history is a record of past moves. A principal other than the designer holds the aspiration in chatting.
-
-Third, irreversibility and the shape of the action set change by kind. Irreversibility is a state that a later move does not undo. The action set is the set of moves that the harness attempts. In coding, open-shell moves use veto. In coding, diff and revert often undo open-shell moves.
-
-Review after the act repairs open-shell moves in coding. In browsing, links and buttons on the current page offer candidate moves. `A(h)` lists attempts, not guarantees. The world offers a move. The harness attempts the move.
-
-The world determines success of the move.
-
-Three examples show irreversibility in operating and chatting.
-
-- An agent sends a message.
-
-- An agent deletes a file.
-
-- An agent places a purchase.
-
-Control acts before the move in operating and chatting. Control does not act after the move. Admission, veto, or approval gives control before the move. Review after the move does not give control in time. Review on submit does not suffice for operating and chatting.
-
-Membership requires only some control that the designer fixes. Membership does not require that shape of control. Which shape is adequate is a question of goodness, not a question of membership. Goodness is quality beyond membership.
-
-Browsing strains the boundary in one further way. The boundary is the line between designer instruction and world content. A second theory is most plausible at that strain. Page content is world. Page content is untrusted.
-
-Page content sometimes contains text that resembles an instruction. If a reader treats page content as a designer instruction, the reader misattributes the source. The boundary rests on control. A page is not under designer control. If the policy follows page content, the policy makes an error.
-
-If the harness follows page content, the harness fails. A browsing harness keeps world content in one channel and designer instruction in another channel. A browsing harness also keeps world content and designer instruction in different views. If channels and views are not separate, the boundary fails in practice.
-
-A kind splits the theory if the kind requires a new core claim. A kind also splits the theory if the kind systematically fails membership. None of the candidates requires a new core claim. None of the candidates systematically fails membership.
-
-Three items stay open.
-
-- `A(w, h)` is the action set that the harness attempts in world state w and in harness state h. Notation stays open. The choice is between `A(w, h)` and `A(h)`. Under `A(h)`, the offer of the world acts as an observation.
-
+- Whether the attempted-move set takes w as an argument stays open.
 - Whether chatting progress needs its own verdict vocabulary stays open.
-
-- A second adoption outside coding stays open. Until that adoption occurs, this section is prospective. Prospective here means that the claims await a second adoption.
+- A second, non-coding adoption stays open, and this section stays prospective until that adoption.
 
 ## Basic questions
 
@@ -1306,27 +759,21 @@ These questions come before the more elaborate parts of the theory. They do not 
 ## Sources to read, test, and argue with
 
 - Recursive Language Models, Zhang, Kraska, Khattab, arXiv:2512.24601, first posted December 2025.
-- Prime Agent, Prime Intellect, August 2026. It improves itself and uses the RLM abstraction. Section 2.5 describes the Continual Harness. That section gives the fixed-core and mutable-supplement split.
-- Classic reinforcement learning and decision theory: Sutton and Barto, and the older MDP / POMDP literature. Chapter 3 gives the boundary rule. That rule gives the designer-control test.
-- Supervisory control: Ramadge and Wonham, "Supervisory Control of a Class of Discrete Event Processes", SIAM Journal on Control and Optimization, 1987. It gives the veto-without-compulsion shape. The arbitration section uses that shape.
-- Safety and liveness: Bowen Alpern and Fred B. Schneider, "Defining Liveness", Information Processing Letters 21(4), October 1985. It gives the safety and liveness decomposition. The liveness section uses that decomposition.
-- Vague goals and aspiration: Herbert A. Simon, "A Behavioral Model of Rational Choice", Quarterly Journal of Economics, 1955. The progress section uses satisficing as an aspiration in place of a point.
-- Succession fixed before vacancy, as illustration, not authority: the United States Presidential Succession Act of 1947 and the Twenty-fifth Amendment, and the Linux kernel's succession and continuity plan. Legitimacy comes from the rule fixed before the vacancy. It does not come from the successor claim.
-- Software sunset practice, as precedent for announced, drained endings, not as authority: deprecation announced before shutdown, with a migration path and a date (IETF, RFC 8594, the Sunset header). The ending section uses its drain and announcement rules.
-- Novation in contract law, as illustration, not authority. The successor section uses it for the fourth inheritance.
-- Trending and historical harness implementations on GitHub. Read them as examples, not as authorities. An implementation that works is evidence, not a theory.
-- Corporate successor liability, as contrast, not authority. The chain section inverts the traditional asset-buyer rule. A harness successor claims the office, not the assets.
-- Identity across revision, as illustration, not authority: Plutarch, Life of Theseus, on the ship of Theseus, and Hobbes's second ship built from the discarded planks; and H. L. A. Hart, The Concept of Law, 1961. The identity section uses them for its recognition rules.
-- Tamper-evident records, as illustration, not authority: hash-chained append-only logs and Merkle trees, as in version control and Certificate Transparency (IETF, RFC 6962). The trust section uses them for graded trust and for its bound on forgery.
-- Trust roots, as illustration, not authority: the relying party installs a root certificate in public-key infrastructure. The relying party does not derive the root certificate from a chain. The regress section uses it for its adopted root.
-- Trust anchor rotation, as illustration, not authority: IETF, RFC 5011, "Automated Updates of DNS Security (DNSSEC) Trust Anchors", September 2007. The rotation section uses it for three rules:
-  - overlap
-  - closing link
-  - emergency rule
-- Agent harness definition, as foil and test, not authority: Sanderson Oliveira de Macedo, "What makes a harness a harness: necessary and sufficient conditions for an agent harness", arXiv:2606.10106, August 2026. The membership section uses its four conditions and neighbour boundary as a foil and test. The theory departs from it in two places. First, harness-state actions count as acting. Second, a control counts only if it is designer-fixed and outside the policy write set.
-- SWE-agent, as worked example, not authority: John Yang et al., "SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering", arXiv:2405.15793, 2024, and the system's current code and default configuration. The worked example uses three items from it:
-  - loop
-  - action set
-  - controls
-- Planning under partial observability, as the formalism judged, not authority: Leslie Pack Kaelbling, Michael L. Littman, and Anthony R. Cassandra, "Planning and acting in partially observable stochastic domains", Artificial Intelligence, 1998. The POMDP section uses it for its division of labour.
-- Temporally extended actions, as complement, not authority: Richard S. Sutton, Doina Precup, and Satinder Singh, "Between MDPs and semi-MDPs: a framework for temporal abstraction in reinforcement learning", Artificial Intelligence, 1999. The POMDP section uses it for one treatment. It treats a subagent move as a semi-Markov action at the outer level.
+- Prime Agent, Prime Intellect, August 2026, a self-improving harness on the RLM abstraction. §2.5 gives the fixed-core and mutable-supplement split.
+- Classic reinforcement learning and decision theory: Sutton and Barto, and the older MDP / POMDP literature. Ch. 3 gives the designer-control test.
+- Supervisory control: Ramadge and Wonham, "Supervisory Control of a Class of Discrete Event Processes", SIAM Journal on Control and Optimization, 1987. It gives the veto-without-compulsion shape for the precedence rule section.
+- Safety and liveness: Bowen Alpern and Fred B. Schneider, "Defining Liveness", Information Processing Letters 21(4), October 1985. It gives the safety and liveness decomposition for the liveness section.
+- Vague goals and aspiration: Herbert A. Simon, "A Behavioral Model of Rational Choice", Quarterly Journal of Economics, 1955. Satisficing replaces a point goal in the progress section.
+- Succession fixed before vacancy, as illustration, not authority: the United States Presidential Succession Act of 1947 and the Twenty-fifth Amendment, and the Linux kernel's succession and continuity plan. It illustrates legitimacy from a rule fixed before a vacancy.
+- Software sunset practice, as precedent for announced, drained endings, not as authority: deprecation announced before shutdown, with a migration path and a date (IETF, RFC 8594, the Sunset header). It gives precedent for announced shutdown with a migration path and a date.
+- Novation in contract law, as illustration, not authority. It illustrates the fourth inheritance in the successor section.
+- Trending and historical harness implementations on GitHub, to be read as examples, not as authorities. A working implementation counts as evidence and does not by itself give a theory.
+- Corporate successor liability, as contrast, not authority: the traditional asset-buyer rule the chain section inverts, since a harness successor claims the designer role, not the assets. The chain section inverts the traditional asset-buyer rule.
+- Identity across revision, as illustration, not authority: Plutarch, Life of Theseus, on the ship of Theseus, and Hobbes's second ship built from the discarded planks; and H. L. A. Hart, The Concept of Law, 1961, on the rule of recognition. It gives the recognition rules for the identity section.
+- Tamper-evident records, as illustration, not authority: hash-chained append-only logs and Merkle trees, as in version control and Certificate Transparency (IETF, RFC 6962). It gives graded trust and a bound on forgery for the trust section.
+- Trust roots, as illustration, not authority: a root certificate in public-key infrastructure is installed by the relying party, not derived from a chain. It gives the adopted root for the regress section.
+- Trust anchor rotation, as illustration, not authority: IETF, RFC 5011, "Automated Updates of DNS Security (DNSSEC) Trust Anchors", September 2007. It gives the overlap, closing link, and emergency rule for the rotation section.
+- Agent harness definition, as foil and test, not authority: Sanderson Oliveira de Macedo, "What makes a harness a harness: necessary and sufficient conditions for an agent harness", arXiv:2606.10106, August 2026. Its four conditions and neighbour boundary serve as foil and test for the membership section. This document departs from it in two places. A harness-state action counts as an action. A control counts only if designer-fixed and outside policy write permission.
+- SWE-agent, as worked example, not authority: John Yang et al., "SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering", arXiv:2405.15793, 2024, and the system's current code and default configuration. Its loop, action set, and controls serve as the worked example.
+- Planning under partial observability, as the formalism judged, not authority: Leslie Pack Kaelbling, Michael L. Littman, and Anthony R. Cassandra, "Planning and acting in partially observable stochastic domains", Artificial Intelligence, 1998. It gives the division of labour for the POMDP section.
+- Temporally extended actions, as complement, not authority: Richard S. Sutton, Doina Precup, and Satinder Singh, "Between MDPs and semi-MDPs: a framework for temporal abstraction in reinforcement learning", Artificial Intelligence, 1999. It gives the treatment of a subagent move as a semi-Markov action at the outer level.
