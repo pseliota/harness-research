@@ -89,3 +89,7 @@ The 09:28 tick deleted theory.md with no stated reason; restored here verbatim f
 ## 2026-10-24 — What each claim carries
 
 Drop-tested the minimal core: removing any one of the seven claims loses something the other six cannot recover: failure's address, action's landing site, self-shaping, a principal's view, non-principal decision, judgement over time, a rule about rules.
+
+## 2026-10-24 — Membership
+
+Membership test: harness runs a policy's inner loop, is designer-controlled, acts on w or h, has a designer-fixed control outside the policy's write set. Macedo T1-T4 corrected: harness-directed acts count; agent-rewritable caps are not control; weak context is bad, not absent. Open: goodness.

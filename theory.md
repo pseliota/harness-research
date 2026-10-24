@@ -2291,6 +2291,168 @@ loss is covered by the other six. The core is
 minimal in the sense that matters: remove one
 claim, and something a harness must do stops
 being sayable.
+## Membership: what counts as a harness, and what does not
+
+The name travels. A test harness runs code
+under test, an evaluation harness grades a
+system after it has run, and a product is
+called a harness because it contains one.
+The core gives a test for membership that
+does not depend on the name on the box, or
+on whether the system lives in a terminal
+or an editor. Packaging is not a claim.
+Judge by function, not by product: one
+system can contain a harness, an evaluator,
+and a framework, and the test below applies
+to each part, not to the whole at once.
+
+A candidate is an agent harness exactly
+when four things hold. Each is a core claim
+applied to a running system, not a new
+claim.
+
+First, it runs a loop. It carries successive
+observations and transitions for one policy
+on one task, and the next step can depend
+on the previous observation. A library offers
+the parts of a loop; it runs none.
+
+Second, the machinery is designer-controlled,
+in the boundary sense, and outside the
+policy's write set except for a permitted
+authorship scope. A system the policy can
+rewrite at will has no designer machinery
+left to name.
+
+Third, the policy can act through it. At
+least one action lands somewhere: in the
+world, or in harness state. Reading and
+suggesting are not acting. Reshaping the
+machinery the next observation will come
+from is acting, even if no world state
+changes yet.
+
+Fourth, at least one designer-fixed control
+can alter or suspend execution without the
+policy's cooperation: a veto, a budget, a
+verification, a containment, a stop rule, a
+tool registry that admits only listed
+actions. A log that records without altering
+execution is not a control, and a cap the
+policy can rewrite is not one either.
+
+Weakness is not absence. A loop that appends
+all history to the context, with no curation,
+is a bad harness, not a non-harness.
+Curation is a question of goodness, not of
+membership. The same holds for a minimal
+loop that runs the test suite and calls a
+task done only if the suite passes: it is
+an embryonic harness, not a demo, because
+its check does not depend on the model's
+word. No multi-agent architecture, no
+learning, and no particular model is
+required. A single policy in a loop is
+enough, and swapping the model is a
+designer act that leaves membership intact
+so long as the boundary traces stay intact.
+
+The neighbours fail one of the four, and
+naming the failure is the test.
+
+A framework composes agents. The loop,
+tools, and control belong to each agent's
+harness, not to the framework itself. A
+framework embedding a harness in each agent
+contains harnesses without being one. Where
+a framework defines a joint policy and runs
+its loop, it is the harness of that
+composite policy, not merely a composer.
+
+An SDK is material. It offers tool-calling
+and loop primitives but imposes no running
+loop. When it delivers the closed loop, with
+context and control, it has crossed into
+being a harness.
+
+An autocomplete plugin suggests text at the
+cursor. It keeps no task state, alters no
+repository, and verifies nothing. An agent
+inside an editor that takes a task, edits,
+runs, and checks is a harness, in spite of
+living where the plugin lives.
+
+An orchestrator chains fixed steps. If the
+observation never alters the course, there
+is no loop, only a chain. A branch on an
+observation — retry when a test fails —
+turns that stretch of chain into a loop.
+
+An evaluation or test harness runs an outer
+loop over tasks or cases and grades after
+the fact. It does not close the inner loop
+for a single task, because it does not
+decide the next step from the previous
+observation; the system under test does.
+It shares the machinery — control,
+observation, records — but it is a
+neighbouring sense of the same word, not
+the same concept. A runner that launches an
+agent harness contains one; the runner
+itself is not one.
+
+A bare system prompt, and a prompt with a
+single model call, are harness-side
+material, not a harness. They shape one
+observation and run no loop. The claim that
+a system prompt is harness, not agent, is a
+claim about which side of the boundary it
+sits on, not a claim that a prompt alone is
+a harness.
+
+Two corrections to a four-condition test in
+the literature are forced by the core.
+First, tools that alter only the external
+environment are too narrow a test for
+acting. In RLM, writing a REPL variable,
+keeping a note, or installing a skill alters
+no world state, yet it is the act that makes
+the next observation different. The landing
+site is h, not w, and a test that counts
+only w misses the harness-directed half of
+action altogether. RLM passes the test here
+for the same reason: its REPL executor,
+scoping, and recursion rules are
+designer-fixed containment, and its
+harness-directed actions shape what the root
+model sees next.
+
+Second, a control counts only by its author.
+A cap, check, or guardrail that the policy
+may rewrite at will, or that merely asks the
+policy to cooperate, is a suggestion, not a
+control. The meta-rule, not the presence of
+a mechanism, is what makes a control a
+control. A loop with an open shell, no
+budget, no verification, and no stop rule
+but the policy's own word trusts the model
+in exactly the way the control condition
+exists to exclude.
+
+The test for the whole section is again one
+a later reader can apply. For any candidate,
+name the policy, the loop it runs, the
+landing site of its actions, and the
+designer-fixed control outside the policy's
+write set. If any cannot be named, the
+candidate is a neighbour, not a harness.
+Passing the test is not passing judgement:
+a harness that passes can still starve,
+leak, cost too much, or serve its principal
+badly. Membership is binary; goodness is
+comparative, and it is the question the
+core leaves open.
+
 ## Open questions
 
 1. What is the minimal core that all harnesses share, without being
@@ -2418,3 +2580,19 @@ Recovery needs at least one uncompromised anchor; with none,
 only a manual, out-of-band update remains. That shape is the
 source of the rotation section's overlap, closing link, and
 emergency rule.
+- Agent harness definition, as foil and test, not authority:
+Sanderson Oliveira de Macedo, "What makes a harness a
+harness: necessary and sufficient conditions for an agent
+harness", arXiv:2606.10106, August 2026. Its four
+conditions — a reasoning, action, and observation loop, a
+tool interface, context management, and a control
+mechanism independent of the model's obedience — and its
+boundary against framework, SDK, IDE plugin, eval harness,
+and orchestrator, are the source of the membership
+section's neighbours and of its inner-loop test. The
+membership section departs from it in two places: actions
+landing in harness state count as acting, not only actions
+altering the external environment, and a control counts
+only if it is designer-fixed and outside the policy's
+write set, so that weak context management is badness,
+not absence.
