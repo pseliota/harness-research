@@ -125,3 +125,7 @@ Repo organized with a structure map in README; interactive visualization added i
 ## 2026-10-24 — Move theory files to docs
 
 Theory files moved to docs/: theory.md, log.md, and OKR.md now live in docs/, with README and code references updated. Content unchanged.
+
+## 2026-10-24 — SWE-agent stub adoption
+
+SWE-agent adopted in stubs: SweAgent implements AdoptedHarness with loop, A(h), state split, views, controls, ending, a passing membership result, and gaps left open; theory's worked example points at it.

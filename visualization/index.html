@@ -215,10 +215,12 @@ const DATA = {
       "x": 760,
       "y": 490,
       "file": "harness-core/src/adoption.rs",
-      "theory": "how an existing harness is adopted on top of this core",
-      "description": "Adopting an existing harness on top of this core.  This is the adapter shape for the monthly objective of unifying a popular harness under the theory: an existing harness is not rewritten, it is mapped onto the core. Each method names one thing the adapter must be able to say about the existing harness, in the core's terms. This is a stub interface: no existing harness is adapted here.",
+      "theory": "how an existing harness is adopted on top of this core; the first adapter is SWE-agent",
+      "description": "Adopting an existing harness on top of this core.  This is the adapter shape for the monthly objective of unifying a popular harness under the theory: an existing harness is not rewritten, it is mapped onto the core. Each method names one thing the adapter must be able to say about the existing harness, in the core's terms. The first adapter is `SweAgent` below; a later adapter for a different harness implements the same trait, so the two adoptions can be compared in the core's terms.",
       "stubs": [
-        "trait AdoptedHarness"
+        "trait AdoptedHarness",
+        "struct SweAgent",
+        "fn gaps"
       ]
     },
     {

@@ -15,7 +15,7 @@ Each module corresponds to a part of the theory:
 - `meta` — the meta-rule: recorded, prospective, visible design acts
 - `membership` — what counts as a harness, and what does not
 - `run_loop` — the policy loop itself
-- `adoption` — how an existing harness is adopted on top of this core
+- `adoption` — how an existing harness is adopted on top of this core; the first adapter is SWE-agent
 - `extensions` — applications of the core, not the core itself:
   succession, ending, debts, identity, trust, and roots
 

@@ -2731,6 +2731,16 @@ reactive rather than bounding, and a harness
 that passes can still cost too much, starve, or
 submit a patch that fails every test.
 
+The stub adapter in `harness-core/src/adoption.rs`
+names these same items in the core's terms: the
+loop, the action space, the state split, the
+views, the controls, and the ending, with the
+membership result and the gaps above stated
+plainly. A second adoption, from a different
+category, can be compared against this one in
+those same terms, and where the two disagree,
+the disagreement itself is the finding.
+
 ## Basic questions
 
 These questions come before the more elaborate parts of
