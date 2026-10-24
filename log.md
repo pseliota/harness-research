@@ -97,3 +97,7 @@ Membership test: harness runs a policy's inner loop, is designer-controlled, act
 ## 2026-10-24 — Basic questions
 
 Basic questions added: action space, POMDP fit, major harnesses today, steps and ending, state vs context, tools vs subagents, harness vs framework, errors, costs and permissions, human intervention, and variation across harness kinds.
+
+## 2026-10-24 — Action space as a tower
+
+Action space as a tower, not a set: tokens, parsed moves, and effects, with A depending on harness state h. Tools are single-step moves, subagents moves running an inner loop; skills, prompts, memories parametrize A and observation, not moves. Open: cost of a move at each level.

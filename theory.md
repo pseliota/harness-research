@@ -111,18 +111,145 @@ One edge remains: a harness that learns its own
 modification policy from experience, rather than receiving it
 fixed. That case is not yet covered.
 
-## Levels
+## The action space: a tower, not a set
 
-The same shape appears at several levels of abstraction:
+Ask what an action is, and the answer depends
+on the level of description. There is no single
+set `A` that serves every level at once. What
+there is, is a tower of levels, each with the
+same POMDP shape — a policy chooses an element
+of that level's action set, and the harness
+carries out the transition and the next
+observation — but with a different action set
+at each level. The levels are related by
+expansion: an action at one level, executed,
+unfolds into a run at the level below.
 
-- Researcher: actions are tokens or log-probabilities.
-- Developer: actions are API responses.
-- User: actions are tool responses.
+At the lowest level, the action set is the
+model's vocabulary `V`, and a step is one
+token. The policy `pi(a | o)` is literally a
+distribution over `V`. Nothing else is an
+action at this level: there are no tools, no
+files, no subagents, only tokens.
 
-There is also an inverted view: the harness code is the policy, and
-the LLM is part of the environment, along with everything else.
-Both views may be useful. Neither should be mistaken for the whole
-story.
+At the next level, the harness groups a token
+sequence into a parsed move. A move is one of:
+emit text, call a named tool with arguments,
+spawn a subagent, or stop. Call this set `A1`.
+It is a quotient of token sequences, not a
+subset of them. A parse function maps token
+strings to moves, and many strings map to the
+same move: two spellings of one tool call are
+one action, not two. Conversely, the same
+string can be different moves under different
+parsers or registries, so a move's identity
+is not its surface form. It is the pair of its
+parsed intent and its landing site, the part
+of `s` its execution changes.
+
+At the next level up, a move executes. Its
+effect lands in `w`, in `h`, or in both, as the
+state-split section already sorts it. Here the
+levels stop looking flat, because execution is
+not uniform in kind. A tool move executes in
+one harness step: read a file, run a test,
+send a message. A subagent move executes as a
+whole inner loop: the outer policy's single
+action contains another policy's run, which
+returns only a summary observation. The tower
+is therefore recursive. An action set can
+contain loops, not just steps, and the inner
+loop is itself a harness, judged by the same
+membership test as the outer one.
+
+Two consequences follow, and both are
+checkable against examples.
+
+First, the action set is state-dependent.
+Write it `A(h)`, not `A`. The tool registry,
+the permissions, the installed skills, and
+the remaining budget are all harness state,
+and each of them adds or removes moves. A
+coding agent that installs a skill gains
+moves; one whose registry drops a tool loses
+them; one out of budget has no costly move
+left to choose. The policy's vocabulary does
+not change when this happens. What changes
+is which parsed moves the harness will
+attempt. Attempt is the right word: whether
+an attempted move succeeds can still depend
+on `w` — a file the world deleted, a service
+that refuses — so `A(h)` lists attempts, not
+guarantees.
+
+Second, the tower sorts the menagerie that
+basic question 6 lists, by role rather than
+by name. Tools and subagents are moves, and
+they differ only in how their execution
+unfolds: one step, or one loop. Skills,
+prompts, and memories are not moves at all.
+They are harness state that parametrises the
+tower: a skill changes which moves exist and
+how they parse, a prompt shapes the next
+observation, a note changes what a later
+observation contains. Installing a skill is
+itself a harness-directed move, and its
+effect is to change `A(h)` for later steps.
+A retrieval result is an observation, not an
+action: it is what a move returned. A chat
+reply is a move whose immediate landing site
+is the transcript in `h`, and whose audience
+is another principal's view of that state.
+Landing site and audience are different
+distinctions, and confusing them is how a
+reply gets misread as acting on the world.
+
+What is not in `A1` matters as much as what
+is. A token sequence the parser cannot map
+to a move is not a failed action. It is not
+an action at all, and the harness must still
+do something with it: return an error
+observation, retry, or halt. That response
+is a harness transition rule, not an agent
+choice, and it belongs to the harness's error
+model, not to its action space. Counting
+malformed output as an action would hand
+the policy credit for a move it never made,
+and would hide the harness rule that decided
+what happened next.
+
+There is also an inverted view, and the tower
+explains why it works. Take the harness code
+as the policy, and the language model as part
+of the environment, along with everything
+else. That is not a rival theory. It is the
+same tower read from a different cut: at the
+move level the model is the policy, and at
+the level above, where prompts are composed
+and results are routed, the harness is. Both
+views are useful. Neither should be mistaken
+for the whole story, because the whole story
+is the tower: tokens, grouped into moves,
+executed into effects, with some executions
+themselves containing towers.
+
+The test for the whole section is one a later
+reader can apply to any candidate harness.
+Name the vocabulary, the parse function, and
+`A(h)` at the current state. If the parse
+function cannot be named, token identity is
+being mistaken for action identity. If `A(h)`
+cannot be named, the harness's real options
+are unknown, and no claim about what the
+agent chose — or could have chosen — can be
+checked. What can change while the idea stays
+the same is everything at any one level: a
+new vocabulary, a new parser, a new registry.
+What cannot change is the tower itself: a
+level's actions, grouped from the level below
+and executed into effects at the level above,
+with the set of available moves varying with
+harness state.
 
 ## Goals
 
