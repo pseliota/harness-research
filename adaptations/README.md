@@ -27,7 +27,10 @@ Adapters included:
 
 - `codex_cli` — OpenAI's Codex CLI only, Apache 2.0.
   Codex's IDE extension and cloud service are not
-  open source, so they are out of scope here.
+  open source, so they are out of scope here. Its
+  sandbox policy and approval modes are verified in
+  outline against openai/codex; the rest of the
+  adapter is still a summary, listed in its gaps.
 - `gemini_cli` — Gemini CLI, Apache 2.0
 - `opencode` — OpenCode, MIT
 - `swe_agent` — SWE-agent, MIT, moved here from

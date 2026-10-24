@@ -149,3 +149,7 @@ Basic questions reframed: they require explicit consideration, not a resolved an
 ## 2026-10-24 — Human intervention
 
 Basic question 10 considered, not resolved: pause, steer/queue, edit, and policy replacement are four acts with different landing sites and timings, checked against OpenCode's session interrupt, inbox, and revert code. Open: precedence, settlement window, partial-step resumption.
+
+## 2026-10-24 — Codex CLI sandbox and approval verified
+
+Codex CLI adapter verified in outline against openai/codex at 970111f6: sandbox modes and policy, exec-policy allow/prompt/forbidden, and approval modes untrusted/on-request/granular/never. Finding: under default on-request, approval-seeking is model-chosen, so sandbox enforcement and forbidden rules, not the asking, are the controls that hold regardless. Open: per-OS enforcement, approval records, escalation vs arbitration.
