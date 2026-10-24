@@ -193,3 +193,7 @@ Intervention precedence settled against anomalyco/opencode at the same pinned co
 ## 2026-10-24 — Harness versus scaffold, workflow, application, agent
 
 Basic question 7, continued in the Membership section: scaffold, workflow, application, and agent-as-product were the neighbours the section had not named — framework, SDK, plugin, orchestrator, and evaluation harness were already there. No new core claim, and no new neighbour type: a scaffold is a harness under another name when it runs the loop, material when it is starter code; a workflow is an orchestrator under another name, a loop only for the stretch an observation alters; an application and an agent-as-product are bundles, and the test applies to the harness part, not the bundle. A policy on its own is not a harness. Open, for the user: the standing instruction to cut theory.md to 40% — the prose inspected this run is dense argument, not wordy filler, so reaching 40% needs a structural decision about which blocks to move or summarise, not line trimming in a single tick.
+
+## 2026-10-24 — Theory trimmed to about 40%
+
+Theory trimmed to about 40% by removing repeated restatements, throat-clearing, and secondary elaborations. Headings, core claims, worked example, basic/open questions, and sources kept; the new Membership neighbours passage retained in short form.
