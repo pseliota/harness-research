@@ -209,3 +209,7 @@ Theory rewritten in ASD-STE100 Simplified Technical English: short sentences, ac
 ## 2026-10-24 — Principal index renamed in STE theory
 
 Audited the STE rewrite against its own rule that no symbol is introduced without a definition: p was defined in Starting definitions as the probability function, then reused in Multiple principals as the name of a principal (p_p, o_p). Renamed the principal index to i, defined by "Let i name one principal", so p stays the probability function throughout and the family reads p_i(o_i | s). No other symbol collision found in the audit; G is redefined across sections (fixed point, set of goals, goal) and is left as an open question for the reviewer rather than renamed in this tick.
+
+## 2026-10-24 — G unified as the set of goals
+
+Resolved the symbol overload left open by the principal-index tick: G meant three things — a fixed goal point (POMDP section), the set of goals for the run (Goals section), and the goal treated as an aspiration (epochs section). G is now defined once in Starting definitions as the set of goals for the run, before its first use. The POMDP passage now calls a single fixed goal point the old picture that aspiration and epochs replace, and the epochs section now treats each version of G as an aspiration, with G_i defined as the version of G in epoch i. No claim changed: the Goals section already used the set-of-goals sense, and the sources entry already described satisficing as an aspiration in place of a point.

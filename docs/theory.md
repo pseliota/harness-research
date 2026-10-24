@@ -20,6 +20,8 @@ p(s' | s, a) is the transition. A transition is a change from s to s' after acti
 
 The harness carries out p(s' | s, a) and p(o | s).
 
+G is the set of goals for the run.
+
 A harness is a system that the designer builds around the agent. The designer is the person who builds the harness. The harness carries out the transition and the observation function. A tool is an engineered shortcut. The harness jumps to a state that holds the answer.
 
 The harness then shows the answer to the agent. A dummy case is a simple example. The weather today is a dummy case.
@@ -133,7 +135,7 @@ An epoch is a period with fixed harness functions. A design act is an act of des
 
 A veto is a refusal, not a cost. A price is a cost. A blocklist is a veto, not a price. Aspiration is a target that moves. An aspiration is what the harness aims at over time.
 
-G is a fixed goal point. Aspiration and epochs replace G with a target that moves and its revision record. A revision record is the record of each revision of the target. Within an epoch, a run is a POMDP. Across epochs, a run is a family indexed by design acts.
+A single fixed goal point is the old picture. Aspiration and epochs replace that picture with a target that moves and its revision record. A revision record is the record of each revision of the target. Within an epoch, a run is a POMDP. Across epochs, a run is a family indexed by design acts.
 
 Design acts index the family across epochs.
 
@@ -332,9 +334,9 @@ A liveness verdict is not a transition proposal. A liveness verdict does not ent
 
 ## Progress toward a vague or shifting G: epochs, aspiration, and proxies
 
-A harness is the system that runs an agent and checks the run. An agent is the actor that acts toward G. G is the goal. G is often vague. G also shifts over time.
+A harness is the system that runs an agent and checks the run. An agent is the actor that acts toward G. G is the set of goals for the run. G is often vague. G also shifts over time.
 
-This section treats G as an aspiration, not as a single point goal. An aspiration is a level that a principal judges as good enough. Herbert Simon calls this idea satisficing (Simon, 1955). A principal holds an aspiration level. The principal can judge the criteria for that level. Search stops at the first state that clears the level.
+This section treats each version of G as an aspiration, not as a single point goal. An aspiration is a level that a principal judges as good enough. Herbert Simon calls this idea satisficing (Simon, 1955). A principal holds an aspiration level. The principal can judge the criteria for that level. Search stops at the first state that clears the level.
 
 Search does not seek an optimum. A view is what a principal sees of a run. Progress is not distance to a point. Progress is approach to the current aspiration. The principal judges that approach in the view of the principal.
 
@@ -346,7 +348,7 @@ A proxy is a substitute measure for a goal. A proxy may serve where even aspirat
 
 A proxy is legitimate only with a tie back to the aspiration. A principal must use the gain to judge G. A principal must also use the gain to advance toward G.
 
-The write set is the group of principals that can revise G. Each revision comes from a principal in the write set for G. Typically, the user makes the revision. Each item in a goal sequence is one version of G. Write the goal as a sequence: `G_0, G_1, ...`
+The write set is the group of principals that can revise G. Each revision comes from a principal in the write set for G. Typically, the user makes the revision. Each item in a goal sequence is one version of G. Let G_i name the version of G in epoch i. Write the goal sequence as: `G_0, G_1, ...`
 
 An epoch is one period under one version of G. Each revision starts a new epoch. Counters and timers run within an epoch. Counters and timers reset only at a recorded epoch boundary. The harness records the provenance of each boundary. Provenance is the record of who made a change and when the change occurred.
 
