@@ -35,7 +35,7 @@ impl SweAgent {
             "No arbitration: there is a single policy, so the only conflicts are vetoes, a blocklist refusing a command, not principals contending over a transition.",
             "No human intervention in a run already under way: a human model replaces the policy rather than pausing, editing, redirecting, or taking over a running loop.",
             "Control is veto plus cost, not admission: the blocklist refuses known bad commands, it does not bound in advance what a shell string can do.",
-            "Ending and verdict come apart: a run can end as submitted without ever having succeeded, and success is judged outside the loop by the SWE-bench evaluation hook.",
+            "Termination and verdict come apart: a run can terminate as submitted without ever having succeeded, and success is judged outside the loop by the SWE-bench evaluation hook.",
         ]
     }
 }

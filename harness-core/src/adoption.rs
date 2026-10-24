@@ -45,8 +45,10 @@ pub trait AdoptedHarness {
     fn controls(&self) -> Vec<String>;
 
     /// Its termination: when a run terminates, and who decides.
-    /// "Ending" is reserved for retiring the harness itself;
-    /// a run terminates, a harness ends.
+    /// The bare noun "ending" is reserved for retiring the harness
+    /// itself; a run terminates, a harness ends. A verb phrase that
+    /// names its object, such as "ends the run", does not use the
+    /// reserved noun and is not a collision.
     fn termination(&self) -> String;
 
     /// The membership test, applied to this harness.

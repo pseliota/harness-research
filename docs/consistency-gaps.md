@@ -154,4 +154,18 @@ that commit. A gap is not resolved by argument alone.
   is a terminology gap, as in gap 1: no
   membership result turns on it.)
 - Date first noted: 2026-10-24.
-- Status: open.
+- Status: resolved by this run's commit, which narrows
+  the rule to what the collision actually was: the
+  Ending section and the trait doc now reserve the
+  bare noun "ending" for harness retirement, and
+  state explicitly that a verb phrase naming its
+  object ("ends the run", "ends the conversation")
+  does not use the reserved noun and is not a
+  collision, because the object disambiguates.
+  "Terminates" remains the preferred verb for a run.
+  The one remaining bare-noun collision, the
+  SWE-agent adapter's gaps entry, is renamed to
+  "Termination and verdict come apart", mirroring
+  the theory's worked-example heading. The verb
+  instances in Side B are covered by the narrowed
+  rule, not renamed.

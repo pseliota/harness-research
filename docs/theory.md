@@ -1199,7 +1199,20 @@ itself: no new runs, existing runs
 brought to a close, responsibilities
 handed on or discharged. The two
 senses are kept apart by vocabulary:
-a run terminates, a harness ends.
+the bare noun "ending" is reserved for
+retiring the harness, and a run
+terminates. The reservation is about
+the noun: "ending" unqualified means
+harness retirement, never a run
+stopping. A verb phrase that names
+its object — "ends the run", "ends
+the conversation" — does not use the
+reserved noun, and is not a
+collision, because the object says
+which sense is meant. "Terminates"
+remains the preferred verb for a run,
+but the rule does not forbid a verb
+phrase whose object disambiguates.
 The first
 distinction to hold is that ending is
 a design act, not a verdict. A
