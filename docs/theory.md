@@ -3276,6 +3276,230 @@ the run continue, retry under a bound, or end?
 A harness whose failures cannot answer all
 four has an error model only in name.
 
+## Cost, budgets, latency, and permissions: where each lives
+
+Basic question 9 asks what cost, latency,
+budgets, and permissions constrain, and
+where those constraints live. The four
+words are not four names for one thing.
+Each lives in a different place in the
+theory, and conflating them is how a
+constraint gets misattributed: a veto
+read as a price, a stop rule read as an
+agent error, a permission read as a
+budget. This section sorts them, using
+only the two harnesses whose controls
+the repo has already checked: SWE-agent
+and Codex CLI. It adds no eighth core
+claim. It is the state split, liveness,
+arbitration, views, and meta-rule
+applied to constraints.
+
+First, cost. Cost is incurred, and then
+recorded. It lives in the trace and in
+`h`, and it is observed through a
+principal's view — the Codex CLI
+adapter gives the overseer cost
+records, where they are recorded,
+while SWE-agent's overseer gets only
+the trajectory file after the run —
+not in the action set.
+And cost is not one number, because
+the tower has more than one level.
+At the token level, a step costs
+tokens, counted after they are
+generated. At the move level, a tool
+call costs whatever its execution
+costs, which is not known when the
+move is chosen: a bash string in
+SWE-agent can run anything the
+blocklist does not refuse, and a
+subagent move costs a whole inner
+loop, returning only a summary.
+At the effect level, a world-directed
+move can cost something no token
+count measures at all: a message
+sent, an order placed, a file the
+world now holds differently. A move
+therefore has no single price the
+policy can weigh before choosing
+it, and a theory that attached one
+price to each move would misdescribe
+every open move in the repo. Cost
+is a vector across levels,
+accumulated in the trace, not a
+scalar attached to `A(h)`.
+
+Second, budget. A budget is not a
+price either. It is a designer-fixed
+cap in the core, a threshold of the
+liveness kind, and exceeding it ends
+the run. SWE-agent carries two: a
+per-instance cost limit and a total
+cost limit, and exceeding either
+ends the run. A budget shapes `A(h)`
+from the outside: a harness out of
+budget has no costly move left to
+choose, in the tower section's words,
+but the budget itself is not a move,
+and it is not a price the policy may
+trade against a larger payoff. The
+POMDP section already refused that
+trade for vetoes, and the same refusal
+holds here: a policy that could pay
+to violate a blocklist would have no
+control left. A budget also inherits
+the membership section's author test:
+a cap the policy can rewrite at will
+is a suggestion, not a control, and
+a budget the agent raises for itself
+is evasion in the progress section's
+sense, one level up. Cost is measured;
+a budget is a norm about cost, fixed
+before the run, and the two must not
+be confused, any more than a
+threshold may be learned from the
+traces it is meant to judge.
+
+Third, latency. Time is a budget, but
+it runs on two clocks, and the error
+model already keeps them apart. A
+per-move clock fires a failed move
+the policy may learn from: a single
+command in SWE-agent times out after
+30 seconds. A per-run clock fires a
+stop rule: total execution after 1800
+seconds ends the run. Calling the
+first a run failure, or the second an
+agent error, misattributes both.
+Latency also enters liveness in a
+second way, as a timer, not a clock:
+how long since the run last made
+progress toward its aspiration. A
+slow tool and a stuck loop can look
+alike for a while from the trace
+alone, and only the timer's crossing
+turns waiting into a verdict. Time
+spent is a cost; a deadline is a
+budget; time without progress is a
+liveness signal. Three uses of time,
+three places, and no one of them is
+the other two.
+
+Fourth, permissions. Permissions
+shape `A(h)` directly: they say
+which moves the harness will attempt.
+They come in three shapes, and the
+shapes must not be merged. Admission:
+a registry lists the moves that
+exist, and a move outside it is not
+attempted. Veto: a designer-fixed
+rule disables an attempted move, as
+SWE-agent's blocklist refuses known
+bad commands, and Codex CLI's
+forbidden exec-policy rules refuse
+theirs. Approval: a judging party
+decides a request, as Codex CLI's
+guardian reviewer or user decides an
+agent-initiated permission request,
+with a grant scoped to the turn or
+the session, and never written to
+disk. Two cautions from the Codex
+CLI account carry over. Under the
+default on-request approval mode,
+approval-seeking is model-chosen, so
+the controls that hold regardless
+are sandbox enforcement and
+forbidden rules, not the asking.
+And a durable exec-policy amendment
+a user approval may also make is a
+different thing from a grant: the
+grant changes what may be attempted
+for a turn or a session, while the
+amendment changes the rule itself,
+which is a design act, not a
+permission. A permission is also
+not arbitration, and not a budget:
+permission gates one move, while
+arbitration decides between
+contending principals' proposals,
+and a permitted move may still be
+unaffordable, while an affordable
+move may still be forbidden.
+
+What the theory takes for granted
+here is threefold, and each is a
+core claim doing work. That costs
+are measurable and recorded in `h`
+and in the trace, so that a view can
+show them. That budgets and
+permissions are fixed before the run
+and sit outside the policy's write
+set, so that they are controls and
+not suggestions. And that the two
+clocks — per move and per run — are
+both recorded, so that a failed move
+and a stop rule are not merged in
+the record. Where any of these fails,
+the sorting above fails with it: a
+cost never recorded cannot be
+budgeted, a budget the policy rewrites
+cannot stop anything, and a timeout
+with no clock named cannot be told
+from a world failure.
+
+What is left open is considerable,
+and it is worth stating rather than
+smoothing over. First, whose view
+carries running cost: if the agent
+never sees cost, it cannot choose a
+cheaper move, and if it does, cost
+starts to look like a price it may
+trade against progress, which the
+POMDP section refused. The Codex CLI
+adapter gives cost records to the
+overseer, where recorded, and
+SWE-agent gives the overseer the
+trajectory after the run; whether
+the agent's view should carry running
+cost too is not decided here. Second,
+subagent cost attribution: an inner
+loop's cost is charged, in the outer
+trace, to the outer move that spawned
+it, but the summary hides the inner
+steps, so the outer policy cannot
+tell which inner choice spent what.
+Third, latency as a progress proxy:
+time without progress is a liveness
+timer, but a slow world and a slow
+policy are indistinguishable from the
+trace alone, and that is the timeout
+classification the error model left
+open. Fourth, temporary against
+durable permission change: a grant
+for a turn or a session, against a
+rule amended for good, are different
+kinds of change to `A(h)`, and no
+general rule here says which changes
+may be granted mid-run and which
+must wait for a design act.
+
+The test a later reader can apply is
+therefore four questions, one per
+constraint: what cost is recorded,
+and in whose view; what budgets cap
+it, and who may change them; what
+two clocks exist, per move and per
+run, and which fired; and what
+permission shapes — admission, veto,
+approval — gate `A(h)`, and which of
+them hold regardless of the policy's
+cooperation? A harness that cannot
+answer all four has constraints only
+in name: something will be charged,
+stopped, or refused, and no principal
+will be able to say which rule did it.
+
 ## Basic questions
 
 These questions come before the more elaborate parts of

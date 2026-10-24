@@ -173,3 +173,7 @@ Resolved reviewer gap 1: "ending" now means harness retirement only. AdoptedHarn
 ## 2026-10-24 — Arbitration statements in adapters
 
 Resolved reviewer gap 2: the adapter specifications now agree that every adapter must state its arbitration position in controls() — the rule, that there is none, or that it is not yet stated — and every adapter does: SWE-agent and Codex CLI state none, Gemini CLI and OpenCode state not yet stated. "Not yet stated" counts as a statement, not silence, so a reader can tell absence from an unnamed rule. Open as adapter questions, not specification conflicts: whether Gemini CLI has an arbitration rule, and OpenCode's intervention precedence.
+
+## 2026-10-24 — Cost, budgets, latency, permissions
+
+Basic question 9 considered, not resolved: cost, budget, latency, and permission sorted into four places — cost recorded in trace/h, budget as a core threshold, latency as per-move and per-run clocks plus a liveness timer, permission as admission, veto, or approval shaping A(h) — using only SWE-agent and Codex CLI facts already checked in the repo. No new core claim. Open: whether the agent's view should carry running cost, subagent cost attribution, and temporary vs durable permission change.
