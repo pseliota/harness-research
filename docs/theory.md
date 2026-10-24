@@ -2877,7 +2877,8 @@ trajectory inspector after the run, not an
 observation function of its own during it. A
 human model exists, but it replaces the policy
 rather than intervening in a run already under
-way, so human intervention stays an open question.
+way. The next section takes that limiting case
+up, against a harness where intervention is live.
 And there is no arbitration, because there is a
 single policy: the only conflicts are vetoes, a
 blocklist refusing a command, not principals
@@ -2904,6 +2905,158 @@ plainly. A second adoption, from a different
 category, can be compared against this one in
 those same terms, and where the two disagree,
 the disagreement itself is the finding.
+
+## Human intervention in a run already under way
+
+Basic question 10 asks how a human intervenes in a
+run already under way: pause it, edit it, redirect
+it, or take it over. Those four verbs are not four
+names for one act. They differ in what they change
+and in when they can take effect, and a theory
+that treats them as one "interruption" will
+misattribute every one of them.
+
+Start with the limiting case. In SWE-agent, as
+described above, there is no live intervention:
+a run is a batch loop, and a human's only way in
+is to replace the policy. That is not intervention
+in a run; it is a different run with the same
+loop. A theory that counted policy replacement
+as intervention would have nothing left to say
+about the case where a run survives its
+intervention, which is the interesting case.
+
+OpenCode, as inspected in its current code
+(anomalyco/opencode, dev branch, commit
+17b79f4e0c16dcff200b0417567ed22aeb2d7166),
+is the contrasting case, and its distinctions
+are the finding. Four acts, four landing sites:
+
+First, pause. `Session.interrupt` stops an active
+session, with the reason recorded as "user". It
+is not a halt verdict, not an ending, and not a
+judgement on the run: it suspends transitions.
+Interruption is acknowledged as soon as it is
+accepted, while cleanup settles asynchronously
+in the execution fibre, and interrupting an idle
+session is a no-op. So "interrupted" is, at the
+moment it is reported, a status of acceptance,
+not of settlement, and a view that reported it
+as settled would overstate what has happened.
+Tool runs in flight are interrupted, the step is
+marked aborted, and the final tool and step
+events are published through uninterruptible
+writes, so cancellation cannot strand a record
+half-written. In the non-interactive runner, a
+SIGINT calls the same endpoint and exits 130.
+
+Second, redirect while running. A new prompt does
+not rewrite the step in flight. It is admitted
+to a session inbox, and it lands in one of two
+places: steered, to be delivered at a step
+boundary mid-work, or queued, to wait for the
+next turn. An interrupt with resume then wakes
+the steering input, while queued prompts stay
+parked. The distinction is the theory: a human
+cannot edit a step already executing, but can
+decide what the next boundary delivers. A
+harness that merged steer and queue would lose
+exactly that choice — between changing the
+current work and waiting for the next turn —
+and would misdescribe both as "sending a
+message".
+
+Third, edit. Reverting a session to an earlier
+message, with files restored from snapshots, is
+a staged act, and it is gated on idleness: the
+stage, clear, and commit operations refuse with
+a busy error while an execution is active. So
+the order is forced: pause first, then edit,
+then resume. Editing is not a concurrent act
+but a between-executions one, and undo lives
+here, not in the interrupt. An interrupt alone
+stops future transitions; it does not rewind
+world effects already landed, and it does not
+restore files. Conflating stop with undo would
+promise a rewind the interrupt never performs.
+
+Fourth, replace the policy without replacing the
+run. Switching the agent or the model publishes
+a selection event for the session, and the
+session, its history, and its harness state
+persist. That is takeover in the narrow sense:
+the policy changes, the run continues. It is
+different from SWE-agent's replacement, where
+the policy changes because a new run starts,
+and different again from a user taking over by
+typing the next step themselves. Three senses
+of "take over" — replace the policy for a new
+run, replace it for the continuing session, or
+replace it with the human's own actions — and
+only the second keeps both the session and the
+run intact.
+
+Legibility holds these acts together, in the
+multi-principal section's sense. An interrupted
+execution is published as an event with its
+reason, and the agent's next observation, after
+an interrupted response, says the previous
+response was interrupted and to continue from
+where it left off without repeating completed
+content. The preempted party is not left with
+silence, and the agent is not left to infer a
+stop from a missing reply. A human act that
+changed the run without appearing in the
+agent's view would be, by the sufficiency
+condition, a legibility defect, not a quiet
+success.
+
+What the theory takes for granted here is the
+write set: that the user may interrupt, steer,
+and revert, and that those acts are recorded
+with their reason and their author. Where that
+grant comes from — a product's key binding, a
+server endpoint, a permission rule — is outside
+this section, and a harness that gave the agent
+its own interrupt over its own judge would fail
+the boundary test, not pass the intervention
+test.
+
+What is left open is considerable, and it is
+worth stating plainly rather than smoothing
+over. First, precedence: when user, overseer,
+and agent can all act on a running session, no
+rule stated here decides whose intervention
+wins, and arbitration for intervention is not
+yet stated. Second, settlement: an interrupt
+accepted before cleanup settles leaves a window
+in which the run is neither running nor fully
+stopped, and what a second intervention in that
+window means is not settled here. Third,
+partial steps: an interrupted step leaves
+completed tool results and aborted ones side by
+side, and whether resumption continues the step
+or restarts it is a design choice the resumed
+observation ("continue from where you left
+off") states but does not guarantee. Fourth,
+the batch case: for a harness with no live view
+and no interrupt endpoint, intervention may
+genuinely collapse to starting a new run, and
+whether that counts as intervention at all, or
+only as replacement, is still open.
+
+The test a later reader can apply is therefore
+not "can a human interrupt this harness?" but
+four questions, one per act: can a run be
+paused without being ended or judged; can new
+input be steered to a step boundary, or only
+queued for a turn; can history and files be
+edited, and only when idle; and can the policy
+be replaced while the session survives? A
+harness that answers only the first is a
+harness with a stop button. A harness that
+answers all four is a harness a human can
+actually steer.
 
 ## Basic questions
 

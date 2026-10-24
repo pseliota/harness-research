@@ -6,6 +6,12 @@
 //! does not run OpenCode, and its descriptions are
 //! stubs to be verified against its actual code and
 //! documentation.
+//!
+//! One part is verified, not merely stubbed: human
+//! intervention, checked against anomalyco/opencode,
+//! dev branch, commit 17b79f4e0c16dcff200b0417567ed22aeb2d7166
+//! (2026-10-24). See `controls` and `gaps` below, and
+//! the intervention section in `docs/theory.md`.
 
 use harness_core::adoption::AdoptedHarness;
 use harness_core::membership::Candidate;
@@ -20,6 +26,9 @@ impl OpenCode {
             "Provider-agnostic policy: whether swapping the model changes only the policy, or also the loop, views, or controls, in the core's terms.",
             "Build and plan agents: whether these are two loops, two action spaces, or one loop with two modes.",
             "LSP and SDK surface: which parts belong to the harness, and which belong to tooling around it.",
+            "Intervention precedence: when user, overseer, and agent can all act on a running session, no rule yet decides whose intervention wins.",
+            "Interruption settlement: an interrupt is acknowledged before cleanup settles, and what a second intervention in that window means is not settled.",
+            "Partial-step resumption: whether a resumed session continues an interrupted step or restarts it, beyond the resumed observation's wording.",
         ]
     }
 }
@@ -65,7 +74,9 @@ impl AdoptedHarness for OpenCode {
         vec![
             "Approvals for actions outside the allowed set.".to_string(),
             "Tool registry: only listed tools are available moves.".to_string(),
-            "User stop and interruption of a running loop.".to_string(),
+            "User interrupt of a running session (Session.interrupt, reason 'user'; acknowledged on acceptance, cleanup settles asynchronously; idle interrupt is a no-op).".to_string(),
+            "Steered input delivered at a step boundary, queued input held for the next turn, and session revert staged only while idle.".to_string(),
+            "Agent or model switch published as a selection event, with the session and its history surviving.".to_string(),
         ]
     }
 

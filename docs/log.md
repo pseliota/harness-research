@@ -145,3 +145,7 @@ POMDP verdict: a single tuple is one step's shape, not a harness theory. A run f
 ## 2026-10-24 — Basic questions as consideration, not resolution
 
 Basic questions reframed: they require explicit consideration, not a resolved answer. theory.md intro and OKR.md updated to match: a question counts as addressed when its bearing, assumptions, and open remainder are stated, even with no settling answer in sight.
+
+## 2026-10-24 — Human intervention
+
+Basic question 10 considered, not resolved: pause, steer/queue, edit, and policy replacement are four acts with different landing sites and timings, checked against OpenCode's session interrupt, inbox, and revert code. Open: precedence, settlement window, partial-step resumption.
