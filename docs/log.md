@@ -197,3 +197,7 @@ Basic question 7, continued in the Membership section: scaffold, workflow, appli
 ## 2026-10-24 — Theory trimmed to about 40%
 
 Theory trimmed to about 40% by removing repeated restatements, throat-clearing, and secondary elaborations. Headings, core claims, worked example, basic/open questions, and sources kept; the new Membership neighbours passage retained in short form.
+
+## 2026-10-24 — Gemini CLI arbitration verified
+
+Gemini CLI arbitration verified in outline against google-gemini/gemini-cli at cd1b45c2: no arbitration in the theory's sense. The policy engine decides one proposed move at a time (ALLOW/DENY/ASK_USER, first matching rule by priority, admin over user over workspace over extension over default); confirmation is raced between terminal and IDE companion, first response winning; hooks deny if any hook blocks. All three are veto/approval over one move, not a choice between contending proposals. The adapter's arbitration gap is closed; sandbox/approval, extension, and multi-model gaps remain.

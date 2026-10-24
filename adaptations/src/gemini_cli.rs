@@ -5,6 +5,17 @@
 //! it would involve. It does not run Gemini CLI, and
 //! its descriptions are stubs to be verified against
 //! its actual code and documentation.
+//!
+//! One part is verified, not merely stubbed:
+//! arbitration, checked in outline against
+//! google-gemini/gemini-cli, commit
+//! cd1b45c2db0a5ea7b7fc3b67c1ba5879601d6005
+//! (2026-10-24), in `packages/core/src/policy/`
+//! (`config.ts`, `policy-engine.ts`, `types.ts`),
+//! `packages/core/src/scheduler/` (`policy.ts`,
+//! `scheduler.ts`, `confirmation.ts`), and
+//! `packages/core/src/hooks/hookAggregator.ts`.
+//! See `controls` below.
 
 use harness_core::adoption::AdoptedHarness;
 use harness_core::membership::Candidate;
@@ -16,7 +27,6 @@ impl GeminiCli {
     /// Where the fit is uncertain, or still needs verifying.
     pub fn gaps(&self) -> Vec<&'static str> {
         vec![
-            "Arbitration: whether any designer-fixed rule decides between contending principals' proposals, or whether conflicts reduce to approvals and user stop, has not been verified against its code.",
             "Sandbox and approval model: what bounds execution, and which actions require approval.",
             "Tool and extension model: how extensions change the action space, in the core's A(h) terms.",
             "Multi-model and multi-tool behaviour: whether different models or tools change the loop, or only its parameters.",
@@ -63,7 +73,7 @@ impl AdoptedHarness for GeminiCli {
 
     fn controls(&self) -> Vec<String> {
         vec![
-            "Arbitration: not yet stated — whether Gemini CLI has a designer-fixed rule deciding between contending principals' proposals has not been verified against its code, and no such rule is claimed here.".to_string(),
+            "Arbitration: none — no designer-fixed rule deciding between contending principals' proposals was found. What exists is veto and approval over a single proposed move, not a choice between proposals. The policy engine decides one move at a time: ALLOW, DENY, or ASK_USER, from the first matching rule when rules are sorted by priority, with tiers admin (5), user (4), workspace (3), extension (2), default (1), so an admin rule beats a user rule about the same move — rule precedence, not arbitration between proposals. DENY blocks the move with a policy-violation error; ASK_USER sends it to the user for confirmation. Confirmation itself is raced between the terminal and the IDE companion, first response winning, which is one user through two channels, not two principals. Hooks aggregate the same way: any blocking hook denies, and an ask decision stands only if no hook blocks. No rule suspending only a contested transition while unrelated work proceeds was found.".to_string(),
             "Approvals for actions outside the allowed set.".to_string(),
             "Tool registry: only listed tools and extensions are available moves.".to_string(),
             "User stop and interruption of a running loop.".to_string(),
