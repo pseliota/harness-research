@@ -17,20 +17,39 @@ about it. Each adapter therefore also lists `gaps`:
 places where the fit is uncertain, or where a detail
 still needs verifying.
 
+Only open-source harnesses belong here. An adapter
+covers the harness's own code, not the model service
+it talks to by default; that service, where there is
+one, has its own terms and billing, and is not part
+of the adapter.
+
 Adapters included:
 
-- `claude_code` — Claude Code
-- `codex` — OpenAI Codex
-- `cursor` — Cursor, agent part only (the editor itself
-  is a neighbour, not a harness)
-- `gemini_cli` — Gemini CLI
-- `copilot` — GitHub Copilot, agent part only
-- `opencode` — OpenCode
-- `swe_agent` — SWE-agent, moved here from
+- `codex_cli` — OpenAI's Codex CLI only, Apache 2.0.
+  Codex's IDE extension and cloud service are not
+  open source, so they are out of scope here.
+- `gemini_cli` — Gemini CLI, Apache 2.0
+- `opencode` — OpenCode, MIT
+- `swe_agent` — SWE-agent, MIT, moved here from
   `harness-core/src/adoption.rs` so the core stays
   free of any one harness; it is the most worked
   example, checked against SWE-agent's code and
   default configuration, not only its paper
+
+Removed, because they are not open source:
+
+- Claude Code — proprietary, "All rights reserved",
+  use under Anthropic's Commercial Terms, with
+  modification and redistribution not granted.
+- Cursor — commercial and proprietary; its public
+  repository holds issue templates, not source.
+- GitHub Copilot — the service is proprietary, and
+  the Copilot CLI licence does not allow
+  modification or derivative works.
+
+Do not re-add a removed harness, or a closed part
+of a kept one, without first checking its licence
+and terms again.
 
 To add a new adapter: copy one module, implement
 `AdoptedHarness` for the new harness, list its gaps,

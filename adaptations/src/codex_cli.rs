@@ -1,32 +1,34 @@
-//! Stub adapter for OpenAI Codex.
+//! Stub adapter for OpenAI's Codex CLI only.
 //!
-//! Codex is OpenAI's coding agent, available as a CLI,
-//! IDE extension, and cloud agent. This adapter names,
-//! in the core's terms, what adapting it would involve.
-//! It does not run Codex, and its descriptions are stubs
-//! to be verified against Codex's actual code and
+//! The CLI is the open-source part, under Apache 2.0.
+//! Codex's IDE extension and cloud service are not
+//! open source, so they are out of scope for this
+//! adapter. This adapter names, in the core's terms,
+//! what adapting the CLI would involve. It does not
+//! run Codex, and its descriptions are stubs to be
+//! verified against the CLI's actual code and
 //! documentation.
 
 use harness_core::adoption::AdoptedHarness;
 use harness_core::membership::Candidate;
 
-/// Codex, adopted on top of the core.
-pub struct Codex;
+/// Codex CLI, adopted on top of the core.
+pub struct CodexCli;
 
-impl Codex {
+impl CodexCli {
     /// Where the fit is uncertain, or still needs verifying.
     pub fn gaps(&self) -> Vec<&'static str> {
         vec![
             "Sandbox boundaries: what the default sandbox admits and refuses, and whether those bounds are designer-fixed controls or user configuration.",
-            "Cloud versus local runs: whether the loop, views, and controls are the same in the CLI, IDE, and cloud forms, or three different harnesses sharing a name.",
+            "Scope: the IDE extension and cloud service are excluded here, as they are not open source; do not read this adapter as covering them.",
             "Approval model: which actions require approval in each mode, and how approvals are recorded.",
         ]
     }
 }
 
-impl AdoptedHarness for Codex {
+impl AdoptedHarness for CodexCli {
     fn name(&self) -> &str {
-        "Codex"
+        "Codex CLI"
     }
 
     fn policy(&self) -> &str {
@@ -42,7 +44,6 @@ impl AdoptedHarness for Codex {
             "read and search files".to_string(),
             "edit and write files, within sandbox bounds".to_string(),
             "run shell commands, within sandbox bounds".to_string(),
-            "delegate to cloud agents, where that mode is used".to_string(),
         ]
     }
 
@@ -56,7 +57,7 @@ impl AdoptedHarness for Codex {
     fn views(&self) -> Vec<String> {
         vec![
             "Agent: the context history, including tool results.".to_string(),
-            "User: terminal or IDE output, diffs, and summaries.".to_string(),
+            "User: terminal output, diffs, and summaries.".to_string(),
             "Overseer: run transcript, cost, and sandbox and approval records.".to_string(),
         ]
     }

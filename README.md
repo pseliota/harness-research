@@ -60,7 +60,7 @@ no longer holds up should be taken out, not left to confuse.
 - `docs/OKR.md` — long-term direction and monthly objectives
 - `harness-core/` — rough Rust stubs matching the theory;
   no implementation, no tests
-- `adaptations/` — stub adapters showing how popular
+- `adaptations/` — stub adapters showing how open-source
   harnesses can be adopted on top of `harness-core`;
   no harness is run, no tests
 - `visualization/` — interactive diagram of the harness

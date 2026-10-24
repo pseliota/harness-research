@@ -133,3 +133,7 @@ SWE-agent adopted in stubs: SweAgent implements AdoptedHarness with loop, A(h), 
 ## 2026-10-24 — Adaptations folder
 
 Parallel adaptations crate added with stub adapters for Claude Code, Codex, Cursor, Gemini CLI, Copilot, OpenCode, and SWE-agent, each mapping loop, action space, state, views, controls, ending, and membership onto harness-core, with gaps to verify.
+
+## 2026-10-24 — Open-source-only adaptations
+
+Removed closed-source adapters Claude Code, Cursor, and Copilot from adaptations/; narrowed Codex to its Apache 2.0 CLI only. Remaining adapters are all open source: Codex CLI, Gemini CLI, OpenCode, SWE-agent.
