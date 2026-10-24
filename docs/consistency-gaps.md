@@ -85,4 +85,17 @@ that commit. A gap is not resolved by argument alone.
   say, while its own specifications disagree on
   whether it must say.)
 - Date first noted: 2026-10-24.
-- Status: open.
+- Status: resolved by 781e6e8, which makes the three
+  specifications agree — the trait's `controls()` doc now
+  requires an explicit arbitration statement, and the
+  adaptations README lists arbitration in the adapter
+  shape and in its new-adapter instructions, matching
+  the OKR — and gives every adapter one: SWE-agent and
+  Codex CLI state none, Gemini CLI and OpenCode state
+  not yet stated, with Gemini's arbitration question
+  added to its gaps. "Not yet stated" is a statement,
+  not silence: a reader can now tell absence from an
+  unnamed rule, while the underlying questions —
+  whether Gemini CLI has an arbitration rule, and
+  OpenCode's intervention precedence — remain open
+  as adapter gaps, not as specification conflicts.

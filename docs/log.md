@@ -169,3 +169,7 @@ Basic question 8 considered, not resolved: failures sorted by whether a move was
 ## 2026-10-24 — Ending versus termination
 
 Resolved reviewer gap 1: "ending" now means harness retirement only. AdoptedHarness::ending renamed to termination, adapters and theory updated, vocabulary rule stated in the Ending section. Open: reviewer gap 2, arbitration silence in Gemini CLI and OpenCode adapters.
+
+## 2026-10-24 — Arbitration statements in adapters
+
+Resolved reviewer gap 2: the adapter specifications now agree that every adapter must state its arbitration position in controls() — the rule, that there is none, or that it is not yet stated — and every adapter does: SWE-agent and Codex CLI state none, Gemini CLI and OpenCode state not yet stated. "Not yet stated" counts as a statement, not silence, so a reader can tell absence from an unnamed rule. Open as adapter questions, not specification conflicts: whether Gemini CLI has an arbitration rule, and OpenCode's intervention precedence.
