@@ -109,3 +109,7 @@ Goal added to README: one simple, unified, mathematical theory, easily implement
 ## 2026-10-24 — OKR
 
 High-level OKR added: one simple unified theory, grounded in harnesses used today, easily implemented and buildable on, and kept tight as it grows. Key results are checkable outcomes, not counts.
+
+## 2026-10-24 — SWE-agent worked example
+
+SWE-agent worked through the membership test in theory.md: loop, designer config, bash-plus-bundles action set, cost/timeout/blocklist controls, history rewriting, and submit kept apart from SWE-bench grading. Open: human intervention and live overseer views.

@@ -2580,6 +2580,157 @@ badly. Membership is binary; goodness is
 comparative, and it is the question the
 core leaves open.
 
+## A worked example: SWE-agent
+
+SWE-agent takes a GitHub issue and a repository at the
+buggy commit, and must produce a patch that fixes it
+(Yang et al., 2024, arXiv:2405.15793). The account
+below follows the system as it stands in its current
+code and default configuration, not only the paper.
+The paper's closed agent-computer interface has since
+loosened into bash plus tool bundles, and that drift
+is itself part of what the example teaches. Run the
+membership test on it, and see what strains.
+
+First, it runs a loop. `DefaultAgent.run`, in
+`sweagent/agent/agents.py`, is literally
+`while not step_output.done: step()`. Each step
+queries the model on a history passed through the
+configured history processors, parses a thought and
+an action from the reply, executes the action in a
+container environment, appends the observation, and
+saves the trajectory. The next step can depend on
+the previous observation: a test run in one step
+changes what the model does in the next.
+
+Second, the machinery is designer-controlled. The
+system and instance templates, the tool bundles, the
+history processors, the cost limits, the blocklist,
+and the timeouts are configuration, in
+`config/default.yaml` and the agent and model
+configs, not model output. The policy cannot rewrite
+them. Swapping the model is a designer act that
+leaves membership intact, because the model is one
+field of that configuration and the loop, the
+templates, and the controls stay in place.
+
+Third, the policy acts, on both sides of the split,
+though unevenly. World-directed: editing repository
+files, writing a reproduction script, running the
+test suite. The repository is world as the object of
+the task, even though the container that holds it
+is a designer-owned sandbox; the boundary decides
+which reading applies, as the state-split section
+says. Harness-directed, in a thinner form than
+RLM's: the agent writes no REPL variable and no
+skill, but every step writes, through the harness,
+its own trajectory, and that trajectory is what the
+next observation is built from. Authorship here is
+mostly world-mediated: changing a file changes the
+test output and the file view the agent sees next.
+
+Fourth, designer-fixed controls can alter or
+suspend execution without the policy's
+cooperation. The model config carries a
+per-instance cost limit and a total cost limit;
+exceeding either ends the run. A command times out
+after 30 seconds, total execution after 1800
+seconds, and repeated consecutive timeouts exit.
+A blocklist refuses interactive and escape commands
+— `vim`, `emacs`, `nano`, `nohup`, `gdb`, `less`,
+`tail -f`, `make` as prefixes, and `python`,
+`bash`, `sh` standing alone — and a blocked action
+is not executed: the model is requieried, up to
+three times, for a different action. Exceeding the
+context window ends the run. None of these can be
+rewritten by the policy.
+
+The tower fits, and its top level is the
+instructive part. Tokens parse, under the default
+configuration's function-calling parser, into a
+thought and an action; under older configurations
+a thought-action parser did the same work, so a
+move's identity is its parsed intent and landing
+site, not its surface form. The moves are the
+built-in `bash` command plus the configured
+bundles — in the default configuration, a
+registry, an editor, and a review-on-submit bundle.
+Because `bash` is a move, `A(h)` is not a closed
+list: any shell string is a candidate move, minus
+the blocklist, minus the remaining budget and time.
+Control here is therefore veto plus cost, not
+admission. The membership section's example of a
+registry admitting only listed actions is one kind
+of control, not the only kind. SWE-agent passes by
+the other kinds, and the difference matters for
+goodness: a veto blocks known bad commands, it
+does not bound in advance what a shell string can
+do.
+
+Observation is a function over the whole
+trajectory, not only over the container's current
+state. The next-step template is simply
+`OBSERVATION: {{observation}}`, truncated at
+100,000 characters with the elided count noted.
+The default history processor is the identity, but
+the classic `LastNObservations` processor, used in
+the 0.7 configuration with five observations kept,
+replaces older observations with the line
+`Old environment output: (n lines omitted)`. A
+designer-fixed processor thus rewrites history
+between steps, changing future observations
+without any agent action. A POMDP absorbs this
+only because `h` in the code includes the history
+and trajectory lists themselves, not just the
+container state. If `h` were only the container,
+history rewriting would be unstateable.
+
+Ending and verdict come apart here, and the split
+is worth keeping. The loop ends — `done` becomes
+true — on submit, on forfeit, on cost, context, or
+timeout, or by autosubmission after an error, where
+the harness extracts the current diff from the
+last trajectory step's state and submits that.
+A run can therefore end as `submitted` without
+ever having succeeded. Success is judged outside
+the loop: the SWE-bench evaluation hook runs the
+maintainer's test suite afterwards and grades the
+patch. That is the evaluation harness of the
+membership section, a neighbour, not part of the
+inner loop. Inside the loop, by contrast, the
+review-on-submit bundle is a designer-fixed check:
+on submit, the harness shows the model its own
+diff and asks it to rerun the reproduction script,
+remove that script, revert any test files it
+touched, and submit again. Stopping, being halted,
+and being judged are three different events, and
+SWE-agent keeps them in three different places.
+
+What it lacks is as informative as what it has.
+There is no live view for a second principal: an
+overseer gets the trajectory file and the
+trajectory inspector after the run, not an
+observation function of its own during it. A
+human model exists, but it replaces the policy
+rather than intervening in a run already under
+way, so human intervention stays an open question.
+And there is no arbitration, because there is a
+single policy: the only conflicts are vetoes, a
+blocklist refusing a command, not principals
+contending over a transition.
+
+The test a later reader can apply is satisfied:
+name the policy, the model in the configuration;
+the loop, `run` calling `step` until `done`; the
+landing sites, repository files and the trajectory;
+the controls, cost, timeout, and blocklist outside
+the policy's write set. SWE-agent passes. Passing
+is not goodness: the open shell that makes it
+flexible is exactly what makes its control
+reactive rather than bounding, and a harness
+that passes can still cost too much, starve, or
+submit a patch that fails every test.
+
 ## Basic questions
 
 These questions come before the more elaborate parts of
@@ -2764,3 +2915,15 @@ altering the external environment, and a control counts
 only if it is designer-fixed and outside the policy's
 write set, so that weak context management is badness,
 not absence.
+- SWE-agent, as worked example, not authority:
+John Yang et al., "SWE-agent: Agent-Computer
+Interfaces Enable Automated Software Engineering",
+arXiv:2405.15793, 2024, and the system's current
+code and default configuration, inspected in
+`sweagent/agent/agents.py`, `sweagent/tools/tools.py`,
+`sweagent/agent/history_processors.py`, and
+`config/default.yaml`. The loop, the bash-plus-
+bundles action set, the cost, timeout, and blocklist
+controls, and the separation of submit from
+SWE-bench grading are the source of the worked
+example section.
