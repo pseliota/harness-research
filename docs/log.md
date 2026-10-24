@@ -165,3 +165,7 @@ OpenCode intervention, re-checked against anomalyco/opencode at 17b79f4e0c16dcff
 ## 2026-10-24 — Error model
 
 Basic question 8 considered, not resolved: failures sorted by whether a move was attempted, who refused or failed it (control, world, harness, policy), and whether the run continues, retries bounded, or ends, using SWE-agent, Codex CLI, and OpenCode accounts already in the repo. Also corrected the SWE-agent adapter path in theory.md to adaptations/src/swe_agent.rs. Open: retry bounds, timeout classification, refusal handling.
+
+## 2026-10-24 — Ending versus termination
+
+Resolved reviewer gap 1: "ending" now means harness retirement only. AdoptedHarness::ending renamed to termination, adapters and theory updated, vocabulary rule stated in the Ending section. Open: reviewer gap 2, arbitration silence in Gemini CLI and OpenCode adapters.

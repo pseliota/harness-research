@@ -41,7 +41,13 @@ that commit. A gap is not resolved by argument alone.
   is meant. (This is a terminology collision, not a
   claim that any membership result is wrong.)
 - Date first noted: 2026-10-24.
-- Status: open.
+- Status: resolved by 08f76b1, which renames the trait
+  method and adapter strings to `termination()`, uses
+  termination for the run sense in the theory's worked
+  example, stub summary, intervention, and error-model
+  passages, and states the vocabulary rule in the
+  Ending section: a run terminates, a harness ends.
+  "Ending" now means harness retirement on both sides.
 
 ## 2. The adapter shape descriptions disagree on arbitration, and two adapters say nothing about it
 
