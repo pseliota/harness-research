@@ -43,7 +43,8 @@ belongs at all.
 ## How to read this repo
 
 Start in `theory.md`. The log of what was tried, found, ruled out,
-and left open is in `log.md`. Removal counts as work: an idea that
+and left open is in `log.md`. The high-level objectives and key
+results are in `OKR.md`. Removal counts as work: an idea that
 no longer holds up should be taken out, not left to confuse.
 
 Care here is not a metric. It cannot be reduced to a count of notes,

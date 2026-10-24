@@ -105,3 +105,7 @@ Action space as a tower, not a set: tokens, parsed moves, and effects, with A de
 ## 2026-10-24 — Goal
 
 Goal added to README: one simple, unified, mathematical theory, easily implemented in code, with a core so tight and generalizable that any harness can build on top of it.
+
+## 2026-10-24 — OKR
+
+High-level OKR added: one simple unified theory, grounded in harnesses used today, easily implemented and buildable on, and kept tight as it grows. Key results are checkable outcomes, not counts.
