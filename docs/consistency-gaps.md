@@ -34,7 +34,7 @@ below are new, against the post-cut theory.
   something else; the pre-cut meaning survives only
   in git history, not in the document.
 - Date first noted: 2026-10-24.
-- Status: open.
+- Status: resolved by ddd4287 ("docs(theory): remove dangling references to undefined G and error model"), which replaced `G` with "the task goal".
 
 ## 2. The stub's closed principal type cannot express the designer and subagent observations the POMDP section describes
 
@@ -65,7 +65,7 @@ below are new, against the post-cut theory.
   the POMDP sentence should not present the designer
   and the subagent as observation bearers.
 - Date first noted: 2026-10-24.
-- Status: open.
+- Status: resolved by 466abb9 ("docs(theory): name agent, not designer and subagent, as observation bearers"), which narrowed the POMDP sentence to the user, the agent, and the overseer, the three variants of the stub enum. A subagent's observations are the inner loop's agent observations, and the designer fixes observation functions rather than bearing one.
 
 ## 3. The action section locates a rule "in the error model", which the theory does not contain
 
@@ -91,4 +91,4 @@ below are new, against the post-cut theory.
   states. (This is a dangling reference, not a claim
   that any membership result is wrong.)
 - Date first noted: 2026-10-24.
-- Status: open.
+- Status: resolved by ddd4287 ("docs(theory): remove dangling references to undefined G and error model"), which changed the sentence to "That response follows a transition rule, not a rule in the action space", removing the reference to an error model.
