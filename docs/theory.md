@@ -87,7 +87,7 @@ One loop serves one policy on one task. Each step observes, chooses, transitions
 
 Each principal i receives data through p_i(o_i | s). The function gives enough data for the job of principal i. The function gives no write permission through shown data.
 
-A designer-fixed precedence rule decides conflicts between actions. Veto power blocks an action and never forces one. The rule shows its decision to the principal it preempts. The rule suspends an action that no precedence decides.
+When principals contend over one transition, a designer-fixed precedence rule decides the conflict. Veto power blocks an action and never forces one. The rule shows its decision to the principal it preempts. An action that no precedence rule decides stays suspended. A harness with no contending principals has no precedence rule. A veto in such a harness still counts as a control.
 
 Designer-fixed controls also include approval, a budget cap, and interrupt. A control alters or suspends execution without policy cooperation. A rewritable cap counts as a suggestion, not a control. A cooperative guardrail counts as a suggestion, not a control.
 
@@ -101,7 +101,7 @@ Seven claims form the core. A proposed claim joins the core only when it passes 
 4. Action levels. Each level of abstraction has its own action set. The set of moves available to attempt is A(h), a function of h only.
 5. Write permission. The agent holds write permission for part of h inside a scope the designer permits. That permission shapes later observations and transitions. The fixed core and the modification policy stay outside the agent write set.
 6. Observation functions. Each principal i receives data through p_i. The function gives enough data for the job of principal i. The function gives no write permission through shown data.
-7. Precedence and controls. A designer-fixed precedence rule decides conflicts, by veto, never by compulsion, and shows its decision to the preempted principal. At least one designer-fixed control alters or suspends execution without policy cooperation.
+7. Precedence and controls. When principals contend over one transition, a designer-fixed precedence rule decides the conflict, by veto, never by compulsion, and shows its decision to the preempted principal. At least one designer-fixed control alters or suspends execution without policy cooperation.
 
 ## Membership: what counts as a harness
 
