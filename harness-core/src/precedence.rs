@@ -17,4 +17,8 @@ impl PrecedenceRule {
     pub fn suspend_contested(&self, _proposals: &[Proposal]) -> Vec<Proposal> {
         todo!()
     }
+
+    pub fn shows_decision_to(&self, _preempted: &Proposal) -> String {
+        todo!()
+    }
 }
